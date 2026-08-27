@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Truck Challenge — Boomtown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#FBF8F3; --ivory2:#F5EEE2; --card:#FFFFFF;
+  --red:#D71920; --red-d:#A8121A; --red-soft:#FBE3E3; --red-mist:#F7EFEA;
+  --ink:#37302B; --ink2:#7A6F66; --ink3:#A89C90;
+  --gold:#C9A227; --gold-soft:#F5EBCF;
+  --green:#4E7A5A; --green-soft:#E4EFE6;
+  --line:#ECE1D2; --line2:#E0D4C2;
+  --sh:0 1px 2px rgba(80,50,40,.05),0 10px 30px rgba(80,50,40,.07);
+  --sh-lg:0 2px 6px rgba(80,50,40,.06),0 24px 60px rgba(80,50,40,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--ivory);
+  background-image:radial-gradient(circle at 15% -5%,#fff 0%,transparent 45%),radial-gradient(circle at 110% 10%,#F3E9D8 0%,transparent 40%);
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea{font-family:inherit}
+#app{max-width:1060px;margin:0 auto;padding:0 22px 90px}
+.muted{color:var(--ink2)} .small{font-size:12.5px} .tiny{font-size:11.5px}
+.num{font-variant-numeric:tabular-nums}
+b.r{color:var(--red)}
+
+/* ---------- header band ---------- */
+.band{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,#C8161D 0%,#E23335 60%,#C8161D 100%);color:#FFF7EC;
+  margin:0 -22px 26px;padding:14px 22px;box-shadow:0 4px 18px rgba(168,18,26,.25)}
+.band-in{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-family:'Fraunces',serif;font-style:italic;font-weight:700;font-size:21px;letter-spacing:.3px;cursor:pointer}
+.logo span{opacity:.75;font-weight:500;font-size:13px;margin-left:8px;font-style:normal;letter-spacing:1.5px;text-transform:uppercase}
+.band .spacer{flex:1}
+.hud{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hud-chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;
+  padding:5px 13px;font-size:12.5px;font-weight:600;display:flex;gap:6px;align-items:center}
+.hud-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#FFF7EC;border-radius:999px;
+  padding:5px 12px;font-size:12px;font-weight:600;transition:.2s}
+.hud-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ---------- generic ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);padding:26px}
+.card+.card{margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;font-weight:600;font-size:14.5px;
+  padding:13px 26px;border-radius:999px;box-shadow:0 6px 16px rgba(215,25,32,.28);transition:.18s;letter-spacing:.2px}
+.btn:hover{background:var(--red-d);transform:translateY(-1px);box-shadow:0 10px 22px rgba(215,25,32,.32)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line2);box-shadow:none}
+.btn-ghost:hover{background:var(--ivory2);color:var(--ink);border-color:var(--ink3)}
+.btn-sm{padding:8px 16px;font-size:13px}
+.center{text-align:center}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:2.2px;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+.divider{height:1px;background:var(--line);margin:20px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--ivory2);border:1px solid var(--line);
+  border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--ink2)}
+.chip.red{background:var(--red-soft);border-color:#F2C4C5;color:var(--red-d)}
+.chip.gold{background:var(--gold-soft);border-color:#E7D9A8;color:#8A6E12}
+.chip.green{background:var(--green-soft);border-color:#CBDFD0;color:var(--green)}
+
+/* ---------- title screen ---------- */
+.hero{position:relative;border-radius:26px;overflow:hidden;box-shadow:var(--sh-lg);margin-top:26px;
+  background:linear-gradient(160deg,#F7E8D3,#EFD9BE)}
+.hero-img{width:100%;height:380px;object-fit:cover;display:block}
+.hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,20,15,0) 30%,rgba(40,20,15,.62) 100%)}
+.hero-txt{position:absolute;left:0;right:0;bottom:0;padding:34px 40px;color:#FFF7EC}
+.hero-txt h1{font-size:46px;font-weight:700;font-style:italic;line-height:1.05;text-shadow:0 2px 20px rgba(0,0,0,.3)}
+.hero-txt p{margin-top:8px;font-size:15px;opacity:.92;max-width:560px}
+.hero-cta{position:absolute;top:26px;right:30px}
+.title-stats{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap}
+.tstat{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--sh)}
+.tstat b{display:block;font-size:20px;font-family:'Fraunces',serif;color:var(--red)}
+.tstat span{font-size:12px;color:var(--ink2)}
+
+/* ---------- scenario select ---------- */
+.scn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:18px}
+.scn-card{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:22px;
+  box-shadow:var(--sh);transition:.2s;text-align:left;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.scn-card:not(.locked):hover{transform:translateY(-4px);box-shadow:var(--sh-lg);border-color:var(--red)}
+.scn-card .num-badge{font-family:'Fraunces',serif;font-size:15px;color:var(--red);font-weight:700}
+.scn-card h3{font-size:22px;line-height:1.15}
+.scn-card .tag{align-self:flex-start}
+.scn-card p{font-size:12.8px;color:var(--ink2);line-height:1.55;flex:1}
+.scn-card .best{font-size:12px;font-weight:700;color:var(--green)}
+.scn-card.locked{opacity:.55;filter:saturate(.4)}
+.scn-card.locked::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent 0 14px,rgba(120,100,80,.05) 14px 28px)}
+.scn-card .lock-ico{position:absolute;top:18px;right:18px;color:var(--ink3)}
+.scn-card.done::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red),#E88588)}
+
+/* ---------- report / tables ---------- */
+.rpt{border:1.5px dashed var(--line2);border-radius:16px;padding:20px;background:
+  linear-gradient(180deg,#FFFDF9,#FDF8EF)}
+.rpt h4{font-family:'Fraunces',serif;font-size:17px;margin-bottom:4px}
+table.t{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+table.t th{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink2);font-weight:700;
+  padding:8px 10px;border-bottom:2px solid var(--line2);text-align:left}
+table.t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr:last-child td{border-bottom:none}
+table.t td.r,table.t th.r{text-align:right}
+table.t td.c,table.t th.c{text-align:center}
+.stars{color:var(--red);letter-spacing:1px;font-size:12px;white-space:nowrap}
+.stars .off{color:#E5D9C8}
+.hl-row{background:var(--red-mist)}
+.disc{margin-top:12px;font-size:11.8px;color:#9A5A17;background:#FCF3DF;border:1px solid #EDD9A8;border-radius:10px;padding:9px 13px;line-height:1.5}
+
+/* ---------- monday hub ---------- */
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:16px}
+.mode-card{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:20px;
+  text-align:left;transition:.2s;display:flex;flex-direction:column;gap:7px;box-shadow:var(--sh)}
+.mode-card:not(:disabled):hover{transform:translateY(-3px);border-color:var(--red);box-shadow:var(--sh-lg)}
+.mode-card:disabled{opacity:.45;cursor:not-allowed}
+.mode-card h4{font-family:'Fraunces',serif;font-size:18.5px;display:flex;align-items:center;gap:9px}
+.mode-card .fee{font-size:12.5px;font-weight:700;color:var(--red)}
+.mode-card p{font-size:12.3px;color:var(--ink2);line-height:1.5;flex:1}
+.mode-card .ico{width:34px;height:34px;border-radius:10px;background:var(--red-soft);display:grid;place-items:center;color:var(--red)}
+.mode-card.reco::before{content:"SUGGESTED";position:absolute;top:-9px;right:14px;background:var(--gold);color:#fff;
+  font-size:9.5px;font-weight:800;letter-spacing:1.2px;padding:3px 9px;border-radius:999px}
+
+/* ---------- pickers ---------- */
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.pick{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;transition:.15s;position:relative}
+.pick:hover{border-color:var(--ink3)}
+.pick.sel{border-color:var(--red);background:var(--red-mist);box-shadow:0 0 0 3px rgba(215,25,32,.12)}
+.pick h5{font-size:14px;margin-bottom:3px}
+.pick .p-img{width:100%;height:86px;object-fit:cover;border-radius:9px;margin-bottom:8px;background:var(--ivory2)}
+.pick p{font-size:11.6px;color:var(--ink2);line-height:1.45}
+.pick .price{font-weight:700;color:var(--red);font-size:13px;margin-top:4px}
+.seg{display:inline-flex;background:var(--ivory2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{padding:7px 18px;border-radius:999px;font-size:13px;font-weight:600;color:var(--ink2);transition:.15s}
+.seg button.sel{background:var(--red);color:#fff;box-shadow:0 3px 8px rgba(215,25,32,.3)}
+input[type=range]{width:100%;accent-color:var(--red);height:26px}
+.stock-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.stock-num{width:110px;padding:10px 12px;border:1.5px solid var(--line2);border-radius:10px;font-size:15px;font-weight:600;text-align:center}
+.stock-num:focus{outline:none;border-color:var(--red)}
+.cost-line{display:flex;justify-content:space-between;font-size:13px;padding:7px 2px;border-bottom:1px dashed var(--line)}
+.cost-line.total{font-weight:700;font-size:14.5px;border-bottom:none;color:var(--red-d)}
+.est-box{background:var(--red-mist);border:1px solid #F0D5CD;border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.6}
+.warn-box{background:#FCF3DF;border:1px solid #EDD9A8;color:#8A5A10;border-radius:12px;padding:11px 15px;font-size:12.8px;line-height:1.55}
+.err-box{background:var(--red-soft);border:1px solid #F0B9BA;color:var(--red-d);border-radius:12px;padding:11px 15px;font-size:12.8px;font-weight:600}
+
+/* ---------- day scene ---------- */
+.scene{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#FDF6EA 0%,#F6E7CF 70%,#EFDDC0 100%);
+  border:1px solid var(--line);min-height:210px;box-shadow:var(--sh)}
+.scene.rainy{background:linear-gradient(180deg,#E9E4DC 0%,#D8D2C8 70%,#C9C2B6 100%)}
+.scene.heat{background:linear-gradient(180deg,#FDEBD2 0%,#F8D9AC 70%,#F2C88E 100%)}
+.scene.stormy{background:linear-gradient(180deg,#D9D4CE 0%,#BDB7AF 70%,#A39D95 100%)}
+.scene-inner{position:relative;padding:26px 30px;display:flex;gap:26px;align-items:flex-end;min-height:210px;flex-wrap:wrap}
+.scene .sky-ico{position:absolute;top:18px;right:26px;width:64px;height:64px;opacity:.9}
+.scene-loc .loc-name{font-family:'Fraunces',serif;font-size:24px;font-weight:700}
+.scene-loc .day-tag{font-size:11.5px;font-weight:700;letter-spacing:2px;color:var(--red);text-transform:uppercase}
+.scene-nums{display:flex;gap:34px;flex-wrap:wrap;margin-left:auto;padding-bottom:6px}
+.snum{text-align:right}
+.snum b{display:block;font-family:'Fraunces',serif;font-size:34px;line-height:1;color:var(--ink)}
+.snum b.red{color:var(--red)}
+.snum span{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink2)}
+.sun-rays{animation:spin 14s linear infinite;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rain-drop{position:absolute;width:2px;height:16px;background:linear-gradient(180deg,transparent,#8FA3B8);border-radius:2px;
+  animation:fall .9s linear infinite;opacity:.7}
+@keyframes fall{from{transform:translateY(-30px)}to{transform:translateY(240px)}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;animation:flash 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes flash{0%,92%,100%{opacity:0}94%{opacity:.45}96%{opacity:0}98%{opacity:.3}}
+.fb-list{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.fb{display:flex;gap:11px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);
+  border-radius:12px;padding:12px 15px;font-size:13.2px;line-height:1.55;animation:fadeUp .5s ease both}
+.fb.bad{border-left-color:var(--red)}
+.fb.good{border-left-color:var(--green)}
+.fb .fb-ico{flex:none;width:26px;height:26px;border-radius:8px;background:var(--ivory2);display:grid;place-items:center;color:var(--ink2)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- week reel (truck) ---------- */
+.reel{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.reel-row{display:grid;grid-template-columns:56px 1fr 130px 110px;gap:14px;align-items:center;background:#fff;
+  border:1px solid var(--line);border-radius:12px;padding:10px 16px;animation:fadeUp .4s ease both}
+.reel-row .bar{height:10px;border-radius:99px;background:var(--ivory2);overflow:hidden}
+.reel-row .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),#E76B6B);border-radius:99px;transition:width .8s ease}
+.reel-row.idle{opacity:.55}
+.reel-row.idle .bar i{background:var(--ink3)}
+
+/* ---------- rumor & report cards ---------- */
+.rumor-card{position:relative;background:linear-gradient(150deg,#FFFDF8,#FBF2E2);border:1.5px dashed #D9C29A;border-radius:16px;
+  padding:22px 24px;box-shadow:var(--sh);animation:fadeUp .5s ease both}
+.rumor-card::before{content:"RUMOR";position:absolute;top:-10px;left:20px;background:var(--gold);color:#fff;font-size:10px;
+  font-weight:800;letter-spacing:2px;padding:3px 12px;border-radius:999px}
+.rumor-card p{font-family:'Fraunces',serif;font-style:italic;font-size:17px;line-height:1.6;color:#5C4A33}
+.rumor-card .foot{margin-top:10px;font-size:11px;color:var(--ink3);letter-spacing:.4px}
+.report-card{border-radius:16px;border:1.5px solid var(--line2);background:#FFFDF8;overflow:hidden}
+.report-card .rp-head{background:var(--ink);color:#FFF6E8;padding:13px 20px;display:flex;align-items:center;gap:10px}
+.report-card .rp-head b{font-family:'Fraunces',serif;font-size:15.5px;letter-spacing:.4px}
+.report-card .rp-body{padding:18px 20px}
+
+/* ---------- ending ---------- */
+.end-hero{border-radius:24px;padding:40px;text-align:center;color:#FFF7EC;box-shadow:var(--sh-lg);
+  background:linear-gradient(140deg,#B0121A 0%,#D71920 55%,#8F0F16 100%);position:relative;overflow:hidden}
+.end-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% -20%,rgba(255,255,255,.18),transparent 50%)}
+.end-hero .big{font-family:'Fraunces',serif;font-size:58px;font-weight:700;line-height:1;position:relative}
+.end-hero .lbl{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;opacity:.85;font-weight:700}
+.end-hero.bankrupt{background:linear-gradient(140deg,#3A3430,#57504A)}
+.bench{margin-top:8px;display:flex;flex-direction:column;gap:10px}
+.bench-row{display:grid;grid-template-columns:170px 1fr 90px;gap:12px;align-items:center;font-size:13px}
+.bench-row .bar{height:22px;border-radius:99px;background:var(--ivory2);position:relative;overflow:hidden}
+.bench-row .bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:#D8CCBA;transition:width 1s ease}
+.bench-row.you .bar i{background:linear-gradient(90deg,var(--red),#E76B6B)}
+.bench-row.you{font-weight:700}
+.timeline{display:flex;flex-direction:column;gap:0;position:relative;margin-top:8px}
+.tl-row{display:grid;grid-template-columns:54px 1fr;gap:16px;position:relative;padding-bottom:22px}
+.tl-row::before{content:"";position:absolute;left:26px;top:34px;bottom:0;width:2px;background:var(--line2)}
+.tl-row:last-child::before{display:none}
+.tl-week{width:54px;height:34px;border-radius:10px;background:var(--ink);color:#FFF6E8;display:grid;place-items:center;
+  font-weight:700;font-size:12.5px;z-index:1}
+.tl-body{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.tl-body .ev{font-size:11.6px;color:#8A5A10;font-weight:600}
+.tl-body .play{font-size:13.4px;margin-top:3px}
+.tl-body .gap{font-size:12px;margin-top:5px}
+.jl-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.jl-grid label{font-size:12px;font-weight:700;color:var(--ink2);display:block;margin-bottom:6px;letter-spacing:.5px}
+.jl-grid textarea{width:100%;border:1.5px solid var(--line2);border-radius:12px;padding:11px 13px;font-size:13.5px;
+  min-height:74px;resize:vertical;background:#FFFDF9}
+.jl-grid textarea:focus{outline:none;border-color:var(--red)}
+
+/* ---------- modal ---------- */
+.modal-veil{position:fixed;inset:0;background:rgba(50,35,28,.5);backdrop-filter:blur(3px);z-index:100;
+  display:grid;place-items:center;padding:24px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--ivory);border-radius:22px;max-width:760px;width:100%;max-height:86vh;overflow:auto;box-shadow:var(--sh-lg)}
+.modal .m-head{position:sticky;top:0;background:var(--ink);color:#FFF6E8;padding:15px 24px;display:flex;align-items:center;z-index:2}
+.modal .m-head b{font-family:'Fraunces',serif;font-size:17px}
+.modal .m-body{padding:22px 24px}
+.x{margin-left:auto;color:#FFF6E8;opacity:.8;font-size:22px;line-height:1;padding:2px 8px;border-radius:8px}
+.x:hover{opacity:1;background:rgba(255,255,255,.15)}
+
+/* ---------- misc ---------- */
+.step-dots{display:flex;gap:7px;justify-content:center;margin:4px 0 18px}
+.step-dots i{width:34px;height:5px;border-radius:99px;background:var(--line2)}
+.step-dots i.on{background:var(--red)}
+.step-dots i.done{background:#D8A3A3}
+.fade-in{animation:fadeUp .45s ease both}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--ink);color:#FFF6E8;
+  padding:11px 22px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:var(--sh-lg);z-index:200;animation:fadeUp .3s ease}
+.kbd-hint{font-size:11px;color:var(--ink3);margin-top:14px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.two-col,.jl-grid{grid-template-columns:1fr}.hero-txt h1{font-size:32px}.scene-nums{margin-left:0}}
+.arrow-up{color:var(--green);font-weight:800}.arrow-down{color:var(--red);font-weight:800}.arrow-flat{color:var(--ink3);font-weight:800}
+
+/* ---------- imagery ---------- */
+.scn-img{width:100%;height:110px;object-fit:cover;border-radius:13px;margin-bottom:6px;background:var(--ivory2)}
+.loc-thumb{width:40px;height:40px;object-fit:cover;border-radius:10px;background:var(--ivory2);flex:none}
+.scene-locimg{width:96px;height:96px;object-fit:cover;border-radius:18px;border:3px solid #fff;box-shadow:var(--sh);background:var(--ivory2)}
+.scene-prod{position:absolute;right:-12px;bottom:-12px;width:48px;height:48px;object-fit:cover;border-radius:50%;border:3px solid #fff;box-shadow:var(--sh);background:#fff}
+.scene-locrow{display:flex;gap:18px;align-items:center;align-self:flex-start}
+.scene-locrow .scene-loc{position:static}
+.img-credit{font-size:10px;color:var(--ink3);margin-top:3px}
+.hud-scroll{position:sticky;top:64px;z-index:40;display:flex;gap:8px;justify-content:center;margin:-12px 0 18px;flex-wrap:wrap}
+.hud-scroll .chip{background:#fff;box-shadow:var(--sh);cursor:pointer;transition:.15s}
+.hud-scroll .chip:hover{border-color:var(--red);color:var(--red)}
+
+/* ---------- week strip (daily progress) ---------- */
+.wk-strip{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.wk-day{flex:1;min-width:86px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center}
+.wk-day b{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3)}
+.wk-day span{font-size:12px;font-weight:700;color:var(--ink2)}
+.wk-day.done{border-color:var(--line2);background:var(--ivory2)}
+.wk-day.done span{color:var(--green)}
+.wk-day.srv.done span{color:#8A6E12}
+.wk-day.now{border-color:var(--red);background:var(--red-mist);box-shadow:0 0 0 3px rgba(215,25,32,.1)}
+.wk-day.now span{color:var(--red)}
+footer{max-width:1060px;margin:30px auto 0;padding:20px 22px 0;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3);text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<footer>Food Truck Challenge · Boomtown Edition — a classroom business simulation · balance tuned by 44,000 Monte Carlo runs (v4.2)</footer>
+
+<script>
+'use strict';
+/* ================================================================
+   DATA — mirrors simulate.py (balance-calibrated v4.2)
+   ================================================================ */
+const INITIAL_CASH=10000, BANKRUPT_FLOOR=200, WHOLESALE=0.9;
+const TRUCK_FIXED=1500, CART_FIXED=80, QUICK_FEE=100, DEEP_FEE=200;
+const NOISE_LO=0.85, NOISE_HI=0.30;
+
+const PRODUCTS={
+  ice_cream:{name:'Classic Ice Cream',short:'Ice Cream',price:12,cost:5,cart_cap:150,truck_cap:600,
+    vibe:'Volume play — all ages, family peaks, steady.',
+    img:'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=classic%20vanilla%20soft%20serve%20ice%20cream%20cone%20in%20red%20striped%20paper%20cup%2C%20studio%20product%20photography%2C%20warm%20cream%20background%2C%20retro%20american%20diner%20style%2C%20appetizing%2C%20centered%2C%20no%20text&image_size=square'},
+  yogurt:{name:'Frozen Yogurt',short:'Yogurt',price:18,cost:8,cart_cap:100,truck_cap:400,
+    vibe:'Trend play — students & young crowd, rides health waves.',
+    img:'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=frozen%20yogurt%20cup%20topped%20with%20fresh%20berries%20and%20granola%2C%20studio%20product%20photography%2C%20warm%20cream%20background%2C%20fresh%20healthy%20dessert%2C%20centered%2C%20no%20text&image_size=square'},
+  cold_brew:{name:'Cold Brew Coffee',short:'Cold Brew',price:26,cost:13,cart_cap:60,truck_cap:240,
+    vibe:'Margin play — office crowd, slow to load, deadly in the wrong spot.',
+    img:'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cold%20brew%20coffee%20in%20tall%20glass%20with%20ice%20cubes%2C%20dark%20rich%20coffee%2C%20studio%20product%20photography%2C%20warm%20cream%20background%2C%20premium%20cafe%20style%2C%20centered%2C%20no%20text&image_size=square'},
+};
+const IMG='https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?image_size=square&prompt=';
+const LOCATIONS={
+  train:{name:'Train Station',traffic:20000,conv:{ice_cream:.005,yogurt:.006,cold_brew:.009},stall:0,sens:{},
+    vibe:'Foot-traffic king, but everyone is in a hurry.',
+    img:IMG+'busy%20vintage%20american%20train%20station%20platform%20with%20commuters%20walking%20fast%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text'},
+  university:{name:'University',traffic:9000,conv:{ice_cream:.012,yogurt:.020,cold_brew:.010},stall:0,sens:{value:1.35,premium:0.65},
+    vibe:'Yogurt heaven. Students count every dollar.',
+    img:IMG+'american%20university%20campus%20with%20students%20walking%20between%20brick%20buildings%20and%20trees%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text'},
+  downtown:{name:'Downtown',traffic:12000,conv:{ice_cream:.007,yogurt:.012,cold_brew:.016},stall:0,sens:{value:1.10,premium:0.85},
+    vibe:'Cold brew heaven. Office wallets are loose.',
+    img:IMG+'downtown%20office%20district%20street%20with%20skyscrapers%20and%20business%20people%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text'},
+  city_market:{name:'City Market',traffic:8000,conv:{ice_cream:.035,yogurt:.015,cold_brew:.008},stall:0,sens:{},
+    vibe:'The steadiest ice-cream base in town.',
+    img:IMG+'lively%20open%20air%20farmers%20market%20with%20stalls%20string%20lights%20and%20families%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text'},
+  beach:{name:'Beach',traffic:5000,conv:{ice_cream:.030,yogurt:.012,cold_brew:.006},stall:0,sens:{},
+    vibe:'A weather amplifier — glorious in sun, ghost town in rain.',
+    img:IMG+'sunny%20beach%20boardwalk%20with%20palm%20trees%20and%20umbrellas%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text'},
+  arts:{name:'Arts District',traffic:10000,conv:{ice_cream:.015,yogurt:.013,cold_brew:.011},stall:60,sens:{},
+    vibe:'Stable crowd. Stall fee $60/day. Rainy days bloom here.',
+    img:IMG+'artsy%20district%20street%20with%20colorful%20murals%20galleries%20and%20cafes%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text'},
+};
+const RESEARCH_IMG=IMG+'market%20researcher%20with%20clipboard%20counting%20pedestrians%20on%20a%20city%20street%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text';
+const TIERS={
+  value:{name:'Value',pm:0.85,cm:1.20,desc:'−15% price · +20% conversion'},
+  standard:{name:'Standard',pm:1.00,cm:1.00,desc:'list price'},
+  premium:{name:'Premium',pm:1.20,cm:0.75,desc:'+20% price · −25% conversion'},
+};
+const RAIN={beach:0.3,arts:1.2};
+const HEATWAVE={beach:1.5,city_market:1.2,train:1.05,university:1.1,downtown:1.0,arts:1.0};
+
+const SCN_ORDER=['novice','S1','S2','S3'];
+const SCEN={
+  novice:{name:'First Shift',tag:'Tutorial · Stable Market',idx:'01',
+    img:IMG+'quiet%20sunny%20american%20main%20street%20with%20a%20single%20red%20food%20truck%2C%20calm%20morning%20light%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text',
+    desc:'A calm, unchanging market. Your Week-1 report is the whole truth — learn to read data, match product × crowd × place, and size your stock.',
+    story:'Your first shift in Boomtown. The air is sweet, the streets are calm, and your market report feels… reliable. Almost suspiciously reliable.',
+    hint:'Stable market — the report can be trusted.',
+    rumors:["City gossip: people say business here never really changes.","An old vendor tips his hat: “Steady streets, steady coins.”","The paper predicts another quiet, ordinary week.","Locals say Boomtown’s rhythm hasn’t changed in years."],
+    bench:{random:9000,adaptive:68300,oracle:68300},
+    teaching:['Read the report: traffic × conversion = demand.','Match product × crowd × location before spending a dollar.','Stock too deep and spoilage eats you; stock too shallow and you donate margin.','Start small with the cart, scale into the truck — MVP to scale-up.']},
+  S1:{name:'Shifting Winds',tag:'Demand Side · Shifting Tastes',idx:'02',
+    img:IMG+'wind%20blowing%20autumn%20leaves%20across%20a%20city%20street%20with%20people%20walking%2C%20sense%20of%20change%20and%20movement%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text',
+    desc:'Tastes are on the move. Your Week-1 report is only a snapshot — it will go stale. Watch trends, verify rumors, and ride the wave before it breaks.',
+    story:'Vendors say people’s tastes are shifting lately… something about “lighter choices.” Your report looks solid — but for how long?',
+    hint:'Demand will change — reports go stale.',
+    rumors:["Campus paper: “Yogurt bowls — the new late-night staple?”","City Market vendors whisper about a big festival coming.","Weather app: “Unusual heat may build later this week.”","Some say the yogurt craze is still accelerating."],
+    bench:{random:10800,adaptive:60500,oracle:81400},
+    teaching:['A report is a snapshot, not a promise — demand drifts.','Trends compound: +15%/week becomes ×2.1 in five weeks.','Free rumors point; paid research proves.','The festival windfall went to whoever read the signals early.']},
+  S2:{name:'Red Ocean',tag:'Competition · Rival Trucks',idx:'03',
+    img:IMG+'two%20food%20trucks%20parked%20on%20the%20same%20street%20corner%20facing%20each%20other%2C%20rivalry%20tension%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text',
+    desc:'Two rival trucks just got licenses. They will fight you for the same corners. Differentiate, anticipate their moves, and never chase yesterday’s crowd blindly.',
+    story:'Two rival trucks just got licenses too. Frosty King plants himself at City Market; TrendChaser roams wherever last week’s crowd was. And something big is brewing at the Beach…',
+    hint:'Rivals will split your market.',
+    rumors:["Students are buzzing about something big coming to campus.","A rival truck was seen scouting your area…","A food blogger with millions of followers was spotted near the Beach.","Sailors talk about dark clouds on the horizon."],
+    bench:{random:8400,adaptive:73400,oracle:78800},
+    teaching:['Same corner, same product: you keep only ~65% of demand.','TrendChaser always arrives one week late — the crowd may already be gone.','Chasing last week’s hotspot into a storm is the most expensive mistake in this game.','Research is worth $20k+ when it dodges a disaster.']},
+  S3:{name:'Supply Storm',tag:'Supply Side · Cost Shocks',idx:'04',
+    img:IMG+'dark%20storm%20clouds%20over%20stacked%20supply%20crates%20coffee%20sacks%20and%20milk%20cans%2C%20dramatic%20light%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20ivory%20and%20coca-cola%20red%20palette%2C%20clean%20vector%20style%2C%20no%20text',
+    desc:'Demand is calm, but your supplier warns: costs will be wild this season. Read every Monday cost notice, guard your margin, and migrate when the math says move.',
+    story:'Your supplier calls before dawn: “Costs will be unstable this season — dairy, beans, fuel, all of it. Watch your margins, kid.”',
+    hint:'Costs will swing — watch your margin.',
+    rumors:["Your dairy supplier mentioned farms are having a rough season.","Yogurt wholesalers seem to be undercutting each other.","Coffee traders talk about frost in the highlands.","Truckers complain fuel prices are creeping up."],
+    bench:{random:7400,adaptive:62600,oracle:62400},
+    teaching:['The Monday cost notice is free — 30 seconds of reading was worth $8.7k.','When cost doubles and supply halves, loyalty to a product is a liability.','A price war on your input is a gift: margins widen overnight.','Follow the margin, not the habit.']},
+};
+
+/* ================================================================
+   ENGINE — faithful port of simulate.py
+   ================================================================ */
+const rnd=()=>NOISE_LO+Math.random()*NOISE_HI;
+const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
+const sfmt=n=>(n<0?'−$':'+$')+Math.abs(Math.round(n)).toLocaleString('en-US');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+function convMult(loc,tier){return LOCATIONS[loc].sens[tier]??TIERS[tier].cm;}
+function priceOf(p,tier){return PRODUCTS[p].price*TIERS[tier].pm;}
+
+function weatherTable(scn,week){
+  const all=Object.keys(LOCATIONS);
+  if(scn==='S1'||scn==='S2'){
+    if(week===2){const w={};all.forEach(l=>w[l]=RAIN[l]??0.9);return{kind:'rainy',label:'Rainy',map:w};}
+    if(scn==='S2'&&week===5){const w={};all.forEach(l=>w[l]={beach:0.4,train:1.1}[l]??1.0);return{kind:'stormy',label:'Storm',map:w};}
+    if(week===4||week===5){const w={};all.forEach(l=>w[l]=HEATWAVE[l]??1.0);return{kind:'heat',label:'Heatwave',map:w};}
+    const w={};all.forEach(l=>w[l]=1);return{kind:'sunny',label:'Sunny',map:w};
+  }
+  const w={};all.forEach(l=>w[l]=1);return{kind:'sunny',label:'Sunny',map:w};
+}
+
+function buildEnv(scn,week,tcLoc){
+  const trend={ice_cream:1,yogurt:1,cold_brew:1};
+  const traffic={};Object.keys(LOCATIONS).forEach(l=>traffic[l]=1);
+  const cost={ice_cream:5,yogurt:8,cold_brew:13};
+  const cart_cap={ice_cream:150,yogurt:100,cold_brew:60};
+  const truck_cap={ice_cream:600,yogurt:400,cold_brew:240};
+  let truck_fixed=TRUCK_FIXED,cart_fixed=CART_FIXED;
+  const comps=[];
+  if(scn==='S1'){
+    trend.ice_cream=[1,.96,.92,.88,.85][week-1];
+    trend.yogurt=[1,1.15,1.35,1.65,2.10][week-1];
+    trend.cold_brew=[1,.98,.95,.90,.85][week-1];
+    if(week===3)traffic.city_market=2.5;
+  }else if(scn==='S2'){
+    trend.ice_cream=Math.pow(.98,week-1);
+    trend.yogurt=Math.pow(1.06,week-1);
+    trend.cold_brew=Math.pow(1.04,week-1);
+    if(week===2)traffic.university=1.6;
+    if(week===4)traffic.beach=3.0;
+    comps.push(['city_market','ice_cream']);
+    if(tcLoc)comps.push([tcLoc,'yogurt']);
+  }else if(scn==='S3'){
+    if(week>=2){cost.ice_cream=9;cart_cap.ice_cream=75;truck_cap.ice_cream=300;}
+    if(week>=3){cost.yogurt=5;}
+    if(week>=4){cost.cold_brew=19;cart_cap.cold_brew=30;truck_cap.cold_brew=120;}
+    if(week>=5){truck_fixed=1900;cart_fixed=100;}
+  }
+  return{week,weather:weatherTable(scn,week),trend,traffic,cost,cart_cap,truck_cap,truck_fixed,cart_fixed,competitors:comps};
+}
+
+function meanDemand(env,product,loc,tier,forPlayer=true){
+  let mu=LOCATIONS[loc].traffic*LOCATIONS[loc].conv[product]*convMult(loc,tier)
+        *env.weather.map[loc]*env.trend[product]*env.traffic[loc];
+  if(forPlayer){
+    let comp=1;
+    for(const[cl,cp]of env.competitors){if(cl===loc)comp*=(cp===product?0.65:0.85);}
+    mu*=Math.max(comp,0.4);
+  }
+  return mu;
+}
+
+function trendChaserLoc(week){ // S2 only: last week's top gross-demand location
+  const ref=Math.max(1,week-1);
+  const env=buildEnv('S2',ref,null);
+  let best=null,bestV=-1;
+  for(const l of Object.keys(LOCATIONS)){
+    let tot=0;for(const p of Object.keys(PRODUCTS))tot+=meanDemand(env,p,l,'standard',false);
+    if(tot>bestV){bestV=tot;best=l;}
+  }
+  return best;
+}
+function hottestSpot(scn,week){ // public "this week's hottest spot" for weekly briefing
+  const env=buildEnv(scn,week,scn==='S2'?trendChaserLoc(week):null);
+  let best=null,bestV=-1;
+  for(const l of Object.keys(LOCATIONS)){
+    let tot=0;for(const p of Object.keys(PRODUCTS))tot+=meanDemand(env,p,l,'standard',false);
+    if(tot>bestV){bestV=tot;best=l;}
+  }
+  return best;
+}
+
+/* --- oracle (for ending review) --- */
+function newsvendorStock(muTotal,price,unitCost,capTotal,budget){
+  if(muTotal<=0||price<=unitCost||budget<=0)return 0;
+  const frac=(price-unitCost)/price;
+  const s=muTotal*(NOISE_LO+NOISE_HI*frac);
+  return Math.max(0,Math.floor(Math.min(s,capTotal,budget/unitCost)));
+}
+function estTruck(env,cash,p,l,t){
+  const price=priceOf(p,t),c=env.cost[p]*WHOLESALE;
+  const fixed=env.truck_fixed+5*LOCATIONS[l].stall;
+  const mu=Math.min(meanDemand(env,p,l,t),env.truck_cap[p]);
+  const stock=newsvendorStock(5*mu,price,c,5*env.truck_cap[p],cash-fixed);
+  if(stock<=0)return{profit:-fixed,stock:0};
+  const sold=Math.min(5*mu,stock);
+  return{profit:sold*price-stock*c-fixed,stock};
+}
+function estCartDay(env,cash,p,l,t){
+  const price=priceOf(p,t),c=env.cost[p];
+  const fixed=env.cart_fixed+LOCATIONS[l].stall;
+  const mu=Math.min(meanDemand(env,p,l,t),env.cart_cap[p]);
+  const stock=newsvendorStock(mu,price,c,env.cart_cap[p],cash-fixed);
+  if(stock<=0)return{profit:-fixed,stock:0};
+  const sold=Math.min(mu,stock);
+  return{profit:sold*price-stock*c-fixed,stock};
+}
+function bestCombo(env,cash){
+  let best={mode:'cart',p:null,l:null,t:null,profit:-1e18,stock:0};
+  for(const p of Object.keys(PRODUCTS))for(const l of Object.keys(LOCATIONS))for(const t of Object.keys(TIERS)){
+    const et=estTruck(env,cash,p,l,t);
+    if(et.profit>best.profit)best={mode:'truck',p,l,t,profit:et.profit,stock:et.stock};
+    const ec=estCartDay(env,cash,p,l,t);
+    if(ec.profit*5>best.profit)best={mode:'cart',p,l,t,profit:ec.profit*5,stock:ec.stock*5};
+  }
+  return best;
+}
+
+/* ================================================================
+   STATE
+   ================================================================ */
+let G=null;
+function trueEnv(week){return buildEnv(G.scn,week,G.scn==='S2'?trendChaserLoc(week):null);}
+
+function newRun(scn){
+  G={scn,week:1,cash:INITIAL_CASH,
+     w1report:buildEnv(scn,1,scn==='S2'?trendChaserLoc(1):null), // pristine W1 snapshot for Market Intel
+     est:buildEnv(scn,1,null),       // player beliefs, updated by operating
+     known:{},                        // researched weeks -> env
+     reports:[],rumors:[],
+     decisions:{},weekResults:{},cashAtWeekStart:{1:INITIAL_CASH},
+     day:1,cartDays:[],weekSurveyDays:[],
+     truck:null,street:null,
+     bankrupt:false,bankruptWeek:0};
+}
+
+/* player-belief env for week w (mirrors View.env_for) */
+function estEnvFor(w){
+  if(G.known[w])return{env:G.known[w],src:'research'};
+  const e=JSON.parse(JSON.stringify(G.est));
+  e.week=w;e.weather=weatherTable(G.scn,w);
+  if(w===G.week){
+    const t=trueEnv(w);
+    e.cost={...t.cost};e.cart_cap={...t.cart_cap};e.truck_cap={...t.truck_cap};
+    e.truck_fixed=t.truck_fixed;e.cart_fixed=t.cart_fixed;e.competitors=t.competitors;
+  }
+  return{env:e,src:(w===G.week?'observed':'w1report')};
+}
+function learnFrom(combo){
+  if(!combo)return;
+  const t=trueEnv(G.week);
+  G.est.trend[combo.p]=t.trend[combo.p];
+  G.est.traffic[combo.l]=t.traffic[combo.l];
+  G.est.cost={...t.cost};
+}
+
+/* ================================================================
+   ICONS (inline SVG — no emoji)
+   ================================================================ */
+const I={
+  star:'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>',
+  coin:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M15.5 9.5c-.7-1-2-1.5-3.5-1.5-2 0-3.2 1-3.2 2.4 0 3.3 7 1.7 7 4.8 0 1.5-1.4 2.6-3.8 2.6-1.6 0-3-.7-3.7-1.8"/></svg>',
+  truck:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 8h13v9H1zM14 11h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>',
+  cart:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16l-2 9H6zM4 6L3 3M9 20a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/></svg>',
+  quick:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5M11 8v3l2 2"/></svg>',
+  deep:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5v13zM4 19.5A2.5 2.5 0 006.5 22H20v-5"/><path d="M9 8h7M9 12h5"/></svg>',
+  sun:'<svg class="sun-rays" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#D9A421" stroke-width="1.6"><circle cx="12" cy="12" r="4.2" fill="#F3C64E" stroke="none"/><g><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2"/></g></svg>',
+  cloud:'<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#8FA3B8" stroke-width="1.6"><path d="M17.5 18a4.5 4.5 0 100-9 6 6 0 00-11.5 1.5A4 4 0 006.5 18h11z" fill="#E9EDF2"/></svg>',
+  flame:'<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#D9642A" stroke-width="1.6"><path d="M12 2c1 4-4 6-4 11a4 4 0 008 0c0-2-1-3-1-3s3 1 3 5a6 6 0 01-12 0C6 8 12 7 12 2z" fill="#F0A05A" opacity=".8"/></svg>',
+  lock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
+  warn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3L2 20h20zM12 10v5M12 18.5v.5"/></svg>',
+  info:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+  good:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  doc:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6zM15 2v5h5"/></svg>',
+};
+function stars(conv){
+  const n=conv<0.008?1:conv<0.012?2:conv<0.018?3:conv<0.025?4:5;
+  let s='<span class="stars">';
+  for(let i=0;i<5;i++)s+=`<span class="${i<n?'':'off'}">${I.star}</span>`;
+  return s+'</span>';
+}
+function arrow(r){return r>1.04?'<span class="arrow-up">↑</span>':r<0.96?'<span class="arrow-down">↓</span>':'<span class="arrow-flat">→</span>';}
+
+/* ================================================================
+   PROGRESS (localStorage)
+   ================================================================ */
+const store={
+  get progress(){try{return JSON.parse(localStorage.getItem('ftc_progress')||'{}');}catch(e){return{}}},
+  set progress(v){localStorage.setItem('ftc_progress',JSON.stringify(v));},
+  get unlockAll(){return localStorage.getItem('ftc_unlock_all')==='1';},
+  set unlockAll(v){localStorage.setItem('ftc_unlock_all',v?'1':'0');},
+};
+function unlocked(i){return i===0||store.unlockAll||!!store.progress[SCN_ORDER[i-1]];}
+function recordComplete(scn,profit){
+  const p=store.progress;
+  if(!p[scn]||profit>p[scn].best)p[scn]={best:profit};
+  store.progress=p;
+}
+
+/* ================================================================
+   RENDER HELPERS
+   ================================================================ */
+const app=document.getElementById('app');
+const modalRoot=document.getElementById('modal-root');
+function render(html,keep){const y=window.scrollY;app.innerHTML=html;window.scrollTo({top:keep?y:0});}
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2200);
+}
+function closeModal(){modalRoot.innerHTML='';}
+function openModal(title,bodyHTML){
+  modalRoot.innerHTML=`<div class="modal-veil" onclick="if(event.target===this)closeModal()">
+    <div class="modal"><div class="m-head"><b>${title}</b><button class="x" onclick="closeModal()">×</button></div>
+    <div class="m-body">${bodyHTML}</div></div></div>`;
+}
+function band(inner){
+  const right=G?`<div class="hud">
+      <div class="hud-chip">${I.coin} <span class="num">${fmt(G.cash)}</span></div>
+      <div class="hud-chip">Week ${G.week} / 5${G.day>=1&&G.day<=5?` · ${['Mon','Tue','Wed','Thu','Fri'][G.day-1]}`:''}</div>
+      <button class="hud-btn" onclick="showIntel()">Market Intel</button>
+      <button class="hud-btn" onclick="showReports()">Reports (${G.reports.length})</button>
+      <button class="hud-btn" onclick="showRumors()">Rumors (${G.rumors.length})</button>
+      <button class="hud-btn" onclick="confirmQuit()">Quit Run</button>
+    </div>`:'';
+  return`<div class="band"><div class="band-in">
+    <div class="logo" onclick="showTitle()">Food Truck Challenge<span>BOOMTOWN</span></div>
+    <div class="spacer"></div>${right}</div></div>`;
+}
+function confirmQuit(){if(confirm('Abandon this run and return to the title screen?'))showTitle();}
+
+/* ================================================================
+   TITLE & SCENARIO SELECT
+   ================================================================ */
+function showTitle(){
+  G=null;
+  render(`
+  <div class="band"><div class="band-in"><div class="logo">Food Truck Challenge<span>BOOMTOWN</span></div>
+    <div class="spacer"></div><div class="hud-chip">A classroom business simulation</div></div></div>
+  <div class="hero fade-in">
+    <img class="hero-img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=vintage%20red%20food%20truck%20parked%20on%20a%20sunny%20american%20main%20street%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20and%20ivory%20tones%20with%20coca-cola%20red%20accents%2C%20golden%20hour%20light%2C%20clean%20vector%20style%2C%20no%20text%20no%20words&image_size=landscape_16_9" alt="Boomtown food truck" onerror="this.style.display='none'">
+    <div class="hero-veil"></div>
+    <div class="hero-cta"><button class="btn" onclick="showSelect()">Start Your Engine →</button></div>
+    <div class="hero-txt">
+      <h1>Five weeks. One truck.<br>Every dollar is a decision.</h1>
+      <p>You hold one of Boomtown's only 5 food-truck licenses and $10,000. Read the market, bet on the right corner, and turn a pushcart into an empire — or learn what the market teaches the hard way.</p>
+    </div>
+  </div>
+  <div class="title-stats">
+    <div class="tstat"><b>$10,000</b><span>starting cash — too little for a full truck on day one</span></div>
+    <div class="tstat"><b>5 weeks</b><span>25 selling days, Mon–Fri</span></div>
+    <div class="tstat"><b>3 products</b><span>volume, trend & margin plays</span></div>
+    <div class="tstat"><b>6 locations</b><span>every crowd buys differently</span></div>
+    <div class="tstat"><b>2 research tiers</b><span>information has a price: time</span></div>
+  </div>
+  <p class="center small muted" style="margin-top:22px">Maximize net profit = final cash − $10,000. There are no lucky breaks here — only information and judgment.</p>`);
+}
+
+function showSelect(){
+  const p=store.progress;
+  const cards=SCN_ORDER.map((id,i)=>{
+    const s=SCEN[id],locked=!unlocked(i),done=!!p[id];
+    return`<button class="scn-card ${locked?'locked':''} ${done?'done':''}" ${locked?'disabled':''} onclick="startBriefing('${id}')">
+      ${locked?`<span class="lock-ico">${I.lock}</span>`:''}
+      <img class="scn-img" src="${s.img}" alt="${s.name}" onerror="this.style.display='none'">
+      <span class="num-badge">SCENARIO ${s.idx}</span>
+      <h3>${s.name}</h3>
+      <span class="tag chip ${id==='novice'?'green':'red'}">${s.tag}</span>
+      <p>${s.desc}</p>
+      ${done?`<span class="best">✓ Completed · Best ${fmt(p[id].best)}</span>`:locked?`<span class="small muted">Complete the previous scenario to unlock</span>`:`<span class="small" style="color:var(--red);font-weight:700">Play →</span>`}
+    </button>`;
+  }).join('');
+  render(`${band('')}
+  <div class="fade-in">
+    <div class="eyebrow">Choose your market</div>
+    <h1 style="font-size:34px">Four markets. Four lessons.</h1>
+    <p class="muted" style="margin-top:8px;max-width:640px;line-height:1.65">Each scenario is a different kind of market — the same skills win differently in each. Complete a scenario to unlock the next.</p>
+    <div class="scn-grid">${cards}</div>
+    <p class="center" style="margin-top:26px"><button class="btn-ghost btn btn-sm" onclick="store.unlockAll=true;showSelect()">Teacher mode: unlock all</button></p>
+  </div>`);
+}
+
+/* ================================================================
+   OPENING BRIEFING
+   ================================================================ */
+function marketReportHTML(){
+  const rows=Object.keys(LOCATIONS).map(l=>{
+    const L=LOCATIONS[l];
+    return`<tr><td><div style="display:flex;gap:10px;align-items:center"><img class="loc-thumb" src="${L.img}" alt="" onerror="this.style.display='none'">
+      <span><b>${L.name}</b><div class="tiny muted">${L.vibe}</div></span></div></td>
+      <td class="r num">${L.traffic.toLocaleString()}</td>
+      ${Object.keys(PRODUCTS).map(p=>`<td class="c">${stars(L.conv[p])}<div class="tiny muted num">${(L.conv[p]*100).toFixed(1)}%</div></td>`).join('')}
+    </tr>`;
+  }).join('');
+  return`<div class="rpt">
+    <h4>Boomtown Market Report — Week 1 Survey</h4>
+    <p class="small muted">Daily foot traffic & conversion rate by location (this survey, exact). Stars are your quick read; percentages are the survey's fine print.</p>
+    <table class="t">
+      <tr><th>Location</th><th class="r">Foot traffic /day</th><th class="c">Ice Cream</th><th class="c">Yogurt</th><th class="c">Cold Brew</th></tr>
+      ${rows}
+    </table>
+    <div class="disc"><b>Disclaimer:</b> This report reflects the most recent survey. Market conditions may change.</div>
+  </div>`;
+}
+function machinesHTML(){
+  return`<h3 style="font-size:18px;margin-bottom:10px">Your menu & your machines</h3>
+  <table class="t">
+    <tr><th>Product</th><th class="r">Menu price</th><th class="r">Cart cost (daily)</th><th class="r">Truck cost (wholesale)</th><th class="r">Cart cap /day</th><th class="r">Truck cap /day</th></tr>
+    ${Object.keys(PRODUCTS).map(p=>{const P=PRODUCTS[p];return`<tr>
+      <td><div style="display:flex;gap:10px;align-items:center"><img class="loc-thumb" src="${P.img}" alt="" onerror="this.style.display='none'">
+      <span><b>${P.name}</b><div class="tiny muted">${P.vibe}</div></span></div></td>
+      <td class="r num">$${P.price}</td><td class="r num">$${P.cost}</td>
+      <td class="r num">$${(P.cost*WHOLESALE).toFixed(2)}</td>
+      <td class="r num">${P.cart_cap}</td><td class="r num">${P.truck_cap}</td></tr>`;}).join('')}
+  </table>
+  <div class="divider"></div>
+  <div class="two-col small" style="line-height:1.7">
+    <div><b class="r">Food Truck</b> — $1,500/week fixed. Lock product + location + price all week. Buy the whole week's stock Monday at wholesale (×0.9), no restocking. Leftovers spoil Sunday.</div>
+    <div><b class="r">Pushcart</b> — $80/day fixed. Re-decide everything every morning, buy daily stock at list cost. Leftovers spoil nightly.</div>
+  </div>`;
+}
+function startBriefing(scn){
+  newRun(scn);
+  const s=SCEN[scn];
+  render(`${band()}
+  <div class="fade-in">
+    <div class="eyebrow">Opening Brief · ${s.name}</div>
+    <img class="scn-img" style="height:220px;border-radius:20px" src="${s.img}" alt="${s.name}" onerror="this.style.display='none'">
+    <h1 style="font-size:32px;line-height:1.2;margin-top:16px">“${s.story}”</h1>
+    <div style="margin:16px 0;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="chip red">${I.warn} ${s.hint}</span>
+      <span class="chip">You hold: ${fmt(INITIAL_CASH)} + 1 food-truck license</span>
+      <span class="chip">5 weeks · Mon–Fri</span>
+    </div>
+    <div style="margin-top:18px">${marketReportHTML()}</div>
+    <div class="card" style="margin-top:18px">${machinesHTML()}</div>
+    <div class="center" style="margin-top:26px"><button class="btn" onclick="beginWeek()">Open for Business →</button></div>
+  </div>`);
+}
+function showIntel(){
+  if(!G){toast('Start a run first.');return;}
+  const env=trueEnv(G.week);
+  const obs=[['Weather this week',env.weather.label]];
+  if(G.scn==='S3')obs.push(['Costs on today\'s invoice',Object.keys(PRODUCTS).map(p=>`${PRODUCTS[p].short} $${env.cost[p]}${env.cart_cap[p]<PRODUCTS[p].cart_cap?' · ½ supply':''}`).join(' · ')]);
+  if(env.truck_fixed>TRUCK_FIXED)obs.push(['Fuel spike',`truck ${fmt(env.truck_fixed)} / week · cart ${fmt(env.cart_fixed)} / day`]);
+  if(env.competitors&&env.competitors.length)obs.push(['Rivals on the street',env.competitors.map(c=>`${c[1]==='ice_cream'?'Frosty King':'TrendChaser'} @ ${LOCATIONS[c[0]].name} (${PRODUCTS[c[1]].short})`).join(' · ')]);
+  openModal('Market Intel — Week '+G.week,`
+    <p class="small muted" style="margin-bottom:12px">Your Week-1 survey, plus everything this week has already shown you. Paid forecasts live in the <b>Reports</b> archive (top bar).</p>
+    <table class="t">${obs.map(o=>`<tr><td style="width:190px"><b>${o[0]}</b></td><td>${o[1]}</td></tr>`).join('')}</table>
+    <div class="divider"></div>
+    ${marketReportHTML()}
+    <div class="divider"></div>
+    ${machinesHTML()}
+    <div class="center" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`);
+}
+
+/* ================================================================
+   DAY HUB — one decision every morning; a week = Mon–Fri
+   ================================================================ */
+const DAYS5=['Mon','Tue','Wed','Thu','Fri'];
+const DAYS5FULL=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+
+function weekChipsHTML(){
+  const env=trueEnv(G.week);
+  const chips=[`<span class="chip ${env.weather.kind==='sunny'?'gold':'red'}">This week: ${env.weather.label}</span>`];
+  if(G.scn==='S3'){
+    const notes=[];
+    if(env.cost.ice_cream>5)notes.push('Ice Cream cost $'+env.cost.ice_cream+' · supply halved');
+    if(env.cost.yogurt<8)notes.push('Yogurt cost $'+env.cost.yogurt+' (price war!)');
+    if(env.cost.cold_brew>13)notes.push('Cold Brew cost $'+env.cost.cold_brew+' · supply halved');
+    if(env.truck_fixed>TRUCK_FIXED)notes.push('Fuel spike: truck $1,900 · cart $100/day');
+    if(notes.length)chips.push(`<span class="chip red">${I.warn} Cost notice: ${notes.join(' · ')}</span>`);
+  }
+  if(G.scn==='S2'){
+    const tc=env.competitors.find(c=>c[1]==='yogurt');
+    chips.push(`<span class="chip">Rivals: Frosty King @ City Market (Ice Cream)${tc?` · TrendChaser @ ${LOCATIONS[tc[0]].name} (Yogurt)`:''}</span>`);
+  }
+  if(G.known[G.week])chips.push(`<span class="chip green">${I.good} This week is covered by your research</span>`);
+  return chips.join('');
+}
+function beginWeek(){
+  G.day=1;G.cartDays=[];G.weekSurveyDays=[];
+  G.decisions[G.week]={mode:'mixed',days:[],surveys:[]};
+  G.cashAtWeekStart[G.week]=G.cash;
+  renderDayHub();
+}
+function weekStripHTML(){
+  return`<div class="wk-strip">${[1,2,3,4,5].map(d=>{
+    const r=(G.cartDays||[]).find(x=>x.day===d);
+    const srv=(G.weekSurveyDays||[]).includes(d);
+    const cls=d<G.day?'done':d===G.day?'now':'';
+    const label=r?sfmt(r.profit):srv?'survey':d===G.day?'today':'·';
+    return`<div class="wk-day ${cls}${srv?' srv':''}"><b>${DAYS5[d-1]}</b><span>${label}</span></div>`;
+  }).join('')}</div>`;
+}
+function renderDayHub(){
+  if(G.day===1&&G.week>=2&&G.cash<BANKRUPT_FLOOR){G.bankrupt=true;G.bankruptWeek=G.week;return showEnding();}
+  const env=trueEnv(G.week);
+  const s=SCEN[G.scn];
+  const day=G.day,daysLeft=6-day,isMon=day===1;
+  const canTruck=isMon&&G.cash>=env.truck_fixed+200;
+  const canQuick=G.week<5&&daysLeft>=2;
+  const modeCard=(key,ico,title,fee,desc,disabled,onclick,reco)=>`
+    <button class="mode-card ${reco?'reco':''}" ${disabled?'disabled':''} onclick="${onclick}">
+      <div style="display:flex;align-items:center;gap:10px"><span class="ico">${ico}</span><h4>${title}</h4></div>
+      <span class="fee">${fee}</span><p>${desc}</p>
+    </button>`;
+  const cards=[];
+  if(isMon)cards.push(modeCard('truck',I.truck,'Food Truck',`${fmt(env.truck_fixed)} fixed / week`,
+    `Commit one product, one corner, one price — all week. Wholesale stock (×0.9) Monday, no restocks. Scale play.`,
+    !canTruck,"showTruckSetup()"));
+  cards.push(modeCard('cart',I.cart,isMon?'Pushcart':'Pushcart — today',`${fmt(env.cart_fixed)} / day`,
+    isMon?`Re-decide product, corner and price every morning. Buy stock daily at list cost. Exploration play.`
+         :`Sell today only, then tomorrow morning you choose again — cart, or a survey while 2 days remain.`,
+    false,"startCartDay()"));
+  if(G.week<5)cards.push(modeCard('quick',I.quick,'Quick Survey',`${fmt(QUICK_FEE)} + 2 days${canQuick?` (${DAYS5[day-1]}–${DAYS5[day]})`:''}`,
+    canQuick?`Survey ${DAYS5[day-1]}–${DAYS5[day]}, zero sales both days. ${DAYS5[day]} evening: an exact forecast of <b>Week ${G.week+1}</b>.`
+            :`Needs 2 free days — only ${daysLeft} left this week.`,
+    !canQuick,"startQuick()"));
+  if(isMon&&G.week<5)cards.push(modeCard('deep',I.deep,'Deep Research',`${fmt(DEEP_FEE)} + the whole week`,
+    `No selling this week. Friday evening: an exact forecast of the <b>next ${G.week===4?'week':'two weeks'}</b>. Wholesale information.`,
+    false,"startDeep()"));
+
+  render(`${band()}
+  <div class="fade-in">
+    <div class="step-dots">${[1,2,3,4,5].map(w=>`<i class="${w<G.week?'done':w===G.week?'on':''}"></i>`).join('')}</div>
+    <div class="eyebrow">${DAYS5FULL[day-1]} · Week ${G.week} of 5 · ${s.name}</div>
+    <h1 style="font-size:30px">${isMon?"The week's big call.":"What's today's move?"}</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0">${weekChipsHTML()}</div>
+    ${weekStripHTML()}
+    <div class="mode-grid">${cards.join('')}</div>
+    ${isMon&&!canTruck?`<p class="small muted" style="margin-top:12px">${I.warn} Not enough cash for the truck this week (need ${fmt(env.truck_fixed)} fixed + stock).</p>`:''}
+    <p class="kbd-hint">${isMon?'Wholesale vs retail, commitment vs flexibility — and every research week is a week without truck economics.':`Every morning is a fresh call. A Quick Survey needs 2 free days and starts paying off in Week ${G.week+1}.`}</p>
+  </div>`);
+}
+
+/* ================================================================
+   PICKER COMPONENTS (shared)
+   ================================================================ */
+let sel={p:'ice_cream',l:'city_market',t:'standard',stock:0};
+let pickerMode='truck'; // which picker the shared cards re-render
+function onPickerSel(){pickerMode==='cart'?refreshCartPicker(true):refreshPicker(true);}
+
+function productCards(){
+  return`<div class="pick-grid">${Object.keys(PRODUCTS).map(p=>{const P=PRODUCTS[p];
+    return`<div class="pick ${sel.p===p?'sel':''}" onclick="sel.p='${p}';onPickerSel()">
+      <img class="p-img" src="${P.img}" alt="${P.name}" onerror="this.style.display='none'">
+      <h5>${P.name}</h5><p>${P.vibe}</p>
+      <div class="price num">$${P.price} · cost $${envCost(p)}</div></div>`;}).join('')}</div>`;
+}
+function envCost(p){const{env}=estEnvFor(G.week);return env.cost[p];}
+function locationCards(){
+  const{env}=estEnvFor(G.week);
+  return`<div class="pick-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">${Object.keys(LOCATIONS).map(l=>{const L=LOCATIONS[l];
+    const comp=env.competitors&&env.competitors.some(c=>c[0]===l);
+    return`<div class="pick ${sel.l===l?'sel':''}" onclick="sel.l='${l}';onPickerSel()">
+      <div style="display:flex;gap:9px;align-items:center;margin-bottom:4px">
+        <img class="loc-thumb" src="${L.img}" alt="" onerror="this.style.display='none'"><h5>${L.name}</h5></div>
+      <div class="tiny muted num">${L.traffic.toLocaleString()} people/day${L.stall?` · stall $${L.stall}/day`:''}</div>
+      <div style="margin:5px 0">${stars(L.conv[sel.p])}</div>
+      <p>${L.vibe}</p>
+      ${comp?`<div class="tiny" style="color:var(--red);font-weight:700;margin-top:4px">Rival truck here — expect split demand</div>`:''}
+    </div>`;}).join('')}</div>`;
+}
+function tierSeg(){
+  return`<div class="seg">${Object.keys(TIERS).map(t=>`
+    <button class="${sel.t===t?'sel':''}" onclick="sel.t='${t}';onPickerSel()">${TIERS[t].name}</button>`).join('')}
+    </div> <span class="small muted">${TIERS[sel.t].desc} · menu $${priceOf(sel.p,sel.t).toFixed(2)}</span>`;
+}
+function estBox(forTruck){
+  const{env,src}=estEnvFor(G.week);
+  const cap=forTruck?env.truck_cap[sel.p]:env.cart_cap[sel.p];
+  const mu=Math.min(meanDemand(env,sel.p,sel.l,sel.t),cap);
+  const label=src==='research'?'Research-verified forecast':(src==='observed'?'Your intel (report + your own sales data)':'W1 report estimate');
+  return`<div class="est-box"><b>${label}:</b> ≈ <b class="num">${Math.round(mu)}</b> units/day for ${PRODUCTS[sel.p].short} @ ${LOCATIONS[sel.l].name} (${TIERS[sel.t].name})
+    ${forTruck?` · ≈ <b class="num">${Math.round(mu*5)}</b> over 5 days`:''}. Daily demand still wobbles ±15% around this.</div>`;
+}
+
+/* ================================================================
+   TRUCK SETUP
+   ================================================================ */
+function showTruckSetup(){
+  pickerMode='truck';
+  sel={p:'cold_brew',l:'downtown',t:'premium',stock:0};
+  refreshPicker(false);
+}
+function truckCalc(){
+  const env=trueEnv(G.week);
+  const fixed=env.truck_fixed+5*LOCATIONS[sel.l].stall;
+  const wsCost=env.cost[sel.p]*WHOLESALE;
+  const maxStock=Math.max(0,Math.min(5*env.truck_cap[sel.p],Math.floor((G.cash-fixed)/wsCost)));
+  return{env,fixed,wsCost,maxStock};
+}
+function truckCostsHTML(){
+  const{env,fixed,wsCost}=truckCalc();
+  const stockCost=sel.stock*wsCost;
+  return`<div class="cost-line"><span>Truck fixed fee${LOCATIONS[sel.l].stall?` + Arts stall $${LOCATIONS[sel.l].stall}×5`:''}</span><span class="num">${fmt(fixed)}</span></div>
+    <div class="cost-line"><span>${sel.stock.toLocaleString()} units × $${wsCost.toFixed(2)} wholesale</span><span class="num">${fmt(stockCost)}</span></div>
+    <div class="cost-line total"><span>Paid Monday</span><span class="num">${fmt(fixed+stockCost)}</span></div>
+    <div class="cost-line"><span>Cash remaining</span><span class="num">${fmt(G.cash-fixed-stockCost)}</span></div>
+    ${sel.stock>0&&sel.stock<env.truck_cap[sel.p]?`<div class="warn-box" style="margin-top:10px">${I.warn} Less than one day of capacity — the truck may not be worth its fixed fee.</div>`:''}`;
+}
+function setTruckStock(v){ // targeted update — no full re-render, keeps scroll & slider focus
+  const{fixed,wsCost,maxStock}=truckCalc();
+  sel.stock=clamp(Math.floor(v)||0,0,maxStock);
+  const r=document.getElementById('stockRange'),n=document.getElementById('stockNum');
+  if(r)r.value=sel.stock;if(n)n.value=sel.stock;
+  const c=document.getElementById('stockCosts');if(c)c.innerHTML=truckCostsHTML();
+  const b=document.getElementById('commitBtn');
+  if(b){b.textContent=`Sign the Week · Pay ${fmt(fixed+sel.stock*wsCost)}`;b.disabled=sel.stock<=0;}
+}
+function refreshPicker(keep){
+  const{env,fixed,wsCost,maxStock}=truckCalc();
+  sel.stock=clamp(sel.stock,0,maxStock);
+
+  render(`${band()}
+  <div class="fade-in">
+    <div class="eyebrow">Food Truck · Week ${G.week} — locked till Sunday</div>
+    <h1 style="font-size:28px">One product. One corner. One price. All week.</h1>
+    <div class="card" style="margin-top:18px"><h3 style="font-size:16px;margin-bottom:12px">1 · Product</h3>${productCards()}</div>
+    <div class="card"><h3 style="font-size:16px;margin-bottom:12px">2 · Location</h3>${locationCards()}</div>
+    <div class="card"><h3 style="font-size:16px;margin-bottom:12px">3 · Price tier</h3>${tierSeg()}</div>
+    <div class="card">
+      <h3 style="font-size:16px;margin-bottom:12px">4 · Week's stock <span class="small muted">(wholesale, no restocking — leftovers spoil Sunday)</span></h3>
+      ${estBox(true)}
+      <div class="stock-row" style="margin-top:14px">
+        <input type="range" id="stockRange" min="0" max="${maxStock}" value="${sel.stock}" oninput="setTruckStock(+this.value)">
+        <input class="stock-num num" id="stockNum" type="number" min="0" max="${maxStock}" value="${sel.stock}" onchange="setTruckStock(+this.value||0)">
+        <span class="small muted">units · max ${maxStock.toLocaleString()} (cap ${5*env.truck_cap[sel.p]} · cash)</span>
+      </div>
+      <div id="stockCosts" style="margin-top:14px">${truckCostsHTML()}</div>
+    </div>
+    <div class="center" style="margin-top:24px;display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-ghost" onclick="renderDayHub()">← Back</button>
+      <button class="btn" id="commitBtn" ${sel.stock<=0?'disabled':''} onclick="commitTruck()">Sign the Week · Pay ${fmt(fixed+sel.stock*wsCost)}</button>
+    </div>
+  </div>`,keep);
+}
+
+function commitTruck(){
+  const env=trueEnv(G.week);
+  const fixed=env.truck_fixed+5*LOCATIONS[sel.l].stall;
+  const wsCost=env.cost[sel.p]*WHOLESALE;
+  const stock=clamp(sel.stock,0,Math.min(5*env.truck_cap[sel.p],Math.floor((G.cash-fixed)/wsCost)));
+  if(stock<=0)return;
+  G.cash-=fixed+stock*wsCost;
+  G.truck={...sel,stock,remaining:stock,fixed,wsCost,dayResults:[],soldOut:false};
+  G.decisions[G.week]={mode:'truck',p:sel.p,l:sel.l,t:sel.t,stock};
+  learnFrom({p:sel.p,l:sel.l});
+  playTruckWeek();
+}
+
+function playTruckWeek(){
+  const env=trueEnv(G.week),T=G.truck,price=priceOf(T.p,T.t);
+  const days=['Mon','Tue','Wed','Thu','Fri'];
+  T.dayResults=[];
+  let idleStreak=0;
+  for(let d=0;d<5;d++){
+    const demand=Math.floor(meanDemand(env,T.p,T.l,T.t)*rnd());
+    const sale=T.remaining>0?Math.min(demand,T.remaining,env.truck_cap[T.p]):0;
+    const rev=sale*price;
+    G.cash+=rev;T.remaining-=sale;
+    if(T.remaining<=0&&!T.soldOut){T.soldOut=true;T.soldOutDay=d;}
+    if(sale===0&&T.remaining<=0)idleStreak++;
+    T.dayResults.push({day:days[d],demand,sale,rev,left:T.remaining});
+  }
+  const spoiled=T.remaining;
+  const revenue=T.dayResults.reduce((a,r)=>a+r.rev,0);
+  const profit=revenue-T.fixed-T.stock*T.wsCost;
+  G.weekResults[G.week]={mode:'truck',days:T.dayResults,revenue,cogs:T.stock*T.wsCost,fixed:T.fixed,profit,spoiled,combo:{p:T.p,l:T.l,t:T.t}};
+  renderTruckReel(spoiled,profit);
+}
+
+function renderTruckReel(spoiled,profit){
+  const T=G.truck,env=trueEnv(G.week);
+  const rows=T.dayResults.map((r,i)=>{
+    const idle=T.soldOut&&i>T.soldOutDay;
+    const pct=T.stock>0?Math.round(r.sale/Math.max(T.stock,1)*100):0;
+    return`<div class="reel-row ${idle?'idle':''}" style="animation-delay:${i*0.12}s">
+      <b>${r.day}</b>
+      <div><div class="bar"><i style="width:${clamp(pct*3,2,100)}%"></i></div>
+        <span class="tiny muted">${idle?'sold out — truck sat idle':`demand ${r.demand} · sold ${r.sale} · stock left ${r.left}`}</span></div>
+      <span class="num small" style="text-align:right">${fmt(r.rev)}</span>
+      <span class="tiny muted" style="text-align:right">${idle?'idle':''}</span>
+    </div>`;}).join('');
+  const fb=[];
+  if(T.soldOut&&T.soldOutDay<4)fb.push({cls:'bad',txt:`Out of stock since ${['Mon','Tue','Wed','Thu','Fri'][T.soldOutDay]} — your truck sat idle ${4-T.soldOutDay} day(s). Fixed fees don't care.`});
+  if(spoiled>0)fb.push({cls:'bad',txt:`Week ended with ${spoiled} units unsold (−${fmt(spoiled*T.wsCost)} at wholesale). Demand was lower than your bet.`});
+  const totalSold=T.dayResults.reduce((a,r)=>a+r.sale,0);
+  if(totalSold>0&&totalSold<T.stock*0.4)fb.push({cls:'bad',txt:`Only ${Math.round(totalSold/T.stock*100)}% of your stock sold — wrong product for this crowd?`});
+  if(!T.soldOut&&spoiled===0)fb.push({cls:'good',txt:`Perfect stock sizing — sold every single unit.`});
+  fb.push(...comboObservation(T.p,T.l));
+  renderDayScene({
+    title:`Week ${G.week} · Food Truck @ ${LOCATIONS[T.l].name}`,
+    img:LOCATIONS[T.l].img,prod:PRODUCTS[T.p].img,
+    weather:env.weather,subtitle:`${PRODUCTS[T.p].name} · ${TIERS[T.t].name} $${priceOf(T.p,T.t).toFixed(2)}`,
+    nums:[['Revenue',fmt(G.weekResults[G.week].revenue),''],['Net for week',sfmt(profit),profit>=0?'':'red'],['Stock left',spoiled,'']],
+    body:`<div class="reel">${rows}</div>`,
+    feedback:fb,
+    cta:`<button class="btn" onclick="renderWeekSummary()">Week ${G.week} Summary →</button>`
+  });
+}
+
+/* ================================================================
+   CART DAY — decide fresh every morning
+   ================================================================ */
+function startCartDay(){pickerMode='cart';showCartDay();}
+function showCartDay(){
+  sel={p:'ice_cream',l:'city_market',t:'standard',stock:0};
+  refreshCartPicker(false);
+}
+function cartCalc(){
+  const env=trueEnv(G.week);
+  const fixed=env.cart_fixed+LOCATIONS[sel.l].stall;
+  const cost=env.cost[sel.p];
+  const maxStock=Math.max(0,Math.min(env.cart_cap[sel.p],Math.floor((G.cash-fixed)/cost)));
+  return{env,fixed,cost,maxStock};
+}
+function cartCostsHTML(){
+  const{fixed,cost}=cartCalc();
+  return`<div class="cost-line"><span>Cart fee${LOCATIONS[sel.l].stall?' + Arts stall':''}</span><span class="num">${fmt(fixed)}</span></div>
+    <div class="cost-line"><span>${sel.stock} units × $${cost}</span><span class="num">${fmt(sel.stock*cost)}</span></div>
+    <div class="cost-line total"><span>Paid this morning</span><span class="num">${fmt(fixed+sel.stock*cost)}</span></div>
+    ${sel.stock<=0?`<div class="warn-box" style="margin-top:10px">${I.warn} Opening with 0 stock burns the cart fee. Sometimes you must.</div>`:''}`;
+}
+function setCartStock(v){ // targeted update — no full re-render, keeps scroll & slider focus
+  const{fixed,cost,maxStock}=cartCalc();
+  sel.stock=clamp(Math.floor(v)||0,0,maxStock);
+  const r=document.getElementById('stockRange'),n=document.getElementById('stockNum');
+  if(r)r.value=sel.stock;if(n)n.value=sel.stock;
+  const c=document.getElementById('stockCosts');if(c)c.innerHTML=cartCostsHTML();
+  const b=document.getElementById('commitBtn');
+  if(b)b.disabled=(sel.stock<=0&&G.cash>fixed+cost);
+}
+function refreshCartPicker(keep){
+  const{env,fixed,cost,maxStock}=cartCalc();
+  sel.stock=clamp(sel.stock,0,maxStock);
+  render(`${band()}
+  <div class="fade-in">
+    <div class="step-dots">${[0,1,2,3,4].map(i=>`<i class="${i<G.day-1?'done':i===G.day-1?'on':''}"></i>`).join('')}</div>
+    <div class="eyebrow">Pushcart · ${DAYS5[G.day-1]} · Week ${G.week}</div>
+    <h1 style="font-size:28px">Today's call — change everything tomorrow if you want.</h1>
+    <div class="card" style="margin-top:16px"><h3 style="font-size:16px;margin-bottom:12px">1 · Product</h3>${productCards()}</div>
+    <div class="card"><h3 style="font-size:16px;margin-bottom:12px">2 · Location</h3>${locationCards()}</div>
+    <div class="card"><h3 style="font-size:16px;margin-bottom:12px">3 · Price tier</h3>${tierSeg()}</div>
+    <div class="card">
+      <h3 style="font-size:16px;margin-bottom:12px">4 · Today's stock <span class="small muted">(list cost · unsold spoils tonight)</span></h3>
+      ${estBox(false)}
+      <div class="stock-row" style="margin-top:14px">
+        <input type="range" id="stockRange" min="0" max="${maxStock}" value="${sel.stock}" oninput="setCartStock(+this.value)">
+        <input class="stock-num num" id="stockNum" type="number" min="0" max="${maxStock}" value="${sel.stock}" onchange="setCartStock(+this.value||0)">
+        <span class="small muted">units · max ${maxStock} (daily cap ${env.cart_cap[sel.p]})</span>
+      </div>
+      <div id="stockCosts" style="margin-top:14px">${cartCostsHTML()}</div>
+    </div>
+    <div class="center" style="margin-top:24px;display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-ghost" onclick="renderDayHub()">← Back</button>
+      <button class="btn" id="commitBtn" ${sel.stock<=0&&G.cash>fixed+cost?'disabled':''} onclick="commitCartDay()">Open the Cart →</button>
+    </div>
+  </div>`,keep);
+}
+
+function commitCartDay(){
+  const{env,fixed,cost}=cartCalc();
+  const stock=clamp(sel.stock,0,Math.min(env.cart_cap[sel.p],Math.floor((G.cash-fixed)/cost)));
+  G.cash-=fixed+stock*cost;
+  const price=priceOf(sel.p,sel.t);
+  const demand=Math.floor(meanDemand(env,sel.p,sel.l,sel.t)*rnd());
+  const sale=Math.min(demand,stock,env.cart_cap[sel.p]);
+  const rev=sale*price;G.cash+=rev;
+  const spoiled=stock-sale;
+  const profit=rev-stock*cost-fixed;
+  const res={day:G.day,p:sel.p,l:sel.l,t:sel.t,stock,demand,sale,rev,spoiled,profit,fixed,cogs:stock*cost};
+  G.cartDays.push(res);
+  learnFrom({p:sel.p,l:sel.l});
+  if(G.decisions[G.week]&&G.decisions[G.week].days)G.decisions[G.week].days.push({p:sel.p,l:sel.l,t:sel.t,stock,profit});
+  renderCartDayResult(res);
+}
+
+function renderCartDayResult(res){
+  const env=trueEnv(G.week);
+  const fb=[];
+  if(res.spoiled===0&&res.demand>res.stock&&res.stock>0)
+    fb.push({cls:'good',txt:`Sold out — turned away ~${res.demand-res.sale} orders. Stock more tomorrow?`});
+  if(res.spoiled>0)
+    fb.push({cls:'bad',txt:`Spoiled: ${res.spoiled} units unsold (−${fmt(res.spoiled*(res.cogs/Math.max(res.stock,1)))}). Demand was lower than expected.`});
+  if(res.stock>0&&res.sale<res.stock*0.4)
+    fb.push({cls:'bad',txt:`Only ${Math.round(res.sale/res.stock*100)}% of your stock sold — wrong product for this crowd?`});
+  if(res.spoiled===0&&res.demand<=res.stock)
+    fb.push({cls:'good',txt:`Clean day — every unit found a customer.`});
+  fb.push(...comboObservation(res.p,res.l));
+  const lastDay=G.day>=5;
+  renderDayScene({
+    title:`${DAYS5[res.day-1]} · Pushcart @ ${LOCATIONS[res.l].name}`,
+    img:LOCATIONS[res.l].img,prod:PRODUCTS[res.p].img,
+    weather:env.weather,subtitle:`${PRODUCTS[res.p].name} · ${TIERS[res.t].name} $${priceOf(res.p,res.t).toFixed(2)}`,
+    nums:[['Demand',res.demand,''],['Sold',res.sale,''],['Revenue',fmt(res.rev),''],['Net today',sfmt(res.profit),res.profit>=0?'':'red']],
+    body:'',feedback:fb,
+    cta:`<button class="btn" onclick="advanceDay()">${lastDay?`Week ${G.week} Summary →`:'Next Morning →'}</button>`
+  });
+}
+function advanceDay(){advanceDays(1);}
+function advanceDays(n){G.day+=n;if(G.day>5)finishWeek();else renderDayHub();}
+function finishWeek(){
+  const days=G.cartDays;
+  const revenue=days.reduce((a,r)=>a+r.rev,0);
+  const cogs=days.reduce((a,r)=>a+r.cogs,0);
+  const fixed=days.reduce((a,r)=>a+r.fixed,0);
+  const profit=days.reduce((a,r)=>a+r.profit,0);
+  const surveyFee=G.weekSurveyDays.length/2*QUICK_FEE;
+  G.weekResults[G.week]={mode:'mixed',days,revenue,cogs,fixed:fixed+surveyFee,profit:profit-surveyFee,surveyFee,
+    surveyDays:[...G.weekSurveyDays],
+    spoiled:days.reduce((a,r)=>a+r.spoiled,0),
+    combo:days.length?{p:days[days.length-1].p,l:days[days.length-1].l,t:days[days.length-1].t}:null};
+  renderWeekSummary();
+}
+
+/* ================================================================
+   QUICK SURVEY
+   ================================================================ */
+function startQuick(){
+  G.cash-=QUICK_FEE;
+  const d1=G.day,d2=G.day+1;
+  G.weekSurveyDays.push(d1,d2);
+  G.decisions[G.week].surveys.push([d1,d2]);
+  const cover=G.week+1;
+  const env=buildEnv(G.scn,cover,G.scn==='S2'?trendChaserLoc(cover):null);
+  G.known[cover]=env;
+  G.reports.push({bought:G.week,cover:[cover],envs:[env],tier:'quick'});
+  renderDayScene({
+    title:`Quick Survey · ${DAYS5[d1-1]}–${DAYS5[d2-1]}, Week ${G.week}`,
+    img:RESEARCH_IMG,
+    weather:trueEnv(G.week).weather,
+    subtitle:'Clipboards out. Your team counts foot traffic and asks strangers about yogurt.',
+    nums:[['Survey cost','−'+fmt(QUICK_FEE),'red'],['Days invested','2',''],['Report due',DAYS5[d2-1]+' night','']],
+    body:`<div class="warn-box">${I.info} While you survey, the market keeps moving without you — two days of zero sales.${d2<5?` ${DAYS5FULL[d2]} morning you're back on the street.`:' The week ends when the report lands.'}</div>`,
+    feedback:[{cls:'',txt:`Report delivered: an exact forecast of <b>Week ${cover}</b> — weather, trends, events${G.scn==='S2'?', rival plans':''}${G.scn==='S3'?', costs':''}. It's in your Reports archive.`}],
+    cta:`<button class="btn" onclick="viewReport(${G.reports.length-1},true)">Read the Week ${cover} Report →</button>`,
+    afterModal:`advanceDays(2)`
+  });
+}
+
+/* ================================================================
+   DEEP RESEARCH
+   ================================================================ */
+function startDeep(){
+  G.cash-=DEEP_FEE;
+  const covers=[G.week+1,G.week+2].filter(w=>w<=5);
+  const envs=covers.map(w=>buildEnv(G.scn,w,G.scn==='S2'?trendChaserLoc(w):null));
+  covers.forEach((w,i)=>G.known[w]=envs[i]);
+  G.reports.push({bought:G.week,cover:covers,envs,tier:'deep'});
+  G.decisions[G.week]={mode:'deep'};
+  G.weekResults[G.week]={mode:'deep',days:[],revenue:0,cogs:0,fixed:DEEP_FEE,profit:-DEEP_FEE,spoiled:0,combo:null};
+  renderDayScene({
+    title:`Deep Research · Week ${G.week}`,
+    img:RESEARCH_IMG,
+    weather:trueEnv(G.week).weather,
+    subtitle:'Five full days of interviews, foot-counting and spreadsheets.',
+    nums:[['Research cost','−'+fmt(DEEP_FEE),'red'],['Days invested','5',''],['Coverage',covers.map(w=>'W'+w).join(' & '),'']],
+    body:`<div class="warn-box">${I.info} A full week off the street. No revenue, no truck economics — information bought wholesale. Friday evening, the forecast arrives.</div>`,
+    feedback:[{cls:'',txt:`Report delivered: exact forecasts for <b>${covers.map(w=>'Week '+w).join(' and ')}</b>. Archived in Reports.`}],
+    cta:`<button class="btn" onclick="viewReport(${G.reports.length-1},true)">Read the Research Report →</button>`,
+    afterModal:`renderWeekSummary()`
+  });
+}
+
+/* ================================================================
+   REPORT VIEWER (difference-oriented)
+   ================================================================ */
+function reportHTML(rep){
+  const base=buildEnv(G.scn,1,null);
+  return rep.envs.map((env,idx)=>{
+    const w=rep.cover[idx];
+    const secs=[];
+    // weather
+    const wChanges=Object.keys(env.weather.map).filter(l=>env.weather.map[l]!==1);
+    secs.push(`<div style="margin-bottom:14px"><b>Weather:</b> ${env.weather.label}${wChanges.length?` — ${wChanges.map(l=>`${LOCATIONS[l].name} ×${env.weather.map[l]}`).join(' · ')}`:' (no impact anywhere)'}</div>`);
+    // trends
+    const tChanges=Object.keys(env.trend).filter(p=>env.trend[p]!==1);
+    if(tChanges.length)secs.push(`<div style="margin-bottom:14px"><b>Demand trend vs Week 1:</b> ${tChanges.map(p=>`${PRODUCTS[p].short} <b class="${env.trend[p]>1?'arrow-up':'arrow-down'}">×${env.trend[p].toFixed(2)}</b>`).join(' · ')}</div>`);
+    // traffic events
+    const trChanges=Object.keys(env.traffic).filter(l=>env.traffic[l]!==1);
+    if(trChanges.length)secs.push(`<div style="margin-bottom:14px"><b>Special event:</b> ${trChanges.map(l=>`${LOCATIONS[l].name} foot traffic <b class="arrow-up">×${env.traffic[l]}</b>`).join(' · ')}</div>`);
+    // costs
+    const cChanges=Object.keys(env.cost).filter(p=>env.cost[p]!==base.cost[p]);
+    if(cChanges.length)secs.push(`<div style="margin-bottom:14px"><b>Cost changes:</b> ${cChanges.map(p=>`${PRODUCTS[p].short} $${base.cost[p]} → <b class="${env.cost[p]>base.cost[p]?'arrow-down':'arrow-up'}">$${env.cost[p]}</b>${env.cart_cap[p]<PRODUCTS[p].cart_cap?' (supply halved)':''}`).join(' · ')}</div>`);
+    if(env.truck_fixed!==TRUCK_FIXED)secs.push(`<div style="margin-bottom:14px"><b>Fuel spike:</b> truck fixed $${env.truck_fixed} · cart $${env.cart_fixed}/day</div>`);
+    // competitors
+    if(env.competitors.length)secs.push(`<div style="margin-bottom:14px"><b>Rival plans:</b> ${env.competitors.map(c=>`${c[1]==='ice_cream'?'Frosty King':'TrendChaser'} → ${LOCATIONS[c[0]].name} (${PRODUCTS[c[1]].short})`).join(' · ')}</div>`);
+    // demand matrix
+    const rows=Object.keys(LOCATIONS).map(l=>`<tr>
+      <td><b>${LOCATIONS[l].name}</b></td>
+      ${Object.keys(PRODUCTS).map(p=>{
+        const mu=meanDemand(env,p,l,'standard',false);
+        return`<td class="c num">${Math.round(mu)}</td>`;}).join('')}
+    </tr>`).join('');
+    secs.push(`<div><b>Expected demand (units/day, Standard price, before your own competition):</b>
+      <table class="t"><tr><th>Location</th><th class="c">Ice Cream</th><th class="c">Yogurt</th><th class="c">Cold Brew</th></tr>${rows}</table>
+      <p class="tiny muted" style="margin-top:6px">Rivals at your corner split these numbers (same product ×0.65 · different product ×0.85). Value/Premium pricing shifts conversion ±.</p></div>`);
+    return`<div class="report-card" style="margin-bottom:16px">
+      <div class="rp-head">${I.doc}<b>Week ${w} — Exact Forecast</b>
+        <span class="chip ${rep.tier==='deep'?'gold':'green'}" style="margin-left:auto">${rep.tier==='deep'?'Deep Research':'Quick Survey'} · bought W${rep.bought}</span></div>
+      <div class="rp-body">${secs.join('')}</div></div>`;
+  }).join('');
+}
+function viewReport(i,thenClose){
+  const rep=G.reports[i];
+  openModal(`Market Research Report`,`${reportHTML(rep)}
+    <div class="center" style="margin-top:8px"><button class="btn" onclick="closeModal();${thenClose?(G._afterModal||''):''}">Got it →</button></div>`);
+}
+function showReports(){
+  if(!G||!G.reports.length){toast('No research reports yet.');return;}
+  const list=G.reports.map((r,i)=>`<button class="btn-ghost btn btn-sm" style="margin:4px" onclick="viewReport(${i})">
+    ${r.tier==='deep'?'Deep':'Quick'} · bought W${r.bought} → covers ${r.cover.map(w=>'W'+w).join(', ')}</button>`).join('');
+  openModal('Reports Archive',`<p class="small muted" style="margin-bottom:10px">Purchased research — exact forecasts, still true for their covered weeks.</p>${list}
+    <div class="center" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`);
+}
+function showRumors(){
+  if(!G||!G.rumors.length){toast('No rumors collected yet.');return;}
+  const cards=G.rumors.map(r=>`<div class="rumor-card" style="margin-bottom:14px"><p>“${r.text}”</p>
+    <div class="foot">Heard at end of Week ${r.week} · This can be verified through Research.</div></div>`).join('');
+  openModal('Rumor Archive',`${cards}<div class="center"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`);
+}
+
+/* ================================================================
+   DAY SCENE (settlement visual)
+   ================================================================ */
+function renderDayScene({title,subtitle,weather,nums,body,feedback,cta,afterModal,img,prod}){
+  G._afterModal=afterModal||'';
+  const wIcon=weather.kind==='sunny'?I.sun:weather.kind==='heat'?I.flame:I.cloud;
+  const effects=weather.kind==='rainy'?Array.from({length:26},(_,i)=>`<span class="rain-drop" style="left:${3+i*3.8}%;animation-delay:${(i%9)*0.13}s"></span>`).join('')
+    :weather.kind==='stormy'?Array.from({length:34},(_,i)=>`<span class="rain-drop" style="left:${2+i*2.9}%;animation-delay:${(i%7)*0.11}s"></span>`).join('')+'<div class="flash"></div>':'';
+  render(`${band()}
+  <div class="fade-in">
+    <div class="scene ${weather.kind==='rainy'?'rainy':weather.kind==='heat'?'heat':weather.kind==='stormy'?'stormy':''}">
+      ${effects}
+      <div class="scene-inner">
+        <div class="scene-locrow">
+          ${img?`<div style="position:relative;flex:none"><img class="scene-locimg" src="${img}" alt="" onerror="this.style.display='none'">${prod?`<img class="scene-prod" src="${prod}" alt="" onerror="this.style.display='none'">`:''}</div>`:''}
+          <div class="scene-loc"><div class="day-tag">${weather.label}</div><div class="loc-name">${title}</div>
+            <div class="small muted" style="margin-top:3px">${subtitle||''}</div></div>
+        </div>
+        <div class="sky-ico">${wIcon}</div>
+        <div class="scene-nums">${nums.map(n=>`<div class="snum"><b class="${n[2]}">${n[1]}</b><span>${n[0]}</span></div>`).join('')}</div>
+      </div>
+    </div>
+    ${body||''}
+    <div class="fb-list">${feedback.map((f,i)=>`<div class="fb ${f.cls||''}" style="animation-delay:${0.15+i*0.12}s"><span class="fb-ico">${f.cls==='bad'?I.warn:f.cls==='good'?I.good:I.info}</span><span>${f.txt}</span></div>`).join('')}</div>
+    <div class="center" style="margin-top:24px">${cta}</div>
+  </div>`);
+}
+function comboObservation(p,l){
+  const obs=[];
+  if(l==='university'&&p==='yogurt')obs.push({cls:'',txt:'Students in line mostly ordered Frozen Yogurt. This crowd knows what it wants.'});
+  if(l==='downtown'&&p==='cold_brew')obs.push({cls:'',txt:'Office workers grab cold brew without glancing at the price tag.'});
+  if(l==='beach'&&p==='cold_brew')obs.push({cls:'bad',txt:'Sunbathers look at hot-day coffee like it insulted them.'});
+  if(l==='train')obs.push({cls:'',txt:'Commuters rush past — you have about three seconds of their attention.'});
+  if(l==='city_market'&&p==='ice_cream')obs.push({cls:'',txt:'Families linger. Kids point. Ice cream basically sells itself here.'});
+  return obs;
+}
+
+/* ================================================================
+   WEEK SUMMARY (+ briefing + rumor)
+   ================================================================ */
+function renderWeekSummary(){
+  const w=G.week,res=G.weekResults[w],env=trueEnv(w);
+  G.cashAtWeekStart[w+1]=G.cash;
+  const dayNames=['Mon','Tue','Wed','Thu','Fri'];
+  let rows='';
+  if(res.mode==='truck'){
+    rows=res.days.map((r,i)=>`<tr><td>${dayNames[i]}</td><td class="r num">${r.demand}</td><td class="r num">${r.sale}</td>
+      <td class="r num">${fmt(r.rev)}</td><td class="r muted">—</td></tr>`).join('');
+    rows+=`<tr class="hl-row"><td><b>Mon costs</b></td><td></td><td></td><td></td>
+      <td class="r num">−${fmt(res.cogs+res.fixed)}</td></tr>`;
+  }else if(res.mode==='deep'){
+    rows=dayNames.map(d=>`<tr><td>${d}</td><td colspan="4" class="c muted">— deep research · no sales —</td></tr>`).join('');
+    rows+=`<tr class="hl-row"><td><b>Research fee</b></td><td></td><td></td><td></td><td class="r num">−${fmt(DEEP_FEE)}</td></tr>`;
+  }else{
+    // full Mon–Fri grid: cart days with numbers, survey days marked, gaps noted
+    rows=dayNames.map((d,i)=>{
+      const dnum=i+1,r=res.days.find(x=>x.day===dnum);
+      if(r)return`<tr><td>${d}</td><td class="r num">${r.demand}</td><td class="r num">${r.sale}</td>
+        <td class="r num">${fmt(r.rev)}</td><td class="r num">−${fmt(r.cogs+r.fixed)}</td></tr>`;
+      if(res.surveyDays&&res.surveyDays.includes(dnum))
+        return`<tr><td>${d}</td><td colspan="4" class="c muted">— out surveying · no sales —</td></tr>`;
+      return`<tr><td>${d}</td><td colspan="4" class="c muted">—</td></tr>`;
+    }).join('');
+    if(res.surveyFee)rows+=`<tr class="hl-row"><td><b>Survey fee${res.surveyDays.length>2?' ×'+(res.surveyDays.length/2):''}</b></td><td></td><td></td><td></td><td class="r num">−${fmt(res.surveyFee)}</td></tr>`;
+  }
+
+  // briefing for next week
+  let briefing='';
+  if(w<5){
+    const nEnv=trueEnv(w+1),cEnv=trueEnv(w);
+    const tArrows=Object.keys(PRODUCTS).map(p=>{
+      const r=nEnv.trend[p]/cEnv.trend[p];
+      return`${PRODUCTS[p].short} ${arrow(r)}`;}).join(' · ');
+    const hot=hottestSpot(G.scn,w);
+    const rumorText=SCEN[G.scn].rumors[w-1];
+    G.rumors.push({week:w,text:rumorText});
+    briefing=`<div class="divider"></div>
+    <h3 style="font-size:17px;margin-bottom:10px">Weekend briefing — looking at Week ${w+1}</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="chip ${nEnv.weather.kind==='sunny'?'gold':'red'}">Forecast: ${nEnv.weather.label}</span>
+      <span class="chip">Street talk (trends): ${tArrows}</span>
+      <span class="chip">This week's hottest spot: ${LOCATIONS[hot].name}</span>
+    </div>
+    <div class="rumor-card"><p>“${rumorText}”</p>
+      <div class="foot">Rumor · directionally true, deliberately vague · This can be verified through Research.</div></div>`;
+  }
+
+  render(`${band()}
+  <div class="fade-in">
+    <div class="step-dots">${[1,2,3,4,5].map(x=>`<i class="${x<w?'done':x===w?'on':''}"></i>`).join('')}</div>
+    <div class="eyebrow">Week ${w} wrapped · ${SCEN[G.scn].name}</div>
+    <h1 style="font-size:30px">${res.profit>=0?'+':''}${fmt(res.profit).replace('$-','−$')} <span class="small muted" style="font-size:15px">net this week · cash ${fmt(G.cash)}</span></h1>
+    <div class="card" style="margin-top:16px">
+      <table class="t"><tr><th>Day</th><th class="r">Demand</th><th class="r">Sold</th><th class="r">Revenue</th><th class="r">Costs & fees</th></tr>${rows}</table>
+      <div class="cost-line total" style="margin-top:8px"><span>Week net</span><span class="num">${sfmt(res.profit)}</span></div>
+      ${briefing}
+    </div>
+    <div class="center" style="margin-top:24px">
+      <button class="btn" onclick="${w<5?`G.week=${w+1};beginWeek()`:'showEnding()'}">${w<5?`Begin Week ${w+1} →`:'Finish the Run →'}</button>
+    </div>
+  </div>`);
+}
+
+/* ================================================================
+   ENDING — 5-component review
+   ================================================================ */
+function showEnding(){
+  const profit=G.cash-INITIAL_CASH;
+  if(!G.bankrupt)recordComplete(G.scn,profit);
+  const s=SCEN[G.scn];
+
+  /* ---- oracle comparison per played week ---- */
+  const playedWeeks=Object.keys(G.weekResults).map(Number).sort();
+  const gaps=playedWeeks.map(w=>{
+    const env=trueEnv(w),cash=G.cashAtWeekStart[w]??INITIAL_CASH;
+    const best=bestCombo(env,cash);
+    const actual=G.weekResults[w].profit;
+    return{w,best,actual,gap:best.profit-actual};
+  });
+  const missed=gaps.filter(g=>g.gap>1500).sort((a,b)=>b.gap-a.gap).slice(0,3);
+
+  /* ---- truth reveal ---- */
+  let truth='';
+  if(G.scn==='novice'){
+    truth=`<p class="muted" style="line-height:1.7">Nothing was hiding. The market was stable all five weeks — your Week-1 report was the complete truth. In steady markets, execution <i>is</i> the strategy: the winners simply matched Cold Brew × Downtown × Premium and scaled with the truck.</p>${trendChart()}`;
+  }else if(G.scn==='S1'){
+    truth=`<p class="muted" style="line-height:1.7">The health wave was real: Frozen Yogurt demand more than <b>doubled</b> (×2.10) while Cold Brew quietly decayed to ×0.85. Week 3's Food Festival tripled City Market traffic (×2.5). Anyone still selling the Week-1 report in Week 5 was reading history.</p>${trendChart()}${weatherTableHTML()}`;
+  }else if(G.scn==='S2'){
+    truth=`<p class="muted" style="line-height:1.7">Two rivals fought you all along. Frosty King never moved from City Market. TrendChaser chased last week's hottest spot every week — always one step behind. Week 4's Beach went viral (×3 traffic), then Week 5's storm wiped the Beach out (×0.4). Chasers who followed the crowd to the Beach in Week 5 met the storm.</p>${competitorLogHTML()}${eventLogHTML()}`;
+  }else{
+    truth=`<p class="muted" style="line-height:1.7">Demand never moved — costs did. Every shock was announced free on Monday morning. The whole game was: read the notice, recompute the margin, and migrate without sentiment.</p>${costTableHTML()}`;
+  }
+
+  /* ---- decision timeline ---- */
+  const evLabel=w=>{
+    const env=trueEnv(w);const evs=[];
+    Object.keys(env.traffic).forEach(l=>{if(env.traffic[l]!==1)evs.push(`${LOCATIONS[l].name} ×${env.traffic[l]}`);});
+    Object.keys(env.cost).forEach(p=>{const base=buildEnv(G.scn,1,null).cost[p];if(env.cost[p]!==base&&[2,3,4].includes(w)&&G.scn==='S3')evs.push(`${PRODUCTS[p].short} cost $${env.cost[p]}`);});
+    if(G.scn==='S3'&&w===5)evs.push('Fuel spike');
+    if(env.weather.kind!=='sunny')evs.push(env.weather.label);
+    return evs.join(' · ')||'—';
+  };
+  const playLabel=w=>{
+    const d=G.decisions[w],r=G.weekResults[w];
+    if(!d)return'—';
+    if(d.mode==='truck')return`<b>Truck:</b> ${PRODUCTS[d.p].short} @ ${LOCATIONS[d.l].name} · ${TIERS[d.t].name} · stock ${d.stock.toLocaleString()} → <b class="num">${sfmt(r.profit)}</b>`;
+    if(d.mode==='deep')return`<b>Deep Research</b> (no selling) → <b class="num">−${fmt(DEEP_FEE)}</b>`;
+    const combos=(d.days||[]).map(x=>`${PRODUCTS[x.p].short}@${LOCATIONS[x.l].name.replace(' Station','')}`).filter((v,i,a)=>a.indexOf(v)===i).join(', ');
+    const srv=(d.surveys&&d.surveys.length)?` + ${d.surveys.length}× Quick Survey (${d.surveys.map(s=>`${DAYS5[s[0]-1]}–${DAYS5[s[1]-1]}`).join(', ')})`:'';
+    return`<b>Pushcart${srv}:</b> ${combos||'—'} → <b class="num">${sfmt(r.profit)}</b>`;
+  };
+  const timeline=[1,2,3,4,5].map(w=>{
+    const g=gaps.find(x=>x.w===w);
+    return`<div class="tl-row"><div class="tl-week">W${w}</div>
+      <div class="tl-body"><div class="ev">${evLabel(w)}</div>
+      <div class="play">${playedWeeks.includes(w)?playLabel(w):'<span class="muted">— run ended —</span>'}</div>
+      ${g&&g.gap>800?`<div class="gap muted">Best available: ${g.best.mode==='truck'?'Truck':'Cart'} ${PRODUCTS[g.best.p].short} @ ${LOCATIONS[g.best.l].name} (${TIERS[g.best.t].name}) ≈ ${fmt(g.best.profit)} — gap <b class="r">${fmt(g.gap)}</b></div>`:''}
+      </div></div>`;
+  }).join('');
+
+  /* ---- benchmarks ---- */
+  const bm=[['You',Math.max(profit,0),'you'],['Random play',s.bench.random,''],['Adaptive player (no research)',s.bench.adaptive,''],['Theoretical optimum',s.bench.oracle,'']];
+  const maxB=Math.max(...bm.map(b=>b[1]),1);
+  const benchHTML=bm.map(b=>`<div class="bench-row ${b[2]}"><span>${b[0]}</span>
+    <div class="bar"><i style="width:${clamp(b[1]/maxB*100,1.5,100)}%"></i></div>
+    <span class="num" style="text-align:right">${fmt(b[1])}</span></div>`).join('');
+
+  /* ---- missed opportunities ---- */
+  const missedHTML=missed.length?missed.map((m,i)=>`
+    <div class="fb bad" style="animation-delay:${i*0.12}s"><span class="fb-ico">${I.warn}</span>
+    <span><b>W${m.w}:</b> ${m.best.mode==='truck'?'Food Truck':'Pushcart'} ${PRODUCTS[m.best.p].name} @ ${LOCATIONS[m.best.l].name} (${TIERS[m.best.t].name}) would have made ≈ <b>${fmt(m.best.profit)}</b>. You made ${fmt(m.actual)} — <b class="r">${fmt(m.gap)} left on the table</b>.</span></div>`).join('')
+    :`<div class="fb good"><span class="fb-ico">${I.good}</span><span>No major missed opportunities — you were playing close to the market's edge.</span></div>`;
+
+  const profitColor=profit>=0?'':'bankrupt';
+  render(`${band()}
+  <div class="fade-in">
+    <div class="end-hero ${G.bankrupt?'bankrupt':''}">
+      <div class="lbl">${G.bankrupt?`Bankrupt in Week ${G.bankruptWeek} — the market collects its tuition`:'Run complete — 5 weeks in Boomtown'}</div>
+      <div class="big">${profit<0?'−':''}${fmt(Math.abs(profit)).replace('$','$')}</div>
+      <div class="lbl" style="margin-top:6px">net profit · final cash ${fmt(G.cash)}</div>
+      <div style="margin-top:20px;position:relative"><span class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#FFF7EC">${s.name} · ${s.tag}</span></div>
+    </div>
+
+    <div class="card" style="margin-top:18px"><div class="eyebrow">Review 1 · The truth, revealed</div>${truth}</div>
+
+    <div class="card"><div class="eyebrow">Review 2 · Your decisions on the timeline</div>
+      <div class="timeline">${timeline}</div></div>
+
+    <div class="card"><div class="eyebrow">Review 3 · Top missed opportunities</div>
+      <div class="fb-list" style="margin-top:6px">${missedHTML}</div></div>
+
+    <div class="card"><div class="eyebrow">Review 4 · Benchmarks (from 44,000 simulated runs)</div>
+      <div class="bench">${benchHTML}</div>
+      <p class="tiny muted" style="margin-top:10px">Theoretical optimum = perfect free information. Adaptive player = reads feedback, never buys research. Beating the adaptive line usually means your research paid for itself.</p></div>
+
+    <div class="card"><div class="eyebrow">Review 5 · What this market was teaching</div>
+      <div class="fb-list" style="margin-top:6px">${s.teaching.map((t,i)=>`<div class="fb" style="animation-delay:${i*0.1}s"><span class="fb-ico">${I.info}</span><span>${t}</span></div>`).join('')}</div>
+      <div class="divider"></div>
+      <h3 style="font-size:17px;margin-bottom:12px">Journey Log — write it down, it compounds</h3>
+      <div class="jl-grid">
+        <div><label>MY STRATEGY</label><textarea id="jl1" placeholder="e.g. Cart first to scout, truck once I trusted a corner…"></textarea></div>
+        <div><label>MY RESULT</label><textarea id="jl2" placeholder="Net profit ${sfmt(profit)}. What went right, what hurt?"></textarea></div>
+        <div><label>KEY LEARNING</label><textarea id="jl3" placeholder="The one insight about this market I'll keep…"></textarea></div>
+        <div><label>WHAT I'LL CHANGE NEXT TIME</label><textarea id="jl4" placeholder="Next run, I will…"></textarea></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="saveJournal(${profit})">Save Journey Log</button>
+        <button class="btn btn-sm btn-ghost" onclick="copyJournal(${profit})">Copy to clipboard</button>
+      </div>
+    </div>
+
+    <div class="center" style="margin-top:26px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn" onclick="startBriefing('${G.scn}')">Run It Back — ${s.name}</button>
+      <button class="btn btn-ghost" onclick="showSelect()">Choose Scenario</button>
+      <button class="btn btn-ghost" onclick="showTitle()">Title Screen</button>
+    </div>
+  </div>`);
+}
+
+/* ---- truth-reveal fragments ---- */
+function trendChart(){
+  let series=[];
+  if(G.scn==='S1'){
+    series=[['Ice Cream',[1,.96,.92,.88,.85],'#B08968'],['Frozen Yogurt',[1,1.15,1.35,1.65,2.10],'#D71920'],['Cold Brew',[1,.98,.95,.90,.85],'#37302B']];
+  }else if(G.scn==='S2'){
+    series=[['Ice Cream',[0,1,2,3,4].map(i=>Math.pow(.98,i)),'#B08968'],['Frozen Yogurt',[0,1,2,3,4].map(i=>Math.pow(1.06,i)),'#D71920'],['Cold Brew',[0,1,2,3,4].map(i=>Math.pow(1.04,i)),'#37302B']];
+  }else{
+    series=[['All products',[1,1,1,1,1],'#D71920']];
+  }
+  const W=560,H=190,P=34,maxV=Math.max(...series.flatMap(s=>s[1]),1.2),minV=Math.min(...series.flatMap(s=>s[1]),0.8);
+  const X=i=>P+i*(W-2*P)/4, Y=v=>H-P-(v-minV)/(maxV-minV)*(H-2*P);
+  const lines=series.map(s=>`<polyline fill="none" stroke="${s[2]}" stroke-width="2.5" stroke-linecap="round"
+    points="${s[1].map((v,i)=>`${X(i)},${Y(v)}`).join(' ')}"/>${s[1].map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3.4" fill="${s[2]}"/>`).join('')}`).join('');
+  const legend=series.map(s=>`<span class="chip" style="border-color:${s[2]}33"><i style="display:inline-block;width:9px;height:9px;border-radius:99px;background:${s[2]};margin-right:2px"></i>${s[0]}</span>`).join(' ');
+  return`<div style="margin-top:14px"><b class="small">Demand index by week (× Week 1)</b>
+    <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap">${legend}</div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:620px;background:#FFFDF8;border:1px solid var(--line);border-radius:14px">
+      <line x1="${P}" y1="${Y(1)}" x2="${W-P}" y2="${Y(1)}" stroke="#D8CCBA" stroke-dasharray="4 4"/>
+      ${[1,2,3,4,5].map(i=>`<text x="${X(i-1)}" y="${H-10}" font-size="10" fill="#A89C90" text-anchor="middle">W${i}</text>`).join('')}
+      <text x="8" y="${Y(1)+4}" font-size="10" fill="#A89C90">×1.0</text>
+      <text x="8" y="${Y(maxV)+4}" font-size="10" fill="#A89C90">×${maxV.toFixed(2)}</text>
+      ${lines}
+    </svg></div>`;
+}
+function weatherTableHTML(){
+  return`<div style="margin-top:14px"><b class="small">Weather by week</b><table class="t">
+    <tr><th>Week</th><th>Weather</th><th>Notable effects</th></tr>
+    ${[1,2,3,4,5].map(w=>{const wt=weatherTable(G.scn,w);
+      const fx=Object.keys(wt.map).filter(l=>wt.map[l]!==1).map(l=>`${LOCATIONS[l].name} ×${wt.map[l]}`);
+      return`<tr><td>W${w}</td><td>${wt.label}</td><td class="muted">${fx.join(' · ')||'—'}</td></tr>`;}).join('')}
+  </table></div>`;
+}
+function competitorLogHTML(){
+  return`<div style="margin-top:14px"><b class="small">Rival movement log</b><table class="t">
+    <tr><th>Week</th><th>Frosty King</th><th>TrendChaser</th></tr>
+    ${[1,2,3,4,5].map(w=>`<tr><td>W${w}</td><td class="muted">City Market · Ice Cream</td>
+      <td class="muted">${LOCATIONS[trendChaserLoc(w)].name} · Yogurt</td></tr>`).join('')}
+  </table></div>`;
+}
+function eventLogHTML(){
+  const rows=[['W2','University Homecoming','foot traffic ×1.6'],['W4','Beach goes viral','foot traffic ×3.0, one week only'],['W5','Storm hits the coast','Beach ×0.4 · Train Station ×1.1']];
+  return`<div style="margin-top:14px"><b class="small">Event timeline</b><table class="t">
+    <tr><th>Week</th><th>Event</th><th>Effect</th></tr>
+    ${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="muted">${r[2]}</td></tr>`).join('')}
+  </table></div>`;
+}
+function costTableHTML(){
+  return`<div style="margin-top:14px"><b class="small">True cost & supply by week</b><table class="t">
+    <tr><th>Week</th><th>Ice Cream</th><th>Yogurt</th><th>Cold Brew</th><th>Fixed fees</th></tr>
+    ${[1,2,3,4,5].map(w=>{const e=buildEnv('S3',w,null);
+      const cell=(p,base)=>e.cost[p]===base?`$${e.cost[p]}`:`<b class="${e.cost[p]>base?'arrow-down':'arrow-up'}">$${e.cost[p]}</b>${e.cart_cap[p]<PRODUCTS[p].cart_cap?' · ½ supply':''}`;
+      return`<tr><td>W${w}</td><td>${cell('ice_cream',5)}</td><td>${cell('yogurt',8)}</td><td>${cell('cold_brew',13)}</td>
+      <td class="muted">${e.truck_fixed>1500?`<b class="arrow-down">truck $${e.truck_fixed} · cart $${e.cart_fixed}</b>`:'—'}</td></tr>`;}).join('')}
+  </table></div>`;
+}
+
+/* ---- journal ---- */
+function saveJournal(profit){
+  const entry={scn:G.scn,date:new Date().toISOString(),profit,
+    strategy:document.getElementById('jl1').value,result:document.getElementById('jl2').value,
+    learning:document.getElementById('jl3').value,change:document.getElementById('jl4').value};
+  const key='ftc_journal_'+G.scn;
+  let arr=[];try{arr=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
+  arr.push(entry);localStorage.setItem(key,JSON.stringify(arr));
+  toast('Journey Log saved.');
+}
+function copyJournal(profit){
+  const txt=`FOOD TRUCK CHALLENGE — JOURNEY LOG\nScenario: ${SCEN[G.scn].name}\nNet profit: ${sfmt(profit)}\n\nMY STRATEGY:\n${document.getElementById('jl1').value}\n\nMY RESULT:\n${document.getElementById('jl2').value}\n\nKEY LEARNING:\n${document.getElementById('jl3').value}\n\nWHAT I'LL CHANGE:\n${document.getElementById('jl4').value}`;
+  navigator.clipboard.writeText(txt).then(()=>toast('Copied to clipboard.')).catch(()=>toast('Copy failed — select the text manually.'));
+}
+
+/* boot */
+showTitle();
+</script>
+</body>
+</html>
