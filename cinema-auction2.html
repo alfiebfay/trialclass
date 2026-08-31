@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>银屏电影院 · CEO 拍卖挑战</title>
+<style>
+  :root{
+    --ink:#16120E; --ink2:#201912; --panel:#241C13; --panel2:#2C2216;
+    --gold:#C9A227; --gold2:#E0B84C; --ivory:#F2EAD9; --ivory-dim:#CBBFA6;
+    --muted:#8A7D64; --red:#A6503C; --line:rgba(201,162,39,.22);
+    --serif:"Songti SC","Noto Serif SC","STSong",serif;
+    --sans:"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--ink); color:var(--ivory); font-family:var(--sans);
+    overflow:hidden; font-size:16px;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:999;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.5) 100%);
+  }
+  .screen{
+    position:fixed; inset:0; display:none; flex-direction:column;
+    animation:fadeIn .5s ease; overflow:hidden;
+  }
+  .screen.active{display:flex}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  h1,h2,h3,.serif{font-family:var(--serif)}
+  .gold{color:var(--gold2)}
+  .btn{
+    font-family:var(--serif); cursor:pointer; border:none; border-radius:10px;
+    padding:14px 34px; font-size:18px; letter-spacing:.15em; transition:.25s;
+    background:linear-gradient(160deg,var(--gold2),var(--gold)); color:#241B08;
+    box-shadow:0 4px 20px rgba(201,162,39,.35); font-weight:700;
+  }
+  .btn:hover{transform:translateY(-2px); box-shadow:0 8px 28px rgba(201,162,39,.5)}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none}
+  .btn.ghost{
+    background:transparent; color:var(--ivory-dim); border:1px solid var(--line);
+    box-shadow:none; font-weight:400;
+  }
+  .btn.ghost:hover{border-color:var(--gold); color:var(--gold2)}
+  .btn.danger{background:transparent; border:1px solid rgba(166,80,60,.6); color:#D08070; box-shadow:none; font-weight:400}
+  .btn.danger:hover{border-color:var(--red); background:rgba(166,80,60,.15)}
+  .btn.sm{padding:8px 18px; font-size:14px; border-radius:8px}
+
+  .marquee{position:relative; padding:10px 26px; border-radius:14px;
+    background:linear-gradient(180deg,#2A2115,#1C150D); border:1px solid var(--line);
+  }
+  .marquee::before,.marquee::after{
+    content:""; position:absolute; left:12px; right:12px; height:6px;
+    background-image:radial-gradient(circle 3px, var(--gold2) 98%, transparent);
+    background-size:22px 6px; background-repeat:repeat-x;
+    animation:bulb 1.6s infinite alternate;
+  }
+  .marquee::before{top:4px}
+  .marquee::after{bottom:4px; animation-delay:.8s}
+  @keyframes bulb{from{opacity:.35; filter:blur(.4px)}to{opacity:1; filter:blur(0) drop-shadow(0 0 4px var(--gold2))}}
+
+  /* ========== 配置页 ========== */
+  #screen-config{background:url("images/bg-cover.jpg") center/cover no-repeat}
+  #screen-config::before{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(12,9,6,.82) 0%, rgba(12,9,6,.6) 45%, rgba(12,9,6,.92) 100%)}
+  .config-inner{position:relative; z-index:2; flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:22px; padding:30px; overflow-y:auto}
+  .game-title{font-size:56px; letter-spacing:.2em; text-shadow:0 4px 30px rgba(0,0,0,.8); text-align:center}
+  .game-sub{color:var(--ivory-dim); letter-spacing:.4em; font-size:15px; margin-top:-10px}
+  .story{max-width:760px; text-align:center; color:var(--ivory-dim); line-height:1.9; font-size:15px;
+    background:rgba(22,18,14,.72); border:1px solid var(--line); border-radius:14px; padding:18px 26px}
+  .config-panel{display:flex; gap:26px; flex-wrap:wrap; justify-content:center; align-items:stretch}
+  .cfg-card{background:rgba(28,21,13,.9); border:1px solid var(--line); border-radius:16px;
+    padding:22px 28px; min-width:250px; backdrop-filter:blur(4px)}
+  .cfg-card h3{color:var(--gold2); font-size:16px; letter-spacing:.2em; margin-bottom:14px; text-align:center}
+  .stepper{display:flex; align-items:center; justify-content:center; gap:18px}
+  .stepper button{width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
+    background:transparent; color:var(--gold2); font-size:24px; cursor:pointer; transition:.2s}
+  .stepper button:hover{border-color:var(--gold); background:rgba(201,162,39,.12)}
+  .stepper .val{font-family:var(--serif); font-size:38px; min-width:110px; text-align:center}
+  .cfg-hint{text-align:center; color:var(--muted); font-size:13px; margin-top:12px; min-height:18px}
+  .names-card{min-width:300px}
+  .gname-row{display:flex; align-items:center; gap:10px; margin:8px 0}
+  .gname-dot{width:14px; height:14px; border-radius:50%; flex:none}
+  .gname-row input{flex:1; background:rgba(242,234,217,.07); border:1px solid var(--line);
+    border-radius:8px; color:var(--ivory); padding:9px 12px; font-size:15px; outline:none}
+  .gname-row input:focus{border-color:var(--gold)}
+  .rules-strip{display:flex; gap:26px; color:var(--ivory-dim); font-size:14px; flex-wrap:wrap; justify-content:center}
+  .rules-strip b{color:var(--gold2); font-family:var(--serif); font-size:20px; margin-right:6px}
+
+  /* ========== 影院装饰(胶片条/幕布/放映机光束) ========== */
+  .film-strip{position:absolute; left:0; right:0; height:28px; z-index:3; pointer-events:none;
+    background-color:#0C0906;
+    background-image:radial-gradient(circle 3.2px, rgba(242,234,217,.15) 98%, transparent);
+    background-size:26px 100%; background-repeat:repeat-x; background-position:center}
+  .film-strip.top{top:0; border-bottom:1px solid var(--line)}
+  .film-strip.bottom{bottom:0; border-top:1px solid var(--line)}
+  .curtain{position:absolute; top:0; bottom:0; width:110px; z-index:2; pointer-events:none; opacity:.55;
+    background:repeating-linear-gradient(90deg, rgba(122,30,24,.5) 0 14px, rgba(64,14,12,.62) 14px 28px)}
+  .curtain.l{left:0; -webkit-mask-image:linear-gradient(90deg,#000 25%,transparent); mask-image:linear-gradient(90deg,#000 25%,transparent)}
+  .curtain.r{right:0; -webkit-mask-image:linear-gradient(-90deg,#000 25%,transparent); mask-image:linear-gradient(-90deg,#000 25%,transparent)}
+  .proj-beam{position:absolute; top:0; left:50%; transform:translateX(-50%); width:82%; height:46%;
+    z-index:1; pointer-events:none;
+    background:radial-gradient(55% 100% at 50% 0%, rgba(224,184,76,.10), transparent 72%)}
+  .ticket{position:relative; border:1px solid var(--gold); border-radius:12px;
+    background:linear-gradient(160deg,#2C2216,#221A10)}
+  .ticket::before,.ticket::after{content:""; position:absolute; top:50%; width:22px; height:22px;
+    border-radius:50%; background:var(--ink); border:1px solid var(--gold); transform:translateY(-50%)}
+  .ticket::before{left:-12px}
+  .ticket::after{right:-12px}
+
+  /* ========== 策略导论页 ========== */
+  #screen-strategy{background:linear-gradient(180deg,#191410,#120E0A); overflow:hidden}
+  .strategy-inner{position:relative; z-index:5; max-width:960px; width:100%; height:100%;
+    margin:0 auto; padding:44px 30px 46px; overflow-y:auto;
+    display:flex; flex-direction:column; gap:18px}
+  .plan-head{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap}
+  .plan-head h2{font-size:28px; letter-spacing:.15em}
+  .timer-box{display:flex; align-items:center; gap:14px}
+  #timer{font-family:var(--serif); font-size:44px; color:var(--gold2); min-width:150px; text-align:center;
+    font-variant-numeric:tabular-nums}
+  #timer.low{color:#E06A50; animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.5}}
+  .st-intro{text-align:center; color:var(--ivory-dim); font-size:15px; line-height:2}
+  .qd-frame{max-width:880px; margin:0 auto; width:100%; text-align:center}
+  .qd-ylab{color:var(--muted); font-size:12.5px; letter-spacing:.35em; padding:8px 0}
+  .qd-row{display:flex; align-items:center; gap:14px}
+  .qd-xlab{color:var(--muted); font-size:12.5px; letter-spacing:.25em; writing-mode:vertical-rl; flex:none}
+  .qd-grid{flex:1; display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .qd-cell{background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:22px 24px; text-align:left; min-height:128px}
+  .qd-cell h4{font-family:var(--serif); font-size:23px; margin-bottom:6px; letter-spacing:.18em}
+  .qd-cell .qd-sub{color:var(--muted); font-size:12.5px; margin-bottom:9px; letter-spacing:.08em}
+  .qd-cell .qd-desc{color:var(--ivory-dim); font-size:14px; line-height:1.75}
+  .st-tips{max-width:760px; margin:4px auto 0; text-align:center; color:var(--ivory-dim); font-size:14px;
+    line-height:1.9; background:rgba(28,21,13,.8); border:1px dashed rgba(201,162,39,.3);
+    border-radius:14px; padding:14px 24px}
+  .st-tips b{color:var(--gold2)}
+  .st-foot{text-align:center; margin-top:8px}
+
+  /* ========== 拍卖页 ========== */
+  #screen-auction{background:linear-gradient(120deg,#171208,#120E0A 60%)}
+  .auc-head{display:flex; align-items:center; justify-content:space-between; padding:38px 34px 10px; gap:16px; flex-wrap:wrap}
+  .auc-head .marquee{font-size:19px; letter-spacing:.18em}
+  .auc-progress{display:flex; gap:18px; color:var(--ivory-dim); font-size:14px}
+  .auc-progress b{color:var(--gold2); font-family:var(--serif); font-size:19px}
+  .auc-body{flex:1; display:flex; gap:22px; padding:8px 30px 38px; min-height:0}
+  .stage{flex:1.55; display:flex; flex-direction:column; background:var(--panel); border:1px solid var(--line);
+    border-radius:20px; overflow:hidden; min-width:0}
+  .stage-img-wrap{position:relative; flex:1; min-height:0; overflow:hidden}
+  .stage-img-wrap img{width:100%; height:100%; object-fit:cover; display:block; animation:kenburns 14s ease-in-out infinite alternate}
+  @keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.07)}}
+  .stage-img-wrap::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 40%, rgba(18,14,10,.92) 100%)}
+  .stage-info{position:relative; z-index:2; margin-top:-92px; padding:0 28px 20px}
+  .stage-info .ev-ribbon{display:inline-block; background:linear-gradient(160deg,var(--gold2),var(--gold));
+    color:#241B08; font-family:var(--serif); font-weight:700; font-size:14px; letter-spacing:.15em;
+    padding:5px 16px; border-radius:6px; margin-bottom:10px}
+  .stage-info h2{font-size:34px; letter-spacing:.06em; text-shadow:0 3px 16px rgba(0,0,0,.9); line-height:1.3}
+  .stage-rules{display:flex; gap:22px; color:var(--ivory-dim); font-size:13.5px; padding:0 28px 16px}
+  .stage-rules b{color:var(--gold2); font-family:var(--serif); font-size:17px}
+  .stage-ctrl{display:flex; align-items:center; gap:14px; padding:16px 28px 22px; border-top:1px dashed rgba(201,162,39,.25);
+    flex-wrap:wrap; background:rgba(18,14,10,.55)}
+  .price-stepper{display:flex; align-items:center; gap:12px}
+  .price-stepper button{width:46px; height:46px; border-radius:10px; border:1px solid var(--line);
+    background:transparent; color:var(--gold2); font-size:22px; cursor:pointer; transition:.2s}
+  .price-stepper button:hover:not(:disabled){border-color:var(--gold); background:rgba(201,162,39,.12)}
+  .price-stepper button:disabled{opacity:.3; cursor:not-allowed}
+  #priceInput{width:130px; text-align:center; font-family:var(--serif); font-size:30px; color:var(--ivory);
+    background:rgba(242,234,217,.06); border:1px solid var(--line); border-radius:10px; padding:6px 8px; outline:none}
+  #priceInput:focus{border-color:var(--gold)}
+  #priceInput.over{border-color:#E06A50; color:#E06A50; animation:shake .4s}
+  @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .ctrl-msg{color:#E06A50; font-size:13px; width:100%; min-height:16px}
+  .groups-side{flex:1; display:flex; flex-direction:column; gap:10px; min-width:300px; min-height:0}
+  .gs-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    color:var(--ivory-dim); font-size:14px; letter-spacing:.2em; padding:2px 4px}
+  .gs-head span{font-size:11.5px; color:var(--muted); letter-spacing:.05em}
+  .groups-panel{flex:1; display:flex; flex-direction:column; gap:12px; overflow-y:auto; padding:6px 4px 4px}
+  .group-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 16px;
+    cursor:pointer; transition:.2s; position:relative}
+  .group-card:hover{border-color:rgba(201,162,39,.5)}
+  .group-card.selected{border-color:var(--gold2); box-shadow:0 0 0 1px var(--gold2), 0 6px 24px rgba(201,162,39,.2);
+    background:var(--panel2)}
+  .group-card.selected::before{content:"举牌竞价"; position:absolute; top:-9px; right:12px;
+    background:var(--gold); color:#241B08; font-size:11px; padding:2px 10px; border-radius:10px; letter-spacing:.1em}
+  .group-card .g-top{display:flex; align-items:center; gap:10px}
+  .group-card .g-dot{width:12px; height:12px; border-radius:50%; flex:none}
+  .group-card .g-name{font-family:var(--serif); font-size:17px; flex:1}
+  .group-card .g-funds{color:var(--ivory-dim); font-size:13px}
+  .group-card .g-funds b{color:var(--gold2); font-family:var(--serif); font-size:19px}
+  .group-card .g-score{font-family:var(--serif); color:var(--gold2); font-size:19px; margin-left:12px}
+  .group-card .g-score span{font-size:12px; color:var(--muted); font-family:var(--sans)}
+  .g-won{display:flex; gap:6px; margin-top:9px; flex-wrap:wrap}
+  .g-won .mini{width:44px; height:34px; border-radius:6px; object-fit:cover; border:1px solid var(--line); position:relative}
+  .g-won .mini-wrap{position:relative; cursor:pointer; transition:.2s}
+  .g-won .mini-wrap:hover{transform:scale(1.12); z-index:2}
+  .g-won .mini-wrap:hover .mini{border-color:var(--gold2)}
+  .g-won .mini-pts{position:absolute; bottom:-5px; right:-5px; background:var(--gold); color:#241B08;
+    font-size:10px; font-weight:700; border-radius:8px; padding:0 5px; line-height:15px}
+  .g-combos{margin-top:7px; display:flex; gap:6px; flex-wrap:wrap}
+  .g-combos .cb{font-size:10.5px; color:var(--gold2); border:1px solid var(--line); border-radius:10px; padding:1px 8px}
+  .empty-hint{color:var(--muted); font-size:12px; margin-top:8px}
+
+  /* ========== 揭晓讲解页 ========== */
+  #screen-reveal{background:linear-gradient(120deg,#171208,#120E0A 60%)}
+  .reveal-inner{flex:1; display:flex; gap:28px; padding:44px 40px; max-width:1280px;
+    margin:0 auto; width:100%; min-height:0}
+  .rv-left{flex:1.25; display:flex; flex-direction:column; background:var(--panel);
+    border:1px solid var(--line); border-radius:20px; overflow:hidden; min-width:0}
+  .rv-img-wrap{position:relative; flex:1; min-height:0; overflow:hidden}
+  .rv-img-wrap img{width:100%; height:100%; object-fit:cover; display:block; animation:kenburns 12s ease-in-out infinite alternate}
+  .rv-img-wrap::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 42%, rgba(18,14,10,.95) 100%)}
+  .rv-meta{position:relative; z-index:2; margin-top:-104px; padding:0 26px 22px}
+  .rv-meta .ev-ribbon{display:inline-block; background:linear-gradient(160deg,var(--gold2),var(--gold));
+    color:#241B08; font-family:var(--serif); font-weight:700; font-size:13px; letter-spacing:.15em;
+    padding:4px 14px; border-radius:6px; margin-bottom:9px}
+  .rv-meta h2{font-size:29px; letter-spacing:.04em; text-shadow:0 3px 16px rgba(0,0,0,.9); line-height:1.3}
+  .rv-buyer{color:var(--ivory-dim); font-size:14px; margin-top:8px}
+  .rv-buyer b{color:var(--gold2); font-family:var(--serif)}
+  .rv-right{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:12px; min-width:0; overflow-y:auto; padding:6px 2px}
+  .r-label{color:var(--ivory-dim); letter-spacing:.4em; font-size:14px}
+  #revealScore{font-family:var(--serif); font-size:104px; line-height:1; color:var(--gold2);
+    text-shadow:0 0 60px rgba(224,184,76,.5); font-variant-numeric:tabular-nums}
+  .r-unit{color:var(--muted); font-size:14px; letter-spacing:.3em; margin-top:-6px}
+  .rv-quad{width:100%; background:rgba(28,21,13,.78); border:1px solid var(--line);
+    border-radius:16px; padding:16px 20px}
+  .rvq-title{font-size:15px; color:var(--ivory-dim); letter-spacing:.06em}
+  .rvq-title b{font-family:var(--serif); font-size:19px; letter-spacing:.1em}
+  .rvq-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:12px auto 10px; max-width:400px}
+  .rvq-cell{font-size:12px; color:var(--muted); border:1px solid rgba(201,162,39,.16);
+    border-radius:8px; padding:7px 4px; text-align:center; transition:.35s}
+  .rvq-cell.on{color:#241B08; font-weight:700; border-color:transparent;
+    box-shadow:0 0 26px rgba(224,184,76,.35); transform:scale(1.05)}
+  .rv-lesson{color:var(--ivory-dim); font-size:13.5px; line-height:1.8; text-align:left}
+  .combo-burst{width:100%; display:none; flex-direction:column; gap:8px; align-items:stretch}
+  .combo-burst .cb-line{background:rgba(201,162,39,.14); border:1px solid var(--gold); color:var(--gold2);
+    font-family:var(--serif); font-size:17px; border-radius:12px; padding:10px 20px; text-align:center;
+    animation:zoomIn .5s .2s both}
+  @keyframes zoomIn{from{transform:scale(.7); opacity:0}to{transform:scale(1); opacity:1}}
+  .combo-burst .cb-line span{font-size:12.5px; color:var(--ivory-dim); font-family:var(--sans); margin-left:8px}
+  .combo-burst .cb-lesson{font-size:12.5px; color:var(--ivory-dim); font-family:var(--sans); margin-top:5px; font-weight:400}
+  #revealNext{margin-top:8px}
+
+  /* ========== 结算页 ========== */
+  #screen-settle{background:url("images/bg-finale.jpg") center/cover no-repeat; overflow-y:auto}
+  #screen-settle::before{content:""; position:fixed; inset:0;
+    background:linear-gradient(180deg, rgba(12,9,6,.86), rgba(12,9,6,.78) 50%, rgba(12,9,6,.94))}
+  .settle-inner{position:relative; z-index:2; max-width:1100px; width:100%; margin:0 auto; padding:36px 30px 60px}
+  .winner-banner{text-align:center; margin-bottom:34px}
+  .winner-banner .w-label{color:var(--ivory-dim); letter-spacing:.5em; font-size:15px}
+  .winner-banner .w-name{font-family:var(--serif); font-size:52px; color:var(--gold2);
+    text-shadow:0 0 50px rgba(224,184,76,.45); margin:8px 0}
+  .winner-banner .w-score{font-size:19px; color:var(--ivory-dim)}
+  .winner-banner .w-score b{color:var(--gold2); font-family:var(--serif); font-size:26px}
+  .rank-table{width:100%; border-collapse:separate; border-spacing:0 10px}
+  .rank-table th{color:var(--muted); font-size:12.5px; letter-spacing:.15em; font-weight:400; padding:0 14px; text-align:left}
+  .rank-table td{background:rgba(28,21,13,.92); padding:14px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    font-size:15px; vertical-align:middle}
+  .rank-table td:first-child{border-left:1px solid var(--line); border-radius:12px 0 0 12px}
+  .rank-table td:last-child{border-right:1px solid var(--line); border-radius:0 12px 12px 0}
+  .rank-table tr.champ td{background:rgba(201,162,39,.13); border-color:var(--gold)}
+  .rank-num{font-family:var(--serif); font-size:24px; color:var(--ivory-dim); width:44px}
+  tr.champ .rank-num{color:var(--gold2)}
+  .rank-name{font-family:var(--serif); font-size:19px}
+  .rank-name .g-dot{display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:9px}
+  .score-break{font-family:var(--serif); font-size:21px; color:var(--gold2)}
+  .score-break span{font-size:12px; color:var(--muted); font-family:var(--sans)}
+  .won-chips{display:flex; gap:5px; flex-wrap:wrap; max-width:340px}
+  .won-chips .chip{display:flex; align-items:center; gap:5px; background:rgba(242,234,217,.06);
+    border:1px solid var(--line); border-radius:8px; padding:3px 8px 3px 4px; font-size:11.5px; color:var(--ivory-dim);
+    cursor:pointer; transition:.2s}
+  .won-chips .chip:hover{border-color:var(--gold2)}
+  .won-chips .chip img{width:30px; height:22px; object-fit:cover; border-radius:5px}
+  .won-chips .chip b{color:var(--gold2)}
+  .section-title{font-family:var(--serif); font-size:24px; letter-spacing:.2em; color:var(--ivory);
+    margin:44px 0 18px; text-align:center}
+  .section-title span{color:var(--gold2)}
+  .settle-foot{text-align:center; margin-top:44px; display:flex; gap:16px; justify-content:center}
+  #confetti{position:fixed; inset:0; pointer-events:none; z-index:50}
+
+  /* ========== 特殊场次特效(黄金/荷兰式/盲拍) ========== */
+  .stage-img-wrap.golden{animation:goldGlow 2s infinite}
+  @keyframes goldGlow{
+    0%,100%{box-shadow:0 0 0 2px var(--gold2), 0 0 35px rgba(224,184,76,.35)}
+    50%{box-shadow:0 0 0 2px #F0D68A, 0 0 65px rgba(224,184,76,.65)}}
+  .stage-img-wrap.golden::after{content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(115deg,transparent 32%,rgba(255,236,170,.30) 50%,transparent 68%);
+    background-size:250% 100%; animation:shineSweep 2.6s linear infinite}
+  @keyframes shineSweep{from{background-position:130% 0}to{background-position:-130% 0}}
+  .gold-badge{position:absolute; top:12px; left:12px; z-index:2;
+    background:linear-gradient(135deg,#E0B84C,#C9A227); color:#241C0D;
+    font-weight:700; font-size:13px; letter-spacing:.05em; padding:5px 14px;
+    border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.45); animation:pulse 1.8s infinite}
+  .stage-img-wrap.dutch{animation:dutchGlow 1.2s infinite}
+  @keyframes dutchGlow{
+    0%,100%{box-shadow:0 0 0 2px #A4262C, 0 0 25px rgba(164,38,44,.30)}
+    50%{box-shadow:0 0 0 3px #D94A3A, 0 0 55px rgba(217,74,58,.55)}}
+  .dutch-badge{position:absolute; top:12px; left:12px; z-index:2;
+    background:linear-gradient(135deg,#D94A3A,#A4262C); color:#FBF8F3;
+    font-weight:700; font-size:13px; letter-spacing:.05em; padding:5px 14px;
+    border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.45); animation:pulse 1s infinite}
+  .mc-sweep{position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(100deg,transparent 35%,rgba(240,237,230,.09) 50%,transparent 65%);
+    background-size:250% 100%; animation:shineSweep 3.2s linear infinite}
+  .dutch-panel{text-align:center; padding:2px 0 6px}
+  .dp-label{color:var(--muted); letter-spacing:.3em; font-size:12px; margin-bottom:4px}
+  .dp-price{font-family:var(--serif); font-size:62px; line-height:1.1; color:var(--gold2);
+    text-shadow:0 0 40px rgba(224,184,76,.4)}
+  .dp-price.pop{animation:pricePop .45s}
+  @keyframes pricePop{0%{transform:scale(1.28); color:#E86A5A}100%{transform:scale(1)}}
+  .dp-hint{color:var(--muted); font-size:12.5px; margin:6px 0 10px}
+  .rv-gold{display:inline-block; color:#241C0D; font-weight:700; font-size:13.5px;
+    background:linear-gradient(135deg,#E0B84C,#C9A227); border-radius:8px; padding:5px 16px}
+
+  /* ========== 下一件预告 ========== */
+  .rv-next-hint{font-size:14px; color:var(--ivory-dim); letter-spacing:.08em}
+  .rv-next-hint b{padding:3px 14px; border-radius:8px; border:1px solid var(--line);
+    margin-left:8px; font-weight:600}
+  .rv-next-hint b.gold{color:#241C0D; background:linear-gradient(135deg,#E0B84C,#C9A227); border:none}
+  .rv-next-hint b.dutch{color:var(--gold2); border-color:rgba(201,162,39,.55)}
+  .rv-next-hint b.myst{color:var(--ivory); border-style:dashed}
+  .next-toast{position:fixed; left:50%; top:42%; z-index:150; text-align:center;
+    transform:translate(-50%,-50%) scale(.92); opacity:0; pointer-events:none;
+    background:rgba(28,21,13,.96); border:1px solid var(--gold); border-radius:16px;
+    padding:26px 46px; box-shadow:0 16px 60px rgba(0,0,0,.6); transition:.28s}
+  .next-toast.show{opacity:1; transform:translate(-50%,-50%) scale(1)}
+  .nt-pass{color:var(--muted); letter-spacing:.3em; font-size:13px; margin-bottom:10px}
+  .nt-type{font-family:var(--serif); font-size:23px; color:var(--gold2); letter-spacing:.05em}
+
+  /* ========== 神秘盲拍 ========== */
+  .mystery-cover{position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px;
+    background:linear-gradient(160deg,#251D13,#120E0A)}
+  .mystery-cover::before,.mystery-cover::after{content:""; position:absolute; left:0; right:0;
+    height:30px; background-color:#0C0906;
+    background-image:radial-gradient(circle 3.5px, rgba(242,234,217,.14) 98%, transparent);
+    background-size:26px 100%; background-repeat:repeat-x; background-position:center}
+  .mystery-cover::before{top:0; border-bottom:1px solid var(--line)}
+  .mystery-cover::after{bottom:0; border-top:1px solid var(--line)}
+  .mc-q{font-family:var(--serif); font-size:120px; line-height:1; color:var(--gold2);
+    text-shadow:0 0 60px rgba(224,184,76,.45); animation:qFloat 3s ease-in-out infinite}
+  @keyframes qFloat{0%,100%{transform:translateY(0); opacity:.85}
+    50%{transform:translateY(-12px); opacity:1}}
+  .mc-label{color:var(--ivory-dim); letter-spacing:.45em; font-size:13.5px}
+  .mc-hint{color:var(--gold2); font-size:16px; letter-spacing:.08em;
+    border:1px dashed rgba(201,162,39,.45); border-radius:10px; padding:9px 24px}
+
+  /* ========== 重温遮罩(点击已拍事件) ========== */
+  .overlay{position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center;
+    background:rgba(10,8,5,.9); backdrop-filter:blur(6px)}
+  .overlay.show{display:flex; animation:fadeIn .3s}
+  .review-card{display:flex; max-width:880px; width:92%; background:var(--panel);
+    border:1px solid var(--gold); border-radius:18px; overflow:hidden; position:relative;
+    box-shadow:0 20px 80px rgba(0,0,0,.7), 0 0 50px rgba(201,162,39,.15);
+    animation:zoomIn .35s cubic-bezier(.2,1.4,.4,1)}
+  .review-img-wrap{flex:1.45; min-height:400px; position:relative}
+  .review-img-wrap img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block}
+  .review-info{flex:1; padding:30px 28px; display:flex; flex-direction:column; justify-content:center; gap:13px}
+  .review-info .ev-ribbon{display:inline-block; align-self:flex-start; background:linear-gradient(160deg,var(--gold2),var(--gold));
+    color:#241B08; font-family:var(--serif); font-weight:700; font-size:13px; letter-spacing:.15em;
+    padding:4px 14px; border-radius:6px}
+  .review-info h3{font-size:25px; line-height:1.45}
+  .review-pts{font-size:14.5px; color:var(--ivory-dim)}
+  .review-pts b{font-family:var(--serif); font-size:52px; color:var(--gold2); margin-right:8px;
+    text-shadow:0 0 34px rgba(224,184,76,.4)}
+  .review-pts #reviewQuad{font-family:var(--serif); font-size:16px; margin-left:10px}
+  .review-who{font-size:13.5px; color:var(--ivory-dim); border-top:1px dashed var(--line); padding-top:13px}
+  .review-who b{color:var(--gold2)}
+  .review-close{position:absolute; top:10px; right:10px; width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--line); background:rgba(12,9,6,.7); color:var(--ivory-dim); font-size:17px;
+    cursor:pointer; transition:.2s; z-index:2}
+  .review-close:hover{border-color:var(--gold); color:var(--gold2)}
+
+  /* ========== 总结象限页 ========== */
+  #screen-summary{background:url("images/bg-cover.jpg") center/cover no-repeat; overflow:hidden}
+  #screen-summary::before{content:""; position:fixed; inset:0;
+    background:linear-gradient(180deg, rgba(14,11,7,.9), rgba(14,11,7,.85) 50%, rgba(14,11,7,.95))}
+  #screen-summary .settle-inner{height:100%; overflow-y:auto; padding-top:32px}
+  .sum-grid{flex:1; display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .sum-cell{background:rgba(28,21,13,.9); border:1px solid var(--line); border-radius:16px;
+    padding:16px 18px; text-align:left}
+  .sum-cell h4{font-family:var(--serif); font-size:20px; letter-spacing:.15em}
+  .sum-cell .q-sub{color:var(--muted); font-size:12px; margin:4px 0 10px}
+  .sum-ev{display:flex; align-items:center; gap:10px; background:rgba(242,234,217,.05);
+    border:1px solid var(--line); border-radius:10px; padding:6px 12px 6px 6px; margin-top:8px}
+  .sum-ev img{width:64px; height:44px; object-fit:cover; border-radius:7px; flex:none}
+  .sum-ev .se-name{font-size:13px; color:var(--ivory); line-height:1.45}
+  .sum-ev .se-winner{font-size:11.5px; color:var(--ivory-dim); margin-top:3px}
+  .sum-ev .se-winner .g-dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px}
+  .sum-ev .se-pts{font-family:var(--serif); color:var(--gold2); font-size:19px; flex:none}
+  .sum-ev .se-pts span{font-size:11px; color:var(--muted); font-family:var(--sans)}
+  .sum-combos{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px;
+    max-width:1060px; margin:0 auto; width:100%}
+  .sum-combo{background:rgba(28,21,13,.9); border:1px solid var(--line); border-radius:14px; padding:14px 18px}
+  .sum-combo .sc-head{display:flex; justify-content:space-between; align-items:baseline}
+  .sum-combo .sc-name{font-family:var(--serif); font-size:18px; color:var(--ivory)}
+  .sum-combo .sc-bonus{font-family:var(--serif); color:var(--gold2); font-size:17px}
+  .sum-combo .sc-need{color:var(--ivory-dim); font-size:12px; margin-top:6px; line-height:1.6}
+  .sum-combo .sc-lesson{color:var(--muted); font-size:12px; margin-top:6px; line-height:1.6}
+  .sum-combo .sc-who{margin-top:9px; font-size:12px; color:var(--ivory-dim); display:flex; gap:12px; flex-wrap:wrap}
+  .sum-combo .sc-who .g-dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px}
+
+  /* ========== 教学页共用骨架 ========== */
+  #screen-vote,#screen-intro,#screen-oc,#screen-quiz,
+  #screen-teams,#screen-mid,#screen-guess,#screen-takeaway{
+    background:linear-gradient(180deg,#191410,#120E0A)}
+  #screen-vote::before,#screen-oc::before,#screen-quiz::before,
+  #screen-teams::before,#screen-mid::before,#screen-guess::before,#screen-takeaway::before{
+    content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:82%; height:42%; pointer-events:none;
+    background:radial-gradient(55% 100% at 50% 0%, rgba(224,184,76,.10), transparent 72%)}
+  .teach-inner{position:relative; z-index:2; flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; justify-content:safe center; gap:24px;
+    max-width:960px; width:100%; margin:0 auto; padding:40px 30px; overflow-y:auto; text-align:center}
+  .teach-inner.wide{max-width:1180px}
+  .tp-head{display:flex; flex-direction:column; align-items:center; gap:12px}
+  .tp-kicker{color:var(--gold2); letter-spacing:.42em; font-size:13px}
+  .tp-head h2{font-size:33px; letter-spacing:.12em; line-height:1.35}
+  .tp-lead{color:var(--ivory-dim); font-size:15px; line-height:1.9; max-width:660px}
+  .teach-foot{display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:6px}
+  .teach-takeaway{max-width:680px; color:var(--ivory-dim); font-size:14.5px; line-height:1.95;
+    background:rgba(28,21,13,.8); border:1px dashed rgba(201,162,39,.3); border-radius:14px; padding:14px 26px}
+  .teach-takeaway b{color:var(--gold2)}
+  .btn.gold{color:#241B08}
+  .tdot{display:inline-block; width:10px; height:10px; border-radius:50%; flex:none}
+
+  /* ========== 开场投票页 ========== */
+  .vote-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; max-width:780px}
+  .vote-card{background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:20px 24px; cursor:pointer; transition:.2s; display:flex; flex-direction:column; gap:12px}
+  .vote-card:hover{border-color:rgba(201,162,39,.55); transform:translateY(-3px);
+    box-shadow:0 8px 26px rgba(0,0,0,.4)}
+  .vote-card:active{transform:scale(.97)}
+  .vc-label{font-family:var(--serif); font-size:19px; letter-spacing:.08em}
+  .vc-bar{height:10px; border-radius:6px; background:rgba(242,234,217,.08); overflow:hidden}
+  .vc-fill{height:100%; border-radius:6px; background:linear-gradient(90deg,var(--gold),var(--gold2));
+    transition:width .35s ease; box-shadow:0 0 12px rgba(224,184,76,.4)}
+  .vc-num{font-family:var(--serif); font-size:26px; color:var(--gold2); text-align:right; line-height:1}
+
+  /* ========== 情境导入页 ========== */
+  .intro-bg{position:absolute; inset:0; background:url("images/bg-cover.jpg") center/cover no-repeat; opacity:.3}
+  .intro-bg::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(12,9,6,.68), rgba(12,9,6,.9))}
+  .intro-inner{gap:20px}
+  .intro-story{color:var(--ivory-dim); font-size:17px; line-height:2.1}
+  .intro-story p{margin:4px 0}
+  .intro-story .big{font-family:var(--serif); font-size:26px; color:var(--gold2);
+    letter-spacing:.12em; margin-top:16px; text-shadow:0 0 30px rgba(224,184,76,.35)}
+  .case-row{display:flex; gap:18px; justify-content:center; flex-wrap:wrap}
+  .case-card{background:rgba(28,21,13,.88); border:1px solid var(--line); border-radius:14px;
+    padding:18px 24px; width:290px}
+  .cc-age{font-family:var(--serif); font-size:27px; color:var(--gold2)}
+  .cc-name{font-family:var(--serif); font-size:16.5px; margin:7px 0 8px; letter-spacing:.05em}
+  .cc-desc{color:var(--ivory-dim); font-size:13px; line-height:1.75}
+  .intro-note{color:var(--ivory-dim); font-size:14px; letter-spacing:.14em}
+
+  /* ========== 机会成本页 ========== */
+  .oc-stage{background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    padding:30px 36px; display:flex; flex-direction:column; align-items:center; gap:22px;
+    width:100%; max-width:720px}
+  .oc-tokens{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+  .oc-token{font-family:var(--serif); font-size:16px; color:var(--gold2);
+    background:linear-gradient(160deg,#2C2216,#221A10); border:1px solid var(--gold);
+    border-radius:8px; padding:10px 15px; transition:.45s}
+  .oc-token.spent{opacity:.15; transform:scale(.82) translateY(8px); filter:grayscale(1)}
+  .oc-actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center}
+  .oc-line{color:var(--ivory-dim); font-size:15px; min-height:24px; line-height:1.7}
+  .oc-line b{color:var(--gold2)}
+
+  /* ========== 四象限快练页 ========== */
+  .quiz-layout{display:flex; gap:26px; width:100%; align-items:stretch}
+  .quiz-frame{flex:1.35}
+  .quiz-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; flex:1}
+  .qz-cell{background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px; text-align:left; min-height:118px; display:flex; flex-direction:column; gap:8px; transition:.3s}
+  .qz-title{font-family:var(--serif); font-size:19px; letter-spacing:.15em}
+  .qz-chips{display:flex; gap:6px; flex-wrap:wrap; align-content:flex-start}
+  .qz-chip{background:rgba(224,184,76,.13); border:1px solid var(--gold); color:var(--gold2);
+    border-radius:10px; padding:4px 12px; font-size:12.5px; animation:zoomIn .4s}
+  .qz-none{color:var(--muted); font-size:13px}
+  .qz-img{width:56px; height:40px; object-fit:cover; border-radius:6px; border:1px solid var(--line)}
+  .quiz-side{flex:.85; display:flex; flex-direction:column; gap:16px; justify-content:center; min-width:0}
+  .quiz-card{background:var(--panel2); border:1px dashed rgba(201,162,39,.4); border-radius:14px;
+    padding:26px 22px; font-family:var(--serif); font-size:20px; line-height:1.8; text-align:center;
+    min-height:128px; display:flex; align-items:center; justify-content:center}
+  .quiz-actions{display:flex; gap:12px; justify-content:center}
+
+  /* ========== 队伍亮相页 ========== */
+  .teams-grid{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; width:100%}
+  .team-card{background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    width:230px; overflow:hidden; text-align:center; animation:zoomIn .5s both}
+  .tc-bar{height:8px}
+  .tc-name{font-family:var(--serif); font-size:22px; letter-spacing:.1em; padding:18px 14px 6px}
+  .tc-funds{color:var(--ivory-dim); font-size:13px; padding-bottom:18px}
+
+  /* ========== 中场盘点页 ========== */
+  .mid-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(205px,1fr)); gap:14px; width:100%}
+  .mid-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; text-align:left}
+  .mid-name{font-family:var(--serif); font-size:17px; display:flex; align-items:center; gap:9px}
+  .mid-nums{color:var(--ivory-dim); font-size:12.5px; margin:9px 0 6px}
+  .mid-nums b{color:var(--gold2); font-family:var(--serif); font-size:14px}
+  .mid-cpp{font-family:var(--serif); font-size:29px; color:var(--gold2); line-height:1.15}
+  .mid-cpp span{font-size:12px; color:var(--muted); font-family:var(--sans)}
+  .mid-bar{height:8px; border-radius:5px; background:rgba(242,234,217,.08); overflow:hidden; margin:10px 0 8px}
+  .mid-bar>div{height:100%; border-radius:5px; background:linear-gradient(90deg,var(--gold),var(--gold2)); transition:width .5s}
+  .mid-tag{color:var(--muted); font-size:12px; letter-spacing:.1em}
+  .mid-quad-wrap{width:100%; max-width:880px; margin:0 auto}
+  .mid-quad-wrap .section-title{margin:6px 0 12px; font-size:19px}
+  .mid-quad .qz-cell{min-height:86px}
+
+  /* ========== 联动猜想墙页 ========== */
+  .guess-form{display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap}
+  .guess-form select{background:rgba(242,234,217,.07); border:1px solid var(--line); border-radius:8px;
+    color:var(--ivory); padding:10px 14px; font-size:14px; outline:none; max-width:250px; cursor:pointer}
+  .guess-form select:focus{border-color:var(--gold)}
+  .guess-form option{background:#241C13}
+  .guess-x{font-family:var(--serif); font-size:22px; color:var(--gold2)}
+  .guess-wall{display:flex; flex-direction:column; gap:10px; width:100%; max-width:620px;
+    max-height:330px; overflow-y:auto; padding:4px}
+  .gw-empty{color:var(--muted); font-size:14px; padding:22px 0}
+  .gw-item{display:flex; align-items:center; gap:10px; background:var(--panel);
+    border:1px solid var(--line); border-radius:10px; padding:10px 16px; font-size:14px;
+    color:var(--ivory-dim); text-align:left}
+  .gw-item b{font-family:var(--serif); color:var(--ivory)}
+  .gw-item.hit{border-color:var(--gold); background:rgba(201,162,39,.12)}
+  .gw-status{margin-left:auto; font-size:12px; color:var(--muted); flex:none}
+  .gw-item.hit .gw-status{color:var(--gold2); font-weight:700}
+
+  /* ========== 课后迁移页 ========== */
+  .tk-card{background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    padding:36px 48px; max-width:760px; width:100%}
+  .tk-line{font-size:18px; color:var(--ivory-dim); line-height:2.3}
+  .tk-line b{color:var(--gold2); font-family:var(--serif)}
+
+  /* ========== 押分预测/流拍倒数/合影遮罩 ========== */
+  .predict-card,.pc-card{background:rgba(28,21,13,.96); border:1px solid var(--gold); border-radius:18px;
+    padding:38px 54px; text-align:center; box-shadow:0 20px 80px rgba(0,0,0,.65);
+    display:flex; flex-direction:column; align-items:center; gap:16px; animation:zoomIn .35s cubic-bezier(.2,1.4,.4,1)}
+  .pd-kicker{color:var(--gold2); letter-spacing:.42em; font-size:12.5px}
+  .pd-q{font-family:var(--serif); font-size:25px; letter-spacing:.05em}
+  .pd-opts{display:flex; gap:16px}
+  .pd-opts span{border:1px solid var(--line); border-radius:10px; padding:8px 22px;
+    color:var(--ivory-dim); font-size:14px}
+  .pd-count{font-family:var(--serif); font-size:70px; line-height:1; color:var(--gold2);
+    text-shadow:0 0 46px rgba(224,184,76,.5); animation:pulse 1s infinite; font-variant-numeric:tabular-nums}
+  .pc-label{font-family:var(--serif); font-size:22px; letter-spacing:.2em; color:var(--ivory)}
+  .pc-num{font-family:var(--serif); font-size:92px; line-height:1.05; color:#E06A50;
+    text-shadow:0 0 50px rgba(224,106,80,.5); animation:pulse 1s infinite; font-variant-numeric:tabular-nums}
+  .photo-card{text-align:center; animation:zoomIn .45s cubic-bezier(.2,1.4,.4,1)}
+  .photo-card .w-label{color:var(--ivory-dim); letter-spacing:.5em; font-size:14px}
+  .photo-name{font-family:var(--serif); font-size:58px; color:var(--gold2);
+    text-shadow:0 0 60px rgba(224,184,76,.55); margin:16px 0 10px}
+  .photo-score{font-size:19px; color:var(--ivory-dim)}
+  .photo-hint{color:var(--muted); font-size:13px; letter-spacing:.32em; margin-top:44px; animation:pulse 2s infinite}
+
+  @media (max-width:1000px){
+    .quiz-layout{flex-direction:column}
+    .vote-grid{grid-template-columns:1fr}
+    .tp-head h2{font-size:26px}
+    .teach-inner{padding:28px 18px; gap:18px}
+    .case-card{width:100%; max-width:340px}
+  }
+
+  #soundBtn{position:fixed; right:16px; bottom:42px; z-index:200; width:46px; height:46px;
+    border-radius:50%; border:1px solid var(--line); background:rgba(28,21,13,.88);
+    color:var(--ivory); font-size:19px; cursor:pointer; transition:.2s}
+  #soundBtn:hover{border-color:var(--gold)}
+  #soundBtn.off{color:var(--muted)}
+
+  ::-webkit-scrollbar{width:8px}
+  ::-webkit-scrollbar-thumb{background:rgba(201,162,39,.3); border-radius:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  @media (max-width:1000px){
+    .auc-body{flex-direction:column; overflow-y:auto}
+    .groups-panel{min-width:0}
+    .game-title{font-size:38px}
+    .reveal-inner{flex-direction:column; overflow-y:auto}
+    .rv-left{min-height:340px; flex:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= 配置页 ================= -->
+<section id="screen-config" class="screen active">
+  <div class="config-inner">
+    <div>
+      <h1 class="game-title">银屏电影院</h1>
+      <p class="game-sub" style="text-align:center">CEO 拍 卖 挑 战 · SCENARIO LEADERSHIP</p>
+    </div>
+    <div class="story">
+      几十年来,「银屏电影院」一直是这座城市最受欢迎的娱乐场所。然而线上流媒体的冲击让上座率持续下滑……
+      各位 CEO,请用手中的资金,在拍卖会上为影院拍下最有效的振兴方案,扭转乾坤!
+    </div>
+    <div class="rules-strip">
+      <span><b id="rFunds">1000</b>起始资金</span>
+      <span><b>11</b>拍卖事件</span>
+      <span><b>100</b>起拍价</span>
+      <span><b>100</b>单次加价</span>
+      <span><b>?</b>隐藏联动</span>
+    </div>
+    <div class="config-panel">
+      <div class="cfg-card">
+        <h3>参赛组数</h3>
+        <div class="stepper">
+          <button onclick="cfgGroups(-1)">−</button>
+          <div class="val" id="cfgGroupNum">4</div>
+          <button onclick="cfgGroups(1)">+</button>
+        </div>
+        <div class="cfg-hint">建议 4–5 组(6 组可能有小组空手)</div>
+      </div>
+      <div class="cfg-card">
+        <h3>每组起始资金</h3>
+        <div class="stepper">
+          <button onclick="cfgFunds(-1)">−</button>
+          <div class="val" id="cfgFundNum">1000</div>
+          <button onclick="cfgFunds(1)">+</button>
+        </div>
+        <div class="cfg-hint" id="fundHint">4 组推荐 1000 / 组</div>
+      </div>
+      <div class="cfg-card names-card">
+        <h3>小组命名</h3>
+        <div id="nameList"></div>
+      </div>
+    </div>
+    <button class="btn" onclick="goStrategy()">开 始 上 课</button>
+  </div>
+</section>
+
+<!-- ================= 策略导论页 ================= -->
+<section id="screen-strategy" class="screen">
+  <div class="film-strip top"></div>
+  <div class="film-strip bottom"></div>
+  <div class="curtain l"></div>
+  <div class="curtain r"></div>
+  <div class="proj-beam"></div>
+  <div class="strategy-inner">
+    <div class="plan-head">
+      <h2>决策思维 · 策略导论</h2>
+      <div class="timer-box">
+        <button class="btn ghost sm" id="timerBtn" onclick="toggleTimer()">开始计时</button>
+        <div id="timer">08:00</div>
+        <button class="btn ghost sm" onclick="resetTimer()">重置</button>
+      </div>
+    </div>
+    <p class="st-intro">
+      每个商业决策,都可以用「付出」与「收益」两个维度来衡量。<br>
+      即将登场的 11 件拍品,都藏在这张象限图的某个位置 —— 竞拍前,先想清楚它可能属于哪里。
+    </p>
+    <div class="qd-frame">
+      <div class="qd-ylab">▲ 高 收 益</div>
+      <div class="qd-row">
+        <span class="qd-xlab">低 付 出</span>
+        <div class="qd-grid" id="stQuadGrid"></div>
+        <span class="qd-xlab">高 付 出</span>
+      </div>
+      <div class="qd-ylab">▼ 低 收 益</div>
+    </div>
+    <div class="st-tips ticket">
+      <b>⚡ 联动机制</b>:本场隐藏 <b>5 组联动</b>,只要集齐互为联动的 <b>2 件</b>拍品,
+      成交揭晓时自动加分(<b>+5 ~ +8 分</b>,可叠加)。哪些拍品互为联动不会提前公布 —— 用商业直觉边拍边判断。<br>
+      <b>? 神秘盲拍</b>:1 件神秘拍品只有线索、拍到才揭晓;
+      <b>✦ 黄金场次</b>:1 件拍品拍得后效用 <b>×2</b>;
+      <b>↯ 荷兰式拍卖</b>:2 件拍品先展示,宣布开始后从 600 元起每 2 秒降 100,先喊先得。<br>
+      另外:效用分越高 = <b>收益越高</b>;成交价越高 ≈ <b>付出越高</b>。
+    </div>
+    <div class="st-foot">
+      <button class="btn" onclick="goTeams()">讨 论 完 毕 · 队 伍 亮 相</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 开场投票页 ================= -->
+<section id="screen-vote" class="screen">
+  <div class="teach-inner">
+    <div class="tp-head">
+      <div class="tp-kicker">WARM-UP · 开场投票</div>
+      <h2 class="serif">如果你是老板,最先改什么?</h2>
+      <p class="tp-lead">「银屏电影院」生意下滑。四个改造方向,举手表决——你点卡片计票,每票都作数。</p>
+    </div>
+    <div class="vote-grid" id="voteGrid"></div>
+    <div class="teach-foot">
+      <button class="btn ghost sm" onclick="resetVote()">清 零</button>
+      <button class="btn" onclick="goIntro()">投 票 完 毕 · 进 入 情 境</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 情境导入页 ================= -->
+<section id="screen-intro" class="screen">
+  <div class="intro-bg"></div>
+  <div class="teach-inner intro-inner">
+    <div class="tp-kicker">SCENARIO · 情境导入</div>
+    <div class="intro-story">
+      <p>几十年来,「银屏电影院」是这座城市最受欢迎的娱乐场所。</p>
+      <p>然而,流媒体的崛起改变了一切——上座率下滑,票房持续走低。</p>
+      <p>年轻观众,更愿意窝在家里点开手机。</p>
+      <p class="big">今天,振兴影院的任务,交给你们。</p>
+    </div>
+    <div class="case-row">
+      <div class="case-card">
+        <div class="cc-age">13 岁</div>
+        <div class="cc-name">Hilary Yip 叶礽僖</div>
+        <div class="cc-desc">创立语言学习平台,成为全球最年轻的 CEO 之一</div>
+      </div>
+      <div class="case-card">
+        <div class="cc-age">4 岁</div>
+        <div class="cc-name">Mikaila Ulmer 米凯拉·厄尔默</div>
+        <div class="cc-desc">从祖母的柠檬水配方起步,把蜂蜜柠檬水卖进全美超市</div>
+      </div>
+    </div>
+    <p class="intro-note">CEO 不分年龄 —— 决策能力,是可以练习的。</p>
+    <div class="teach-foot"><button class="btn" onclick="showOC()">你 们 的 资 金 与 代 价 →</button></div>
+  </div>
+</section>
+
+<!-- ================= 机会成本页 ================= -->
+<section id="screen-oc" class="screen">
+  <div class="teach-inner">
+    <div class="tp-head">
+      <div class="tp-kicker">概念① · 机会成本</div>
+      <h2 class="serif">每一块钱,只能花一次</h2>
+    </div>
+    <div class="oc-stage">
+      <div class="oc-tokens" id="ocTokens"></div>
+      <div class="oc-actions">
+        <button class="btn sm" id="ocBtn" onclick="ocSpend()">花 600 元拍下一件拍品</button>
+        <button class="btn ghost sm" onclick="renderTokens()">重 置</button>
+      </div>
+      <div class="oc-line" id="ocLine"></div>
+    </div>
+    <div class="teach-takeaway">
+      <b>机会成本</b> = 你为了得到它,所放弃的最好选择的价值。<br>
+      出价前问自己一句:<b>这是我用钱能买到的最好东西吗?</b>
+    </div>
+    <div class="teach-foot"><button class="btn" onclick="showQuiz()">下 一 幕 · 怎 么 判 断 值 不 值 →</button></div>
+  </div>
+</section>
+
+<!-- ================= 四象限快练页 ================= -->
+<section id="screen-quiz" class="screen">
+  <div class="teach-inner wide">
+    <div class="tp-head">
+      <div class="tp-kicker">概念② · 付出-收益四象限</div>
+      <h2 class="serif">先在生活中,练熟这个模型</h2>
+      <p class="tp-lead">看到题目后,走到教室对应的角落站队——然后我来揭晓。</p>
+    </div>
+    <div class="quiz-layout">
+      <div class="qd-frame quiz-frame">
+        <div class="qd-ylab">▲ 高收益</div>
+        <div class="qd-row">
+          <span class="qd-xlab">低付出</span>
+          <div class="quiz-grid" id="quizGrid"></div>
+          <span class="qd-xlab">高付出</span>
+        </div>
+        <div class="qd-ylab">▼ 低收益</div>
+      </div>
+      <div class="quiz-side">
+        <div class="quiz-card" id="quizCard">点击「下一题」开始站队</div>
+        <div class="quiz-actions">
+          <button class="btn sm" onclick="nextQuiz()">下 一 题</button>
+          <button class="btn gold sm" onclick="revealQuiz()">揭 晓 归 类</button>
+        </div>
+      </div>
+    </div>
+    <div class="teach-foot"><button class="btn" onclick="showStrategy()">练 完 了 · 进 入 策 略 讨 论 →</button></div>
+  </div>
+</section>
+
+<!-- ================= 队伍亮相页 ================= -->
+<section id="screen-teams" class="screen">
+  <div class="teach-inner">
+    <div class="tp-head">
+      <div class="tp-kicker">TEAMS · 队伍亮相</div>
+      <h2 class="serif">各 CEO 团队,登场!</h2>
+      <p class="tp-lead">建议分工:CEO 举牌决策 · CFO 管理代币 · 情报官盯对手 · 谈判官想联动</p>
+    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
+    <div class="teach-foot"><button class="btn" onclick="goAuction()">亮 相 完 毕 · 拍 卖 开 始</button></div>
+  </div>
+</section>
+
+<!-- ================= 中场盘点页 ================= -->
+<section id="screen-mid" class="screen">
+  <div class="teach-inner wide">
+    <div class="tp-head">
+      <div class="tp-kicker">HALF-TIME · 中场盘点</div>
+      <h2 class="serif">谁的钱,花得最值?</h2>
+    </div>
+    <div class="mid-grid" id="midGrid"></div>
+    <div class="mid-quad-wrap">
+      <div class="section-title">已成交事件的象限分布</div>
+      <div class="quiz-grid mid-quad" id="midQuad"></div>
+    </div>
+    <div class="teach-foot">
+      <span class="tp-lead" style="margin:0">讨论 1 分钟:谁买贵了?下半场怎么调整?</span>
+      <button class="btn" onclick="backToAuction()">讨 论 完 毕 · 继 续 拍 卖</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 联动猜想墙页 ================= -->
+<section id="screen-guess" class="screen">
+  <div class="teach-inner">
+    <div class="tp-head">
+      <div class="tp-kicker">SIDE GAME · 联动猜想墙</div>
+      <h2 class="serif">哪两件拍品互为联动?</h2>
+      <p class="tp-lead">小组随时来报猜想,联动触发时自动验证——猜中的是"最佳情报官"。</p>
+    </div>
+    <div class="guess-form">
+      <select id="gsGroup"></select>
+      <select id="gsA"></select>
+      <span class="guess-x">×</span>
+      <select id="gsB"></select>
+      <button class="btn sm" onclick="addGuess()">上 墙</button>
+    </div>
+    <div class="guess-wall" id="guessWall"></div>
+    <div class="teach-foot"><button class="btn" onclick="backToAuction()">返 回 拍 卖</button></div>
+  </div>
+</section>
+
+<!-- ================= 课后迁移页 ================= -->
+<section id="screen-takeaway" class="screen">
+  <div class="teach-inner">
+    <div class="tp-head">
+      <div class="tp-kicker">TRANSFER · 带走一句话</div>
+      <h2 class="serif">你每天都在做 CEO 决策</h2>
+    </div>
+    <div class="tk-card">
+      <div class="tk-line">我的"资金"其实是 <b>时间 / 精力 / 零花钱</b>,</div>
+      <div class="tk-line">下周我要做的一件事,我会把它放进 <b>______ 象限</b>,</div>
+      <div class="tk-line">因为 ______________。</div>
+    </div>
+    <p class="tp-lead" style="text-align:center">每人一句,说出来就算数。</p>
+    <div class="teach-foot">
+      <button class="btn ghost" onclick="location.reload()">重 新 开 局</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 拍卖页 ================= -->
+<section id="screen-auction" class="screen">
+  <div class="film-strip top"></div>
+  <div class="film-strip bottom"></div>
+  <div class="auc-head">
+    <div class="marquee serif" id="aucTitle">1 号事件</div>
+    <div class="auc-progress">
+      <span>本场拍品 <b>11</b> 件</span>
+      <span>尚待拍卖 <b id="remainCount">11</b> 件</span>
+      <span>已成交 <b id="soldCount">0</b> 件</span>
+      <button class="btn ghost sm" onclick="showMid()">中场盘点</button>
+      <button class="btn ghost sm" onclick="showGuess()">猜想墙</button>
+    </div>
+  </div>
+  <div class="auc-body">
+    <div class="stage">
+      <div class="stage-img-wrap">
+        <img id="stageImg" src="" alt="">
+        <div class="mystery-cover" id="mysteryCover" style="display:none">
+          <div class="mc-sweep"></div>
+          <div class="mc-q">?</div>
+          <div class="mc-label">MYSTERY · 神秘盲拍</div>
+          <div class="mc-hint">线索:<span id="mysteryHint"></span></div>
+        </div>
+        <div class="gold-badge" id="goldBadge" style="display:none">✦ 黄金场次 · 效用 ×2</div>
+        <div class="dutch-badge" id="dutchBadge" style="display:none">↯ 荷兰式拍卖 · 先喊先得</div>
+      </div>
+      <div class="stage-info">
+        <span class="ev-ribbon" id="stageTag">营销</span>
+        <h2 id="stageName"></h2>
+      </div>
+      <div class="stage-rules">
+        <span id="stageRulePrice">起拍价 <b>100</b> 起</span>
+        <span>单次加价 <b>100</b></span>
+        <span>效用分数 <b>?</b> 成交后揭晓</span>
+      </div>
+      <div class="stage-ctrl" id="ctrlArea">
+        <div class="price-stepper" id="priceStepper">
+          <button onclick="adjustPrice(-100)" id="priceMinus">−</button>
+          <input id="priceInput" value="100" oninput="onPriceInput()">
+          <button onclick="adjustPrice(100)" id="pricePlus">+</button>
+        </div>
+        <div class="dutch-panel" id="dutchPanel" style="display:none">
+          <div class="dp-label">荷 兰 式 拍 卖 · 先 喊 先 得</div>
+          <div class="dp-price" id="dutchPrice">600</div>
+          <div class="dp-hint" id="dutchHint"></div>
+          <button class="btn" id="dutchBtn" onclick="dutchAction()">开 始 降 价</button>
+        </div>
+        <button class="btn" id="hammerBtn" onclick="hammer()">落槌成交</button>
+        <button class="btn danger" id="passBtn" onclick="passEvent()">流 拍</button>
+        <div class="ctrl-msg" id="ctrlMsg"></div>
+      </div>
+    </div>
+    <div class="groups-side">
+      <div class="gs-head">各 组 战 况 <span>点击已拍图片,可重温事件与分数</span></div>
+      <div class="groups-panel" id="groupsPanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 揭晓讲解页 ================= -->
+<section id="screen-reveal" class="screen">
+  <div class="film-strip top"></div>
+  <div class="film-strip bottom"></div>
+  <div class="reveal-inner">
+    <div class="rv-left">
+      <div class="rv-img-wrap"><img id="rvImg" src="" alt=""></div>
+      <div class="rv-meta">
+        <span class="ev-ribbon" id="rvTag">营销</span>
+        <h2 id="rvName"></h2>
+        <div class="rv-buyer" id="rvBuyer"></div>
+      </div>
+    </div>
+    <div class="rv-right">
+      <div class="r-label">效 用 分 数 揭 晓</div>
+      <div id="revealScore">0</div>
+      <div class="r-unit">效 用 分</div>
+      <div class="rv-gold" id="rvGold" style="display:none"></div>
+      <div class="rv-quad">
+        <div class="rvq-title">课堂讲解 · 它属于 <b id="rvQuadName"></b> 象限</div>
+        <div class="rvq-grid">
+          <span class="rvq-cell" data-q="q1">速 赢</span>
+          <span class="rvq-cell" data-q="q2">重大项目</span>
+          <span class="rvq-cell" data-q="q3">填补性工作</span>
+          <span class="rvq-cell" data-q="q4">吃力不讨好</span>
+        </div>
+        <p class="rv-lesson" id="rvLesson"></p>
+      </div>
+      <div class="combo-burst" id="comboBurst"></div>
+      <div class="rv-next-hint" id="rvNextHint" style="display:none"></div>
+      <button class="btn" id="revealNext" onclick="closeReveal()">收入囊中 · 下一件</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 结算页 ================= -->
+<section id="screen-settle" class="screen">
+  <canvas id="confetti"></canvas>
+  <div class="settle-inner">
+    <div class="winner-banner">
+      <div class="w-label">银 屏 电 影 院 · 年 度 最 佳 CEO</div>
+      <div class="w-name" id="winnerName"></div>
+      <div class="w-score" id="winnerScore"></div>
+    </div>
+    <table class="rank-table">
+      <thead><tr><th></th><th>小组</th><th>总效用分</th><th>剩余资金</th><th>战利品(成交价 / 效用分)</th></tr></thead>
+      <tbody id="rankBody"></tbody>
+    </table>
+    <div class="settle-foot">
+      <button class="btn ghost" onclick="showPhoto()">合 影 模 式</button>
+      <button class="btn" onclick="goSummary()">查 看 总 结 象 限 图</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 总结象限页 ================= -->
+<section id="screen-summary" class="screen">
+  <div class="film-strip top"></div>
+  <div class="film-strip bottom"></div>
+  <div class="curtain l"></div>
+  <div class="curtain r"></div>
+  <div class="settle-inner">
+    <div class="section-title" style="margin-top:4px">总 结 · <span>决 策 思 维 四 象 限</span></div>
+    <div class="qd-frame" style="max-width:1060px">
+      <div class="qd-ylab">▲ 高 收 益</div>
+      <div class="qd-row">
+        <span class="qd-xlab">低 付 出</span>
+        <div class="sum-grid" id="sumGrid"></div>
+        <span class="qd-xlab">高 付 出</span>
+      </div>
+      <div class="qd-ylab">▼ 低 收 益</div>
+    </div>
+    <div class="section-title">⚡ <span>联 动 组 合 复 盘</span></div>
+    <div class="sum-combos" id="sumCombos"></div>
+    <div class="settle-foot">
+      <button class="btn" onclick="show('screen-takeaway')">课 后 迁 移 · 带 走 一 句 话</button>
+      <button class="btn ghost" onclick="location.reload()">重 新 开 局</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 重温遮罩 ================= -->
+<div class="overlay" id="reviewOverlay" onclick="if(event.target===this)closeReview()">
+  <div class="review-card">
+    <button class="review-close" onclick="closeReview()">✕</button>
+    <div class="review-img-wrap"><img id="reviewImg" src="" alt=""></div>
+    <div class="review-info">
+      <span class="ev-ribbon" id="reviewTag"></span>
+      <h3 id="reviewName"></h3>
+      <div class="review-pts"><b id="reviewPts"></b>效用分<span id="reviewQuad"></span></div>
+      <div class="review-who" id="reviewWho"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 押分预测遮罩 ================= -->
+<div class="overlay" id="predictOverlay">
+  <div class="predict-card">
+    <div class="pd-kicker">GUESS · 押 一 押</div>
+    <div class="pd-q">这件拍品的效用分,是高还是低?</div>
+    <div class="pd-opts"><span>≥15 · 高分</span><span>&lt;15 · 低分</span></div>
+    <div class="pd-count" id="pdCount">3</div>
+    <button class="btn sm" onclick="skipPredict()">直 接 揭 晓</button>
+  </div>
+</div>
+
+<!-- ================= 流拍倒数遮罩 ================= -->
+<div class="overlay" id="passCountOverlay">
+  <div class="pc-card">
+    <div class="pc-label">最 后 机 会 · 有 人 要 吗 ?</div>
+    <div class="pc-num" id="pcNum">3</div>
+    <button class="btn sm" onclick="cancelPass()">有组喊价 · 继 续 拍 卖</button>
+  </div>
+</div>
+
+<!-- ================= 合影模式遮罩 ================= -->
+<div class="overlay" id="photoOverlay" onclick="this.classList.remove('show')">
+  <div class="photo-card">
+    <div class="w-label">银 屏 电 影 院 · 年 度 最 佳 CEO</div>
+    <div class="photo-name" id="photoName"></div>
+    <div class="photo-score" id="photoScore"></div>
+    <div class="photo-hint">—— 点 击 任 意 处 返 回 ——</div>
+  </div>
+</div>
+
+<!-- ================= 流拍过渡提示卡 ================= -->
+<div class="next-toast" id="nextToast">
+  <div class="nt-pass" id="ntPass"></div>
+  <div class="nt-type" id="ntType"></div>
+</div>
+
+<button id="soundBtn" onclick="toggleSound()" title="音效开关">🔊</button>
+
+<script>
+/* ================= 数据(定稿版,经平衡性测试) ================= */
+const EVENTS=[
+ {id:1, name:"与周边餐饮店推出联名套餐", tag:"营销", points:15, img:"images/event-01.jpg", quad:"q1",
+  hint:"它和观众的「胃」有关",
+  lesson:"借势周边餐饮店的现成客流,小成本换来双向导流——典型的速赢策略。"},
+ {id:2, name:"开设影院短视频/社交媒体账号", tag:"营销", points:18, img:"images/event-02.jpg", quad:"q1",
+  hint:"它藏在你每天刷的小屏幕里",
+  lesson:"一部手机就能开工,直接触达年轻观众,长期经营还有复利——速赢。"},
+ {id:3, name:"升级 4D / IMAX 影厅", tag:"硬件·体验", points:22, img:"images/event-03.jpg", quad:"q2",
+  hint:"它是一场「身临其境」的革命",
+  lesson:"重资产投入,但大银幕沉浸体验是流媒体给不了的护城河——值得的重大项目。"},
+ {id:4, name:"提供款式丰富的 3D 眼镜", tag:"硬件", points:8,  img:"images/event-04.jpg", quad:"q3",
+  hint:"它让你「看」得更立体",
+  lesson:"基础体验的微小改善,不改变观影的核心价值——填补性工作。"},
+ {id:5, name:"在座位旁设置 USB 充电口", tag:"体验·服务", points:20, img:"images/event-05.jpg", quad:"q1",
+  hint:"它和观众的手机电量有关",
+  lesson:"小改动直击「手机没电」的真实痛点,观众感知极强——本场的隐藏黑马。"},
+ {id:6, name:"设置按摩座椅", tag:"硬件·体验", points:10, img:"images/event-06.jpg", quad:"q4",
+  hint:"它关乎「坐」的享受",
+  lesson:"采购与维护成本高,观影时使用率却低——听起来美好,实际吃力不讨好。"},
+ {id:7, name:"提供沉浸式耳机", tag:"体验·硬件", points:17, img:"images/event-07.jpg", quad:"q2",
+  hint:"它关乎「听」的沉浸",
+  lesson:"差异化的听觉体验需要设备投入——与 4D 影厅联动,可组成「极致沉浸」。"},
+ {id:8, name:"打造情侣/家庭主题影厅", tag:"体验", points:13, img:"images/event-08.jpg", quad:"q4",
+  hint:"它为「两个人」而设计",
+  lesson:"场景改造投入不小,受众却收窄——除非与纪念照组成「情侣经济」,否则吃力不讨好。"},
+ {id:9, name:"特色打卡纪念照服务", tag:"社交", points:13, img:"images/event-09.jpg", quad:"q3",
+  hint:"它能把「此刻」带回家",
+  lesson:"低成本的社交货币,本身收益有限——但它能撬动「社交裂变」「情侣经济」两条联动。"},
+ {id:10,name:"会员年度观影报告 + DIY 纪念册", tag:"服务·社交", points:16, img:"images/event-10.jpg", quad:"q2",
+  hint:"它记录一整年的光影时光",
+  lesson:"需要一整年的数据沉淀,经营的是长期会员关系——重大项目。"},
+ {id:11,name:"设置影迷签名墙", tag:"社交", points:6,  img:"images/event-11.jpg", quad:"q3",
+  hint:"它会留下影迷的「笔迹」",
+  lesson:"氛围布置,收益有限——典型的填补性工作,适合低价捡漏充实方案。"},
+];
+
+const COMBOS=[
+ {name:"极致沉浸", ids:[3,7],   bonus:8,  lesson:"4D 影厅 + 沉浸耳机 = 流媒体永远给不了的体验壁垒"},
+ {name:"社交裂变", ids:[2,9],   bonus:7,  lesson:"新媒体传播 × 打卡纪念照 = 观众自发为你宣传"},
+ {name:"情侣经济", ids:[8,9],   bonus:6,  lesson:"主题影厅 + 纪念照 = 为特定人群创造完整消费场景"},
+ {name:"会员闭环", ids:[2,10],  bonus:6,  lesson:"新媒体引流 + 会员沉淀 = 把流量变成留量"},
+ {name:"便利至上", ids:[1,5],   bonus:5,  lesson:"吃饭 + 充电,把便利做到极致就是竞争力"},
+];
+const QUADRANTS=[
+ {cls:"q1", color:"#8FBF7A", title:"速 赢", sub:"低付出 · 高收益",
+  desc:"不怎么努力,结果也很好 —— 优先锁定,谁先下手谁赚到", ids:[5,2,1]},
+ {cls:"q2", color:"#E0B84C", title:"重 大 项 目", sub:"高付出 · 高收益",
+  desc:"很大努力,结果很好 —— 值得集中资金重点投入", ids:[3,7,10]},
+ {cls:"q3", color:"#9AA7B8", title:"填 补 性 工 作", sub:"低付出 · 低收益",
+  desc:"不需要努力,结果一般 —— 便宜可捡,但别为它掏空口袋", ids:[4,9,11]},
+ {cls:"q4", color:"#D08070", title:"吃 力 不 讨 好", sub:"高付出 · 低收益",
+  desc:"很大努力,结果一般 —— 谨慎避让,除非它有联动价值", ids:[6,8]},
+];
+const GROUP_COLORS=["#C9A227","#A6503C","#7D8C5C","#5C7A8C","#8C6B8C","#B07A4F"];
+const evById=id=>EVENTS.find(e=>e.id===id);
+
+/* ================= 全局状态 ================= */
+const S={
+  groups:[],        // {name,color,funds,startFunds,won:[{eid,price}]}
+  groupCount:4, startFunds:1000,
+  cur:0,            // 当前事件下标
+  selected:null,    // 选中的竞拍组 index
+  phase:"bid",      // bid | sold(待揭晓)
+  passed:new Set(),
+  comboNotified:{}, // gid -> Set(已提示过的组合名)
+  startPrice:100,   // 起拍价
+  mysteryId:null,   // 神秘盲拍事件 id
+  goldenId:null,    // 黄金场次事件 id(效用×2)
+  dutchIds:new Set(),// 荷兰式拍卖事件 id(2件)
+  dutch:null,       // {running,frozen,price,timer}
+};
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+
+/* ================= 结算逻辑(与平衡测试脚本一致;基础分取实际成交效用) ================= */
+function settleOf(won){
+  const set=new Set(won.map(w=>w.eid));
+  let base=0; won.forEach(w=>base+= w.pts!=null?w.pts:evById(w.eid).points);
+  const triggered=[]; let bonus=0;
+  for(const c of COMBOS) if(c.ids.every(i=>set.has(i))){bonus+=c.bonus; triggered.push(c.name);}
+  return {total:base+bonus, base, bonus, triggered};
+}
+
+/* ================= 屏幕切换 ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* ================= 音效系统(Web Audio 合成,无需音频文件) ================= */
+let AC=null, soundOn=true;
+function ac(){
+  if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==="suspended") AC.resume();
+  return AC;
+}
+function tone(freq,dur,{type="sine",vol=.2,at=0,slide=null}={}){
+  if(!soundOn)return;
+  const ctx=ac(), t=ctx.currentTime+at;
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol,t+.012);
+  g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g).connect(ctx.destination);
+  o.start(t); o.stop(t+dur+.05);
+}
+function noiseBurst(dur,{vol=.3,freq=800,q=1,at=0}={}){
+  if(!soundOn)return;
+  const ctx=ac(), t=ctx.currentTime+at;
+  const len=Math.max(1,Math.floor(ctx.sampleRate*dur));
+  const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+  const src=ctx.createBufferSource(); src.buffer=buf;
+  const f=ctx.createBiquadFilter(); f.type="bandpass"; f.frequency.value=freq; f.Q.value=q;
+  const g=ctx.createGain(); g.gain.value=vol;
+  src.connect(f).connect(g).connect(ctx.destination);
+  src.start(t);
+}
+const SFX={
+  click(){tone(700,.06,{type:"square",vol:.05});},
+  bid(){tone(520,.07,{type:"square",vol:.07}); tone(780,.06,{type:"square",vol:.05,at:.05});},
+  error(){tone(170,.2,{type:"square",vol:.07}); tone(120,.24,{type:"square",vol:.06,at:.09});},
+  gavel(){noiseBurst(.12,{vol:.5,freq:900,q:.8}); tone(140,.18,{vol:.5});
+          noiseBurst(.1,{vol:.35,freq:700,q:.8,at:.24}); tone(115,.22,{vol:.45,at:.24});},
+  pass(){tone(320,.3,{type:"sawtooth",vol:.07,slide:170});},
+  reveal(){tone(300,.7,{vol:.1,slide:880}); tone(1200,.5,{type:"triangle",vol:.13,at:.62});},
+  combo(){[523,659,784,1047].forEach((f,i)=>tone(f,.22,{type:"triangle",vol:.11,at:i*.09}));},
+  gold(){[1319,1568,2093].forEach((f,i)=>tone(f,.3,{type:"triangle",vol:.09,at:i*.1}));},
+  fanfare(){[392,523,659,784].forEach((f,i)=>{
+              tone(f,.5,{type:"sawtooth",vol:.06,at:i*.13});
+              tone(f*2,.5,{type:"triangle",vol:.04,at:i*.13});});
+            tone(1047,1,{type:"triangle",vol:.11,at:.55});},
+};
+function toggleSound(){
+  soundOn=!soundOn;
+  const b=document.getElementById("soundBtn");
+  b.textContent=soundOn?"🔊":"🔇";
+  b.classList.toggle("off",!soundOn);
+  if(soundOn)SFX.click();
+}
+
+/* ================= 配置页 ================= */
+function cfgGroups(d){
+  S.groupCount=Math.min(6,Math.max(2,S.groupCount+d));
+  document.getElementById("cfgGroupNum").textContent=S.groupCount;
+  renderNameList(); updateFundHint();
+}
+function cfgFunds(d){
+  S.startFunds=Math.min(3000,Math.max(500,S.startFunds+d*100));
+  document.getElementById("cfgFundNum").textContent=S.startFunds;
+  document.getElementById("rFunds").textContent=S.startFunds;
+}
+function updateFundHint(){
+  const n=S.groupCount;
+  const rec=n<=4?1000:(n===5?1100:1200);
+  document.getElementById("fundHint").textContent=`${n} 组推荐 ${rec} / 组`;
+}
+function renderNameList(){
+  const box=document.getElementById("nameList"); box.innerHTML="";
+  for(let i=0;i<S.groupCount;i++){
+    const row=document.createElement("div"); row.className="gname-row";
+    row.innerHTML=`<span class="gname-dot" style="background:${GROUP_COLORS[i]}"></span>
+      <input id="gname${i}" value="第 ${"一二三四五六"[i]} 组" maxlength="8">`;
+    box.appendChild(row);
+  }
+}
+
+/* ================= 策略导论页 ================= */
+function goStrategy(){
+  SFX.click();
+  S.groups=[];
+  for(let i=0;i<S.groupCount;i++){
+    const nm=(document.getElementById("gname"+i).value||`第${i+1}组`).trim();
+    S.groups.push({name:nm,color:GROUP_COLORS[i],funds:S.startFunds,startFunds:S.startFunds,won:[]});
+    S.comboNotified[i]=new Set();
+  }
+  const sp=shuffle(EVENTS.slice(1).map(e=>e.id));  // 特殊场次不排 1 号
+  S.mysteryId=sp[0]; S.goldenId=sp[1]; S.dutchIds=new Set([sp[2],sp[3]]);
+  S.dutch={running:false,frozen:false,price:600,timer:null};
+  const sg=document.getElementById("stQuadGrid"); sg.innerHTML="";
+  for(const q of QUADRANTS){
+    const d=document.createElement("div"); d.className=`qd-cell ${q.cls}`;
+    d.innerHTML=`<h4 style="color:${q.color}">${q.title}</h4>
+      <div class="qd-sub">${q.sub}</div><div class="qd-desc">${q.desc}</div>`;
+    sg.appendChild(d);
+  }
+  resetTimer();
+  S.guesses=[];
+  resetVote();
+  show("screen-vote");
+}
+
+/* 计时器 */
+let tRemain=480, tHandle=null;
+function fmtT(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function toggleTimer(){
+  const btn=document.getElementById("timerBtn");
+  if(tHandle){clearInterval(tHandle); tHandle=null; btn.textContent="继续"; return;}
+  btn.textContent="暂停";
+  tHandle=setInterval(()=>{
+    tRemain--;
+    const t=document.getElementById("timer");
+    t.textContent=fmtT(Math.max(0,tRemain));
+    if(tRemain<=5&&tRemain>0)SFX.click();
+    if(tRemain<=60)t.classList.add("low");
+    if(tRemain<=0){clearInterval(tHandle); tHandle=null; btn.textContent="时间到";}
+  },1000);
+}
+function resetTimer(){
+  clearInterval(tHandle); tHandle=null; tRemain=480;
+  document.getElementById("timer").textContent=fmtT(tRemain);
+  document.getElementById("timer").classList.remove("low");
+  document.getElementById("timerBtn").textContent="开始计时";
+}
+
+/* ================= 教学页:导航 ================= */
+function goIntro(){SFX.click(); show("screen-intro");}
+function showOC(){SFX.click(); renderTokens(); show("screen-oc");}
+function showQuiz(){SFX.click(); initQuiz(); show("screen-quiz");}
+function showStrategy(){SFX.click(); show("screen-strategy");}
+function backToAuction(){SFX.click(); show("screen-auction");}
+
+/* ================= 开场投票 ================= */
+const VOTE_OPTS=["升级影厅设备","改善观影服务","宣传拉新","会员与回头客"];
+let votes=[0,0,0,0];
+function resetVote(){votes=[0,0,0,0]; renderVote();}
+function renderVote(){
+  const max=Math.max(1,...votes);
+  document.getElementById("voteGrid").innerHTML=VOTE_OPTS.map((t,i)=>`
+    <div class="vote-card" onclick="addVote(${i})">
+      <div class="vc-label">${t}</div>
+      <div class="vc-bar"><div class="vc-fill" style="width:${votes[i]/max*100}%"></div></div>
+      <div class="vc-num">${votes[i]}</div>
+    </div>`).join("");
+}
+function addVote(i){votes[i]++; SFX.bid(); renderVote();}
+
+/* ================= 机会成本 ================= */
+function renderTokens(){
+  document.getElementById("ocTokens").innerHTML=
+    Array.from({length:10},(_,i)=>`<div class="oc-token" id="ocT${i}">¥100</div>`).join("");
+  document.getElementById("ocLine").textContent="资金:1000 元 = 10 张代币。点击按钮,看看会发生什么。";
+  document.getElementById("ocBtn").disabled=false;
+}
+function ocSpend(){
+  document.getElementById("ocBtn").disabled=true;
+  for(let i=0;i<6;i++){
+    setTimeout(()=>{const t=document.getElementById("ocT"+i); if(t)t.classList.add("spent"); SFX.click();},i*160);
+  }
+  setTimeout(()=>{
+    document.getElementById("ocLine").innerHTML="只剩 <b>400 元</b>了 —— 这 600 元,从此和其他 10 件拍品无关。";
+  },1100);
+}
+
+/* ================= 四象限快练 ================= */
+const QUIZ=[
+ {t:"每天背 20 个单词,坚持一学期",q:"q2"},
+ {t:"考前一晚通宵抱佛脚",q:"q4"},
+ {t:"用错题本,只复习易错题型",q:"q1"},
+ {t:"把书桌收拾整齐,再开始学习",q:"q3"},
+];
+let quizIdx=-1;
+function initQuiz(){
+  document.getElementById("quizGrid").innerHTML=QUADRANTS.map(q=>`
+    <div class="qz-cell ${q.cls}" id="qz-${q.cls}">
+      <div class="qz-title" style="color:${q.color}">${q.title}</div>
+      <div class="qz-chips"></div>
+    </div>`).join("");
+  quizIdx=-1;
+  document.getElementById("quizCard").textContent="点击「下一题」开始站队";
+}
+function nextQuiz(){
+  SFX.click();
+  document.querySelectorAll("#quizGrid .qz-chip").forEach(c=>c.remove());
+  quizIdx=(quizIdx+1)%QUIZ.length;
+  document.getElementById("quizCard").textContent=QUIZ[quizIdx].t;
+}
+function revealQuiz(){
+  if(quizIdx<0){SFX.error(); document.getElementById("quizCard").textContent="先点「下一题」出题"; return;}
+  const it=QUIZ[quizIdx];
+  document.querySelector(`#qz-${it.q} .qz-chips`).innerHTML=`<span class="qz-chip">${it.t}</span>`;
+  SFX.reveal();
+}
+
+/* ================= 队伍亮相 ================= */
+function goTeams(){
+  SFX.click();
+  if(tHandle){clearInterval(tHandle); tHandle=null;}
+  document.getElementById("teamsGrid").innerHTML=S.groups.map((gr,i)=>`
+    <div class="team-card" style="animation-delay:${i*.14}s">
+      <div class="tc-bar" style="background:${gr.color}"></div>
+      <div class="tc-name">${gr.name}</div>
+      <div class="tc-funds">启动资金 ¥${gr.startFunds}</div>
+    </div>`).join("");
+  show("screen-teams");
+}
+
+/* ================= 中场盘点 ================= */
+function isSold(eid){return S.groups.some(g=>g.won.some(w=>w.eid===eid));}
+function showMid(){
+  SFX.click();
+  const rows=S.groups.map(gr=>{
+    const st=settleOf(gr.won);
+    const spent=gr.startFunds-gr.funds;
+    const cpp=st.base>0?spent/st.base:null;
+    return {gr,st,spent,cpp};
+  });
+  const maxCpp=Math.max(1,...rows.map(r=>r.cpp||0));
+  document.getElementById("midGrid").innerHTML=rows.map(({gr,st,spent,cpp})=>`
+    <div class="mid-card">
+      <div class="mid-name"><span class="tdot" style="background:${gr.color}"></span>${gr.name}</div>
+      <div class="mid-nums">已拍 <b>${gr.won.length}</b> 件 · 已花 <b>¥${spent}</b> · 基础分 <b>${st.base}</b></div>
+      <div class="mid-cpp">${cpp!=null?cpp.toFixed(1):"—"}<span> 元/分</span></div>
+      <div class="mid-bar"><div style="width:${cpp!=null?cpp/maxCpp*100:0}%"></div></div>
+      <div class="mid-tag">${cpp==null?"尚未开张":cpp<=15?"花钱高效":cpp<=22?"中规中矩":"买贵了?"}</div>
+    </div>`).join("");
+  document.getElementById("midQuad").innerHTML=QUADRANTS.map(q=>{
+    const chips=EVENTS.filter(e=>e.quad===q.cls&&isSold(e.id))
+      .map(e=>`<img class="qz-img" src="${e.img}" title="${e.name}">`).join("");
+    return `<div class="qz-cell ${q.cls}">
+      <div class="qz-title" style="color:${q.color}">${q.title}</div>
+      <div class="qz-chips">${chips||'<span class="qz-none">—</span>'}</div>
+    </div>`;
+  }).join("");
+  show("screen-mid");
+}
+
+/* ================= 联动猜想墙 ================= */
+function showGuess(){
+  SFX.click();
+  document.getElementById("gsGroup").innerHTML=
+    S.groups.map((g,i)=>`<option value="${i}">${g.name}</option>`).join("");
+  const opts=EVENTS.map(e=>`<option value="${e.id}">${e.id} 号 · ${e.name}</option>`).join("");
+  document.getElementById("gsA").innerHTML=opts;
+  document.getElementById("gsB").innerHTML=opts;
+  renderGuessWall();
+  show("screen-guess");
+}
+function addGuess(){
+  const gid=+document.getElementById("gsGroup").value;
+  const a=+document.getElementById("gsA").value, b=+document.getElementById("gsB").value;
+  if(a===b){SFX.error(); return;}
+  const key=[a,b].sort((x,y)=>x-y).join("-");
+  if(S.guesses.some(gu=>gu.gid===gid&&gu.key===key)){SFX.error(); return;}
+  S.guesses.push({gid,a,b,key,hit:false});
+  SFX.bid();
+  renderGuessWall();
+}
+function markGuesses(ids){
+  const key=[...ids].sort((x,y)=>x-y).join("-");
+  let any=false;
+  S.guesses.forEach(gu=>{if(!gu.hit&&gu.key===key){gu.hit=true; any=true;}});
+  if(any)renderGuessWall();
+}
+function renderGuessWall(){
+  const w=document.getElementById("guessWall");
+  if(!S.guesses||!S.guesses.length){
+    w.innerHTML='<div class="gw-empty">还没有猜想 —— 哪两件拍品是一对?</div>'; return;
+  }
+  w.innerHTML=S.guesses.map(gu=>{
+    const g=S.groups[gu.gid];
+    return `<div class="gw-item ${gu.hit?"hit":""}">
+      <span class="tdot" style="background:${g.color}"></span>
+      <b>${g.name}</b>:${gu.a} 号 × ${gu.b} 号
+      <span class="gw-status">${gu.hit?"✓ 猜中!":"待验证"}</span>
+    </div>`;
+  }).join("");
+}
+
+/* ================= 押分预测(落槌后、揭晓前) ================= */
+let pdTimer=null, pdCtx=null;
+function showPredict(g,price){
+  pdCtx={g,price};
+  document.getElementById("predictOverlay").classList.add("show");
+  let n=3;
+  const el=document.getElementById("pdCount"); el.textContent=n;
+  clearTimeout(pdTimer);
+  const tick=()=>{
+    n--;
+    if(n<=0){closePredict(); return;}
+    el.textContent=n; SFX.click();
+    pdTimer=setTimeout(tick,1000);
+  };
+  pdTimer=setTimeout(tick,1000);
+}
+function skipPredict(){closePredict();}
+function closePredict(){
+  clearTimeout(pdTimer);
+  document.getElementById("predictOverlay").classList.remove("show");
+  if(pdCtx)showReveal(pdCtx.g,pdCtx.price);
+  pdCtx=null;
+}
+
+/* ================= 流拍倒数 ================= */
+let pcTimer=null;
+function startPassCountdown(){
+  document.getElementById("passCountOverlay").classList.add("show");
+  let n=3;
+  const el=document.getElementById("pcNum"); el.textContent=n; SFX.click();
+  clearInterval(pcTimer);
+  pcTimer=setInterval(()=>{
+    n--;
+    if(n<=0){
+      clearInterval(pcTimer);
+      document.getElementById("passCountOverlay").classList.remove("show");
+      finishPass(); return;
+    }
+    el.textContent=n; SFX.click();
+  },1000);
+}
+function cancelPass(){
+  clearInterval(pcTimer);
+  document.getElementById("passCountOverlay").classList.remove("show");
+  setCtrlEnabled(true);
+  document.getElementById("ctrlMsg").textContent="继续竞价 —— 点击举牌的小组,输入成交价后落槌";
+}
+
+/* ================= 合影模式 ================= */
+function showPhoto(){
+  document.getElementById("photoName").textContent=document.getElementById("winnerName").textContent;
+  document.getElementById("photoScore").textContent=document.getElementById("winnerScore").textContent;
+  document.getElementById("photoOverlay").classList.add("show");
+  SFX.fanfare();
+}
+
+/* ================= 拍卖页 ================= */
+function goAuction(){
+  SFX.click();
+  if(tHandle){clearInterval(tHandle); tHandle=null;}
+  S.cur=0; S.passed.clear(); S.selected=null; S.phase="bid";
+  loadEvent(); show("screen-auction");
+}
+function currentEvent(){return EVENTS[S.cur];}
+function nextTypeLabel(e){
+  if(e.id===S.mysteryId)return {t:"? 神秘盲拍",cls:"myst"};
+  if(e.id===S.goldenId)return {t:"✦ 黄金场次",cls:"gold"};
+  if(S.dutchIds.has(e.id))return {t:"↯ 荷兰式拍卖",cls:"dutch"};
+  return {t:"普通拍品",cls:"norm"};
+}
+function loadEvent(){
+  const e=currentEvent();
+  const isMyst=e.id===S.mysteryId;
+  const isGold=e.id===S.goldenId;
+  const isDutch=S.dutchIds.has(e.id);
+  if(S.dutch&&S.dutch.timer)clearInterval(S.dutch.timer);
+  S.dutch={running:false,frozen:false,price:600,timer:null};
+  S.startPrice=100;
+  let title=`${e.id} 号事件`;
+  if(isMyst)title+=" · 神秘盲拍";
+  if(isDutch)title+=" · 荷兰式拍卖";
+  document.getElementById("aucTitle").textContent=title;
+  document.getElementById("stageImg").src=e.img;
+  document.getElementById("stageImg").style.display=isMyst?"none":"";
+  document.getElementById("mysteryCover").style.display=isMyst?"flex":"none";
+  const wrap=document.querySelector(".stage-img-wrap");
+  wrap.classList.toggle("golden",isGold);
+  wrap.classList.toggle("dutch",isDutch);
+  document.getElementById("goldBadge").style.display=isGold?"":"none";
+  document.getElementById("dutchBadge").style.display=isDutch?"":"none";
+  document.getElementById("stageRulePrice").innerHTML=isDutch?"荷兰式 · <b>600</b> 起拍 · 每 2 秒 <b>−100</b>":"起拍价 <b>100</b> 起";
+  if(isMyst){
+    document.getElementById("mysteryHint").textContent=e.hint;
+    document.getElementById("stageName").textContent="神秘拍品";
+    document.getElementById("stageTag").textContent="未知领域";
+  }else{
+    document.getElementById("stageName").textContent=e.name;
+    document.getElementById("stageTag").textContent=e.tag;
+  }
+  document.getElementById("remainCount").textContent=EVENTS.length-S.cur;
+  document.getElementById("soldCount").textContent=S.cur-S.passed.size;
+  S.phase="bid"; S.selected=null;
+  setPrice(100);
+  document.getElementById("priceStepper").style.display=isDutch?"none":"";
+  document.getElementById("dutchPanel").style.display=isDutch?"":"none";
+  if(isDutch){
+    document.getElementById("dutchPrice").textContent="600";
+    document.getElementById("dutchHint").textContent="先展示拍品——宣布「开始」后每 2 秒 −100,降至 100 即止";
+    const db=document.getElementById("dutchBtn"); db.disabled=false; db.textContent="开 始 降 价";
+    setCtrlEnabled(false);
+    document.getElementById("passBtn").disabled=false;
+    document.getElementById("ctrlMsg").textContent="学生看清拍品后,宣布开始并点击按钮启动降价";
+  }else{
+    setCtrlEnabled(true);
+    document.getElementById("ctrlMsg").textContent="点击右侧小组举牌,输入成交价后落槌";
+  }
+  renderGroups();
+  if(isGold)setTimeout(()=>SFX.gold(),400);
+}
+
+/* ================= 荷兰式拍卖(降价拍) ================= */
+function dutchAction(){
+  const d=S.dutch;
+  if(!d.running&&!d.frozen){
+    d.running=true;
+    const db=document.getElementById("dutchBtn");
+    const dp=document.getElementById("dutchPrice");
+    db.disabled=true; db.textContent="预 备 …";
+    document.getElementById("dutchHint").textContent="各组注意——降价即将开始!";
+    let n=3;
+    dp.textContent=n; SFX.click();
+    d.timer=setInterval(()=>{
+      n--;
+      if(n>0){dp.textContent=n; SFX.click(); return;}
+      clearInterval(d.timer);
+      dp.textContent=d.price;
+      db.disabled=false; db.textContent="冻 结 成 交 !";
+      document.getElementById("dutchHint").textContent="每 2 秒 −100!有组喊「要了」立刻冻结!";
+      SFX.bid();
+      d.timer=setInterval(dutchTick,2000);
+    },900);
+  }else if(d.running){freezeDutch(false);}
+}
+function dutchTick(){
+  const d=S.dutch;
+  d.price-=100;
+  if(d.price<=100){d.price=100; freezeDutch(true);}
+  const dp=document.getElementById("dutchPrice");
+  dp.textContent=d.price;
+  dp.classList.remove("pop"); void dp.offsetWidth; dp.classList.add("pop");
+  SFX.click();
+}
+function freezeDutch(hitFloor){
+  const d=S.dutch;
+  clearInterval(d.timer); d.running=false; d.frozen=true;
+  setPrice(d.price);
+  const db=document.getElementById("dutchBtn");
+  db.disabled=true;
+  db.textContent=hitFloor?"已降至底价 100":`已冻结 ¥${d.price}`;
+  document.getElementById("dutchHint").textContent="选择喊价的组,然后落槌";
+  setCtrlEnabled(true);
+  document.getElementById("ctrlMsg").textContent=`冻结价 ¥${d.price} —— 点击喊价的小组后落槌`;
+  SFX.bid();
+}
+
+function setCtrlEnabled(on){
+  document.getElementById("hammerBtn").disabled=!on;
+  document.getElementById("passBtn").disabled=!on;
+  document.getElementById("priceMinus").disabled=!on;
+  document.getElementById("pricePlus").disabled=!on;
+  document.getElementById("priceInput").disabled=!on;
+}
+function getPrice(){
+  let v=parseInt(document.getElementById("priceInput").value,10);
+  return isNaN(v)?0:v;
+}
+function setPrice(v){
+  document.getElementById("priceInput").value=v;
+  document.getElementById("priceInput").classList.remove("over");
+}
+function onPriceInput(){document.getElementById("priceInput").classList.remove("over");}
+function adjustPrice(d){
+  if(d!==0)SFX.click();
+  setPrice(Math.min(S.startFunds,Math.max(S.startPrice,getPrice()+d)));
+}
+function renderGroups(){
+  const panel=document.getElementById("groupsPanel"); panel.innerHTML="";
+  S.groups.forEach((g,i)=>{
+    const st=settleOf(g.won);
+    const card=document.createElement("div");
+    card.className="group-card"+(S.selected===i?" selected":"");
+    card.onclick=()=>{if(S.phase==="bid"){SFX.bid(); S.selected=i; adjustPrice(0); renderGroups();}};
+    const wonHtml=g.won.length
+      ? `<div class="g-won">${g.won.map(w=>{const e=evById(w.eid);
+          return `<div class="mini-wrap" onclick="event.stopPropagation();showReview(${w.eid})"><img class="mini" src="${e.img}"><span class="mini-pts">${w.pts!=null?w.pts:e.points}</span></div>`;}).join("")}</div>`
+      : `<div class="empty-hint">尚未拍得事件</div>`;
+    const cbHtml=st.triggered.length
+      ? `<div class="g-combos">${st.triggered.map(t=>`<span class="cb">⚡${t}</span>`).join("")}</div>`:"";
+    card.innerHTML=`<div class="g-top">
+        <span class="g-dot" style="background:${g.color}"></span>
+        <span class="g-name">${g.name}</span>
+        <span class="g-funds">已拍 <b>${g.won.length}</b> 件</span>
+        <span class="g-score">${st.total}<span> 分</span></span>
+      </div>${wonHtml}${cbHtml}`;
+    panel.appendChild(card);
+  });
+}
+function hammer(){
+  if(S.selected===null){warn("请先点击右侧小组 —— 谁拍下的?"); return;}
+  const g=S.groups[S.selected];
+  const price=getPrice();
+  const e=currentEvent();
+  const isDutch=S.dutchIds.has(e.id);
+  if(isDutch){
+    if(!S.dutch.frozen){warn("请先开始降价,有组喊价后点冻结"); return;}
+    if(price<100||price%100!==0){warn("冻结价须 ≥100 且为 100 的倍数"); return;}
+  }else{
+    const sp=S.startPrice;
+    if(price<sp||(price-sp)%100!==0){warn(`成交价须 ≥${sp},并按 100 步进加价`); return;}
+  }
+  if(price>g.funds){warn(`${g.name} 手上资金不足,成交无效!请重新出价`); return;}
+  const isGold=e.id===S.goldenId;
+  g.funds-=price;
+  g.won.push({eid:e.id, price, ...(isGold?{pts:e.points*2}:{})});
+  SFX.gavel();
+  S.phase="sold";
+  setCtrlEnabled(false);
+  document.getElementById("ctrlMsg").textContent="";
+  renderGroups();
+  showPredict(g, price);
+}
+function warn(msg){
+  SFX.error();
+  document.getElementById("ctrlMsg").textContent=msg;
+  const inp=document.getElementById("priceInput");
+  inp.classList.add("over");
+  setTimeout(()=>inp.classList.remove("over"),450);
+}
+function passEvent(){
+  const btn=document.getElementById("passBtn");
+  if(btn.dataset.arm!=="1"){
+    btn.dataset.arm="1"; btn.textContent="确认流拍?";
+    setTimeout(()=>{btn.dataset.arm="0"; btn.textContent="流 拍";},2500);
+    return;
+  }
+  btn.dataset.arm="0"; btn.textContent="流 拍";
+  SFX.pass();
+  if(S.dutch&&S.dutch.timer)clearInterval(S.dutch.timer);
+  setCtrlEnabled(false);
+  if(S.dutchIds.has(currentEvent().id)){finishPass(); return;}  // 荷兰式直接流拍
+  startPassCountdown();
+}
+function finishPass(){
+  S.passed.add(currentEvent().id);
+  setCtrlEnabled(false);
+  const nxt=EVENTS[S.cur+1];
+  document.getElementById("ntPass").textContent=`${currentEvent().id} 号事件 · 流拍`;
+  document.getElementById("ntType").innerHTML=nxt?`下一件预告:${nextTypeLabel(nxt).t}`:"全部拍品结束 · 进入结算";
+  document.getElementById("nextToast").classList.add("show");
+  setTimeout(()=>{document.getElementById("nextToast").classList.remove("show"); nextEvent();},1700);
+}
+
+/* ================= 揭晓讲解页 ================= */
+function showReveal(g, price){
+  const e=currentEvent();
+  const gi=S.groups.indexOf(g);
+  const st=settleOf(g.won);
+  const newCombos=st.triggered.filter(t=>!S.comboNotified[gi].has(t));
+  newCombos.forEach(t=>S.comboNotified[gi].add(t));
+  newCombos.forEach(n=>{const c=COMBOS.find(x=>x.name===n); if(c)markGuesses(c.ids);});
+  const isGold=e.id===S.goldenId;
+  const effPts=isGold?e.points*2:e.points;
+  const rg=document.getElementById("rvGold");
+  if(isGold){rg.style.display=""; rg.textContent=`✦ 黄金场次 · 效用 ×2(${e.points} → ${effPts})`;}
+  else rg.style.display="none";
+
+  document.getElementById("rvImg").src=e.img;
+  document.getElementById("rvTag").textContent=e.tag+(isGold?" · ✦黄金场次":"");
+  document.getElementById("rvName").textContent=`${e.id} 号 · ${e.name}`;
+  document.getElementById("rvBuyer").innerHTML=
+    `由 <b>${g.name}</b> 以 <b>${price}</b> 元拍得`;
+  const q=QUADRANTS.find(x=>x.cls===e.quad);
+  const qn=document.getElementById("rvQuadName");
+  qn.textContent=q.title; qn.style.color=q.color;
+  document.getElementById("rvLesson").textContent=e.lesson;
+  document.querySelectorAll(".rvq-cell").forEach(c=>{
+    const on=c.dataset.q===e.quad;
+    c.classList.toggle("on",on);
+    c.style.background=on?q.color:"";
+  });
+
+  const burst=document.getElementById("comboBurst");
+  burst.innerHTML=""; burst.style.display="none";
+  if(newCombos.length){
+    burst.style.display="flex";
+    for(const t of newCombos){
+      const c=COMBOS.find(x=>x.name===t);
+      const line=document.createElement("div"); line.className="cb-line";
+      line.innerHTML=`⚡ 联动触发 · ${t} +${c.bonus} 分<span>${c.ids.map(i=>i+"号").join(" + ")}</span>
+        <div class="cb-lesson">${c.lesson}</div>`;
+      burst.appendChild(line);
+    }
+  }
+  document.getElementById("revealNext").textContent=
+    S.cur===EVENTS.length-1 ? "查看最终结算" : "收入囊中 · 下一件";
+  const nxt=EVENTS[S.cur+1];
+  const nh=document.getElementById("rvNextHint");
+  if(nxt){const nl=nextTypeLabel(nxt); nh.innerHTML=`下一件预告:<b class="${nl.cls}">${nl.t}</b>`; nh.style.display="";}
+  else nh.style.display="none";
+  show("screen-reveal");
+  setTimeout(()=>SFX.reveal(),500);
+  if(newCombos.length)setTimeout(()=>SFX.combo(),1500);
+  const el=document.getElementById("revealScore");
+  const target=effPts; let t0=null;
+  function tick(ts){
+    if(!t0)t0=ts;
+    const p=Math.min(1,(ts-t0)/900);
+    el.textContent=Math.round(target*(1-Math.pow(1-p,3)));
+    if(p<1)requestAnimationFrame(tick);
+  }
+  el.textContent="0"; requestAnimationFrame(tick);
+}
+function closeReveal(){SFX.click(); nextEvent();}
+
+/* ================= 重温已拍事件 ================= */
+function showReview(eid){
+  const e=evById(eid);
+  const q=QUADRANTS.find(x=>x.cls===e.quad);
+  document.getElementById("reviewImg").src=e.img;
+  document.getElementById("reviewTag").textContent=e.tag;
+  document.getElementById("reviewName").textContent=`${e.id} 号 · ${e.name}`;
+  document.getElementById("reviewPts").textContent=e.points;
+  const qs=document.getElementById("reviewQuad");
+  qs.textContent=`· ${q.title}象限`; qs.style.color=q.color;
+  const owner=S.groups.find(g=>g.won.some(w=>w.eid===eid));
+  document.getElementById("reviewWho").innerHTML=owner
+    ? `由 <b>${owner.name}</b> 以 <b>${owner.won.find(w=>w.eid===eid).price}</b> 元拍得`
+    : `尚未被任何组拍得`;
+  document.getElementById("reviewOverlay").classList.add("show");
+}
+function closeReview(){SFX.click(); document.getElementById("reviewOverlay").classList.remove("show");}
+function nextEvent(){
+  if(S.cur>=EVENTS.length-1){goSettle(); return;}
+  S.cur++; loadEvent(); show("screen-auction");
+}
+
+/* ================= 结算页 ================= */
+function goSettle(){
+  const rows=S.groups.map((g,i)=>{
+    const st=settleOf(g.won);
+    return {i,name:g.name,color:g.color,funds:g.funds,won:g.won,...st};
+  }).sort((a,b)=> b.total-a.total || b.funds-a.funds);
+
+  const champ=rows[0];
+  document.getElementById("winnerName").textContent=champ.name;
+  document.getElementById("winnerScore").innerHTML=
+    `总效用 <b>${champ.total}</b> 分(基础 ${champ.base} + 联动 ${champ.bonus}) · 剩余资金 ${champ.funds} 元`;
+
+  const body=document.getElementById("rankBody"); body.innerHTML="";
+  rows.forEach((r,idx)=>{
+    const tr=document.createElement("tr");
+    if(idx===0)tr.className="champ";
+    const chips=r.won.length? r.won.map(w=>{const e=evById(w.eid);
+      return `<span class="chip" onclick="showReview(${w.eid})"><img src="${e.img}">${e.id}号 ${w.price}元 / <b>${w.pts!=null?w.pts:e.points}分</b></span>`;}).join("")
+      : `<span style="color:var(--muted);font-size:12px">未拍得事件</span>`;
+    const comboTxt=r.triggered.length? r.triggered.map(t=>`⚡${t}`).join(" "):"—";
+    tr.innerHTML=`<td class="rank-num">${idx+1}</td>
+      <td class="rank-name"><span class="g-dot" style="background:${r.color}"></span>${r.name}</td>
+      <td class="score-break">${r.total} <span>基础${r.base} + 联动${r.bonus}<br>${comboTxt}</span></td>
+      <td style="font-family:var(--serif);font-size:19px">${r.funds}</td>
+      <td><div class="won-chips">${chips}</div></td>`;
+    body.appendChild(tr);
+  });
+  show("screen-settle");
+  SFX.fanfare();
+  fireConfetti();
+}
+
+/* ================= 总结象限页 ================= */
+function goSummary(){
+  SFX.click();
+  const grid=document.getElementById("sumGrid"); grid.innerHTML="";
+  for(const q of QUADRANTS){
+    const div=document.createElement("div"); div.className="sum-cell";
+    const evs=q.ids.map(id=>{
+      const e=evById(id);
+      const owner=S.groups.find(g=>g.won.some(w=>w.eid===id));
+      const w=owner?owner.won.find(x=>x.eid===id):null;
+      const who=owner
+        ? `<div class="se-winner"><span class="g-dot" style="background:${owner.color}"></span>${owner.name} · ${w.price} 元拍得</div>`
+        : `<div class="se-winner" style="color:var(--muted)">流拍</div>`;
+      return `<div class="sum-ev"><img src="${e.img}">
+        <div style="flex:1;min-width:0"><div class="se-name">${e.id} 号 · ${e.name}${e.id===S.goldenId?" · ✦黄金×2":""}</div>${who}</div>
+        <div class="se-pts">${w&&e.id===S.goldenId?e.points*2:e.points}<span> 分</span></div></div>`;
+    }).join("");
+    div.innerHTML=`<h4 style="color:${q.color}">${q.title}</h4>
+      <div class="q-sub">${q.sub} —— ${q.desc}</div>${evs}`;
+    grid.appendChild(div);
+  }
+  const sc=document.getElementById("sumCombos"); sc.innerHTML="";
+  for(const c of COMBOS){
+    const holders=S.groups.filter((g,i)=>S.comboNotified[i].has(c.name));
+    const who=holders.length
+      ? holders.map(g=>`<span><span class="g-dot" style="background:${g.color}"></span>${g.name}</span>`).join("")
+      : `<span style="color:var(--muted)">无人集齐</span>`;
+    const div=document.createElement("div"); div.className="sum-combo";
+    div.innerHTML=`<div class="sc-head"><span class="sc-name">⚡ ${c.name}</span><span class="sc-bonus">+${c.bonus} 分</span></div>
+      <div class="sc-need">${c.ids.map(i=>`${i}号 ${evById(i).name}`).join(" + ")}</div>
+      <div class="sc-lesson">${c.lesson}</div>
+      <div class="sc-who">${who}</div>`;
+    sc.appendChild(div);
+  }
+  show("screen-summary");
+}
+
+/* 金色彩带 */
+function fireConfetti(){
+  const cv=document.getElementById("confetti"), ctx=cv.getContext("2d");
+  cv.width=innerWidth; cv.height=innerHeight;
+  const colors=["#E0B84C","#C9A227","#F2EAD9","#A6503C","#8C6B8C"];
+  const ps=[];
+  for(let i=0;i<160;i++)ps.push({
+    x:Math.random()*cv.width, y:-20-Math.random()*cv.height*.5,
+    w:6+Math.random()*8, h:4+Math.random()*6,
+    vy:2+Math.random()*3.5, vx:-1.5+Math.random()*3,
+    rot:Math.random()*Math.PI, vr:-.1+Math.random()*.2,
+    c:colors[Math.floor(Math.random()*colors.length)],
+  });
+  let frames=0;
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(const p of ps){
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.c; ctx.globalAlpha=Math.max(0,1-frames/420);
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    }
+    frames++;
+    if(frames<420)requestAnimationFrame(loop);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* 初始化 */
+renderNameList(); updateFundHint();
+</script>
+</body>
+</html>
