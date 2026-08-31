@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>恩佐的金钱魔法 · Money Magic</title>
+<style>
+:root{
+  --red:#8B1E2D; --red-d:#5F1220; --red-dd:#3D0B15;
+  --gold:#C9A227; --gold-l:#E8C766; --gold-d:#9A7A1A;
+  --ivory:#FBF7EF; --ivory-d:#F0E7D3;
+  --brown:#3A2A1E; --brown-l:#6B5236;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+html,body{width:100%;height:100%;background:#120608;overflow:hidden;font-family:'PingFang SC','Microsoft YaHei',sans-serif}
+#viewport{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 28%,#a52a3a 0%,var(--red) 42%,var(--red-d) 78%,var(--red-dd) 100%)}
+#stage::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.14;
+  background:repeating-linear-gradient(90deg,transparent 0 70px,rgba(0,0,0,.55) 70px 78px,transparent 78px 150px)}
+#stage::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,transparent 45%,rgba(10,2,4,.55) 100%)}
+.serif{font-family:Georgia,'Songti SC','SimSun',serif}
+
+/* ---------- 通用组件 ---------- */
+.card{background:var(--ivory);border:3px solid var(--gold);border-radius:18px;
+  box-shadow:0 10px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(201,162,39,.25)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
+  font-size:30px;font-weight:700;color:var(--brown);padding:16px 48px;border-radius:999px;border:none;
+  background:linear-gradient(180deg,var(--gold-l),var(--gold) 60%,var(--gold-d));
+  box-shadow:0 6px 0 #7c6210,0 12px 24px rgba(0,0,0,.4);transition:transform .15s,box-shadow .15s;letter-spacing:2px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 0 #7c6210,0 16px 30px rgba(0,0,0,.45)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #7c6210}
+.btn:disabled{filter:grayscale(.8) brightness(.75);cursor:not-allowed;transform:none}
+.btn.ghost{background:var(--ivory);box-shadow:0 6px 0 #cbbd97,0 12px 24px rgba(0,0,0,.35)}
+.btn.sm{font-size:22px;padding:10px 28px}
+.goldnum{font-family:Georgia,serif;font-weight:700;
+  background:linear-gradient(180deg,#f7e2a0,var(--gold) 70%,#8a6d12);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.6))}
+.imgwrap{position:relative;overflow:hidden;background:#2c1016 center/cover;display:flex;align-items:center;justify-content:center}
+.imgwrap .imglabel{color:rgba(232,199,102,.5);font-size:20px;letter-spacing:4px;text-align:center;padding:0 12px}
+.imgwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ---------- 大幕 ---------- */
+.curtain{position:absolute;top:0;bottom:0;width:53%;z-index:200;pointer-events:none;
+  background:
+   repeating-linear-gradient(90deg,rgba(0,0,0,.28) 0 26px,transparent 26px 60px),
+   linear-gradient(180deg,#b03146 0%,var(--red) 30%,var(--red-d) 82%,#4a0e1a 100%);
+  transition:transform 1.5s cubic-bezier(.7,0,.25,1);box-shadow:0 0 60px rgba(0,0,0,.6)}
+.curtain::after{content:'';position:absolute;left:0;right:0;bottom:0;height:26px;
+  background:linear-gradient(180deg,var(--gold-l),var(--gold-d))}
+#curtain-l{left:0;border-right:5px solid rgba(201,162,39,.7)}
+#curtain-r{right:0;border-left:5px solid rgba(201,162,39,.7)}
+#stage.open #curtain-l{transform:translateX(-104%)}
+#stage.open #curtain-r{transform:translateX(104%)}
+
+/* ---------- 屏幕通用 ---------- */
+.screen{position:absolute;inset:0;display:none;z-index:20}
+.screen.on{display:flex;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.6)}70%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+@keyframes glowPulse{0%,100%{filter:drop-shadow(0 0 18px rgba(232,199,102,.55))}50%{filter:drop-shadow(0 0 46px rgba(232,199,102,.95))}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes warnBlink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ---------- 开场 ---------- */
+#screen-opening{flex-direction:column;align-items:center;justify-content:center;z-index:30}
+#opening-title{text-align:center;z-index:210;position:absolute;top:300px;left:0;right:0;pointer-events:none}
+#opening-title h1{font-size:96px;letter-spacing:14px;color:var(--ivory);text-shadow:0 6px 30px rgba(0,0,0,.7)}
+#opening-title p{font-size:34px;letter-spacing:22px;color:var(--gold-l);margin-top:14px}
+#curtain-hint{position:absolute;bottom:150px;left:0;right:0;text-align:center;z-index:210;color:rgba(251,247,239,.85);
+  font-size:26px;letter-spacing:6px;animation:warnBlink 2.2s infinite;cursor:pointer}
+#opening-stage{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:56px}
+#stage.open #opening-stage{display:flex}
+#spotlight{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:900px;height:900px;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,236,170,.5) 0%,rgba(255,236,170,.12) 45%,transparent 70%);
+  clip-path:polygon(42% 0,58% 0,100% 100%,0 100%)}
+#enzo-hero{width:430px;height:560px;border:4px solid var(--gold);border-radius:22px;box-shadow:0 24px 80px rgba(0,0,0,.65);
+  animation:riseIn 1s ease .4s both,glowPulse 3s infinite 1.4s;z-index:5}
+#opening-goal{margin-top:26px;padding:20px 54px;text-align:center;animation:popIn .7s ease 1.1s both;z-index:6}
+#opening-goal b{font-size:40px;color:var(--red)}
+#opening-goal span{font-size:26px;color:var(--brown-l)}
+#bunny-bubble{position:absolute;right:300px;bottom:420px;width:520px;padding:26px 30px;animation:popIn .6s ease 1.7s both;z-index:6}
+#bunny-bubble .who{color:var(--gold-d);font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:6px}
+#bunny-bubble .say{font-size:26px;color:var(--brown);line-height:1.55}
+#bunny-bubble::after{content:'';position:absolute;right:60px;bottom:-24px;border:14px solid transparent;border-top-color:var(--gold)}
+#btn-start{margin-top:30px;animation:popIn .6s ease 2.2s both;z-index:6}
+
+/* ---------- 布局：侧栏 + 主区 ---------- */
+#game-layout{position:absolute;inset:0;display:none;z-index:25}
+#game-layout.on{display:flex}
+#sidebar{width:300px;flex:none;display:flex;flex-direction:column;gap:20px;padding:26px 22px;
+  background:linear-gradient(180deg,#33161c,#230a10);border-right:3px solid rgba(201,162,39,.55);z-index:26}
+#sidebar .logo{text-align:center;color:var(--gold-l);font-size:24px;letter-spacing:6px;font-weight:700;padding-bottom:14px;
+  border-bottom:1px solid rgba(201,162,39,.35)}
+.meter{background:rgba(251,247,239,.06);border:1px solid rgba(201,162,39,.3);border-radius:14px;padding:12px 14px}
+.meter .mhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.meter .mhead svg{width:26px;height:26px;flex:none}
+.meter .mhead .mname{color:var(--ivory);font-size:20px;font-weight:700;letter-spacing:2px}
+.meter .mhead .mval{margin-left:auto;font-family:Georgia,serif;font-size:24px;font-weight:700;color:var(--gold-l)}
+.meter .mtrack{height:14px;border-radius:99px;background:rgba(0,0,0,.5);overflow:hidden;border:1px solid rgba(201,162,39,.35)}
+.meter .mfill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.3,1,.4,1)}
+.meter.warn{animation:warnBlink 1s infinite;border-color:#ff5a4e}
+#mfill-hype{background:linear-gradient(90deg,#2f8f83,#5fd3c2)}
+#mfill-morale{background:linear-gradient(90deg,#c04a5e,#ff8a9a)}
+#mfill-upkeep{background:linear-gradient(90deg,#b07a1e,#ecc45f)}
+.pool{background:rgba(251,247,239,.06);border:1px solid rgba(201,162,39,.3);border-radius:14px;padding:12px 14px;color:var(--ivory)}
+.pool .phead{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:700;letter-spacing:2px;margin-bottom:6px}
+.pool .phead svg{width:24px;height:24px}
+.pool .pval{font-family:Georgia,serif;font-size:30px;font-weight:700;color:var(--gold-l)}
+.pool .psub{font-size:15px;color:rgba(251,247,239,.55);margin-top:2px}
+.pool .ptrack{height:12px;border-radius:99px;background:rgba(0,0,0,.5);overflow:hidden;margin-top:8px;border:1px solid rgba(201,162,39,.35)}
+.pool .pfill{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold-l));transition:width .8s ease;border-radius:99px}
+#tour{margin-top:auto;background:rgba(251,247,239,.05);border:1px solid rgba(201,162,39,.25);border-radius:14px;padding:14px}
+#tour .tt{color:rgba(251,247,239,.6);font-size:15px;letter-spacing:3px;margin-bottom:10px;text-align:center}
+.tour-dot{display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:10px;color:rgba(251,247,239,.45);font-size:17px}
+.tour-dot .dot{width:12px;height:12px;border-radius:50%;background:rgba(251,247,239,.25);flex:none}
+.tour-dot.cur{color:var(--gold-l);font-weight:700;background:rgba(201,162,39,.14)}
+.tour-dot.cur .dot{background:var(--gold-l);box-shadow:0 0 10px var(--gold-l)}
+.tour-dot.done{color:rgba(251,247,239,.7)}
+.tour-dot.done .dot{background:#7fae8a}
+#main{position:relative;flex:1}
+
+/* ---------- 发钱屏 ---------- */
+#screen-deal{flex-direction:column;align-items:center;justify-content:center;gap:34px}
+#deal-city{font-size:34px;color:var(--gold-l);letter-spacing:8px}
+#deal-round{font-size:22px;color:rgba(251,247,239,.6);letter-spacing:4px;margin-top:8px}
+#deal-card{padding:44px 90px;text-align:center;animation:popIn .55s ease both}
+#deal-card .lbl{font-size:24px;color:var(--brown-l);letter-spacing:4px;margin-bottom:10px}
+#deal-cash{font-size:110px;line-height:1}
+#deal-cash::after{content:' MT';font-size:44px}
+#deal-note{font-size:20px;color:rgba(251,247,239,.55);letter-spacing:2px}
+
+/* ---------- 预算屏 ---------- */
+#screen-budget{flex-direction:column;align-items:center;padding:44px 70px 40px}
+.scr-title{font-size:40px;color:var(--ivory);letter-spacing:8px;font-weight:700;text-shadow:0 4px 16px rgba(0,0,0,.5)}
+.scr-sub{font-size:20px;color:rgba(251,247,239,.6);letter-spacing:3px;margin-top:8px}
+#budget-remaining{margin:22px 0 18px;padding:12px 46px;display:flex;align-items:baseline;gap:16px}
+#budget-remaining .lbl{font-size:22px;color:var(--brown-l);letter-spacing:3px}
+#remain-num{font-family:Georgia,serif;font-size:52px;font-weight:700;color:var(--red)}
+#remain-num.zero{color:#2e7d46}
+#remain-num::after{content:' MT';font-size:24px}
+#alloc-list{width:1180px;display:flex;flex-direction:column;gap:14px}
+.alloc-row{display:flex;align-items:center;gap:22px;padding:14px 26px}
+.alloc-row .aic{width:46px;height:46px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--gold-l),var(--gold-d))}
+.alloc-row .aic svg{width:28px;height:28px}
+.alloc-row .ainfo{width:300px;flex:none}
+.alloc-row .aname{font-size:24px;font-weight:700;color:var(--brown)}
+.alloc-row .ahint{font-size:16px;color:var(--brown-l);margin-top:2px}
+.alloc-row input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:16px;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold) var(--p,0%),#d9cba5 var(--p,0%));outline:none;cursor:pointer}
+.alloc-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:38px;height:38px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fbe7a4,var(--gold) 65%,#8a6d12);
+  border:3px solid #fff6d8;box-shadow:0 3px 10px rgba(0,0,0,.45);cursor:grab}
+.alloc-row .aamt{width:190px;flex:none;text-align:right;font-family:Georgia,serif;font-size:34px;font-weight:700;color:var(--brown)}
+.alloc-row .aamt::after{content:' MT';font-size:18px;color:var(--brown-l)}
+.alloc-row .afx{width:120px;flex:none;font-size:19px;color:#2e7d46;font-weight:700;text-align:right}
+#btn-budget{margin-top:24px}
+
+/* ---------- 商店屏 ---------- */
+#screen-shop{flex-direction:column;align-items:center;padding:44px 60px 36px}
+#shop-fund{margin:16px 0 20px;padding:10px 40px;display:flex;align-items:baseline;gap:14px}
+#shop-fund .lbl{font-size:22px;color:var(--brown-l)}
+#fund-num{font-family:Georgia,serif;font-size:46px;font-weight:700;color:var(--red)}
+#fund-num::after{content:' MT';font-size:22px}
+#shop-grid{display:flex;gap:22px}
+.shop-col{width:480px;padding:20px 20px 16px}
+.shop-col h3{text-align:center;font-size:26px;color:var(--red);letter-spacing:6px;margin-bottom:14px;
+  border-bottom:2px solid var(--gold);padding-bottom:10px}
+.trick{display:flex;gap:14px;align-items:center;background:#fff;border:2px solid var(--ivory-d);border-radius:14px;
+  padding:10px 12px;margin-bottom:12px;transition:transform .15s}
+.trick .timg{width:86px;height:86px;flex:none;border-radius:10px;border:2px solid var(--gold)}
+.trick .tinfo{flex:1;min-width:0}
+.trick .tname{font-size:21px;font-weight:700;color:var(--brown)}
+.trick .teff{font-size:15px;color:var(--brown-l);margin-top:3px;line-height:1.4}
+.trick .teff b{color:#b3541e}
+.trick .tprice{font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--gold-d);white-space:nowrap}
+.trick button{flex:none;font-size:17px;font-weight:700;padding:8px 16px;border-radius:99px;border:none;cursor:pointer;
+  background:linear-gradient(180deg,var(--gold-l),var(--gold-d));color:var(--brown);box-shadow:0 3px 0 #7c6210}
+.trick button:disabled{filter:grayscale(.9) brightness(.8);cursor:not-allowed;box-shadow:none}
+.trick.owned{background:var(--ivory-d)}
+.trick.owned .tag{flex:none;font-size:16px;font-weight:700;color:#2e7d46;border:2px solid #2e7d46;border-radius:99px;padding:5px 12px}
+#shop-actions{margin-top:20px;display:flex;gap:20px}
+
+/* ---------- 排节目屏 ---------- */
+#screen-routine{flex-direction:column;align-items:center;padding:44px 60px 36px}
+#routine-grid{display:flex;gap:26px;margin-top:34px}
+.rslot{width:480px;padding:22px;text-align:center}
+.rslot h3{font-size:28px;color:var(--red);letter-spacing:8px;margin-bottom:6px}
+.rslot .rsub{font-size:16px;color:var(--brown-l);margin-bottom:16px}
+.rpick{display:flex;align-items:center;gap:14px;background:#fff;border:3px dashed #cbbd97;border-radius:14px;
+  padding:10px 14px;margin-bottom:12px;cursor:pointer;text-align:left;transition:all .15s;width:100%}
+.rpick:hover{transform:translateY(-2px)}
+.rpick .timg{width:64px;height:64px;flex:none;border-radius:10px;border:2px solid var(--gold)}
+.rpick .tname{font-size:21px;font-weight:700;color:var(--brown)}
+.rpick .teff{font-size:14px;color:var(--brown-l)}
+.rpick.sel{border:3px solid var(--gold);background:#fffbe9;box-shadow:0 0 0 4px rgba(201,162,39,.25),0 8px 20px rgba(0,0,0,.15)}
+.rpick.sel::after{content:'✓ 已上场';margin-left:auto;color:#2e7d46;font-weight:700;font-size:16px;white-space:nowrap}
+.rpick .teff i{font-style:normal;color:#b3541e;font-weight:700}
+#btn-routine{margin-top:26px}
+
+/* ---------- 定价屏 ---------- */
+#screen-price{flex-direction:column;align-items:center;padding:56px 60px 40px}
+#screen-price .scr-sub b{color:var(--gold-l);font-family:Georgia,serif;font-size:24px}
+#price-grid{display:flex;gap:26px;margin-top:30px}
+.pcard{width:420px;padding:32px 26px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.pcard:hover{transform:translateY(-4px)}
+.pcard.sel{background:#fffbe9;box-shadow:0 0 0 5px var(--gold-l),0 16px 44px rgba(0,0,0,.4)}
+.pcard h3{font-size:32px;color:var(--red);letter-spacing:6px;margin-bottom:10px}
+.pcard .pe{font-size:22px;font-weight:700;color:var(--brown);margin-bottom:8px}
+.pcard .pf{font-size:18px;color:var(--brown-l)}
+#price-advice{margin-top:24px;font-size:21px;color:var(--gold-l);letter-spacing:2px;min-height:30px}
+#btn-price{margin-top:10px}
+
+/* ---------- 演出屏 ---------- */
+#screen-performance{flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+#perf-act{font-size:30px;color:var(--gold-l);letter-spacing:10px;margin-bottom:18px;z-index:5}
+#perf-frame{width:900px;height:560px;border:5px solid var(--gold);border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.7);z-index:5;
+  animation:popIn .5s ease both}
+#perf-name{margin-top:22px;font-size:38px;color:var(--ivory);letter-spacing:6px;font-weight:700;z-index:5}
+#perf-react{margin-top:12px;font-size:24px;color:var(--gold-l);letter-spacing:3px;min-height:34px;z-index:5}
+#perf-hint{position:absolute;bottom:34px;right:46px;font-size:18px;color:rgba(251,247,239,.45);letter-spacing:2px;z-index:5}
+#perf-skip{position:absolute;bottom:30px;left:46px;z-index:6}
+.applause-light{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,236,170,.35),transparent 55%)}
+
+/* ---------- 结算屏 ---------- */
+#screen-settle{flex-direction:column;align-items:center;padding:40px 60px 34px;overflow:hidden}
+#settle-body{display:flex;gap:26px;margin-top:24px;width:1500px;flex:1;min-height:0}
+#settle-left{flex:1.15;padding:26px 30px;overflow-y:auto;min-height:0}
+#settle-left h3{font-size:24px;color:var(--red);letter-spacing:4px;margin-bottom:14px;text-align:center}
+.ilinea,.mline{display:flex;justify-content:space-between;font-size:19px;color:var(--brown);padding:7px 4px;
+  border-bottom:1px dashed var(--ivory-d)}
+.ilinea .v,.mline .v{font-family:Georgia,serif;font-weight:700}
+.v.pos{color:#2e7d46}.v.neg{color:#c0392b}
+#settle-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:12px;border-top:3px solid var(--gold)}
+#settle-total .t{font-size:26px;font-weight:700;color:var(--brown);letter-spacing:3px}
+#settle-totalnum{font-family:Georgia,serif;font-size:54px;font-weight:700;color:var(--red)}
+#settle-totalnum::after{content:' MT';font-size:24px}
+#settle-right{flex:1;padding:26px 30px;display:flex;flex-direction:column;overflow-y:auto;min-height:0}
+.mgroup{margin-bottom:14px}
+.mgroup .gname{font-size:20px;font-weight:700;color:var(--brown);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.mgroup .gname svg{width:22px;height:22px}
+.mgroup .gend{font-size:15px;color:var(--brown-l);margin-top:4px;text-align:right}
+#settle-save{margin-top:auto;padding-top:14px;border-top:2px solid var(--ivory-d)}
+#settle-save .srow{display:flex;justify-content:space-between;align-items:baseline}
+#settle-save .slbl{font-size:20px;font-weight:700;color:var(--brown)}
+#settle-save .sval{font-family:Georgia,serif;font-size:34px;font-weight:700;color:var(--gold-d)}
+#settle-tipbar{margin-top:18px;width:1500px;padding:14px 30px;display:flex;align-items:center;gap:14px;flex:none}
+#settle-tipbar .tic{font-size:26px;color:var(--gold-d);font-weight:700;flex:none}
+#settle-tipbar .ttx{font-size:21px;color:var(--brown);line-height:1.5}
+#btn-settle{margin-top:18px;flex:none}
+#settle-left::-webkit-scrollbar,#settle-right::-webkit-scrollbar{width:8px}
+#settle-left::-webkit-scrollbar-thumb,#settle-right::-webkit-scrollbar-thumb{background:var(--gold);border-radius:99px}
+#settle-left::-webkit-scrollbar-track,#settle-right::-webkit-scrollbar-track{background:rgba(201,162,39,.12);border-radius:99px}
+
+/* ---------- 事件弹窗 ---------- */
+#event-mask{position:absolute;inset:0;background:rgba(10,2,4,.72);z-index:120;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+#event-mask.on{display:flex}
+#event-card{width:1150px;display:flex;overflow:hidden;animation:popIn .45s ease both}
+#event-img{width:480px;height:540px;flex:none}
+#event-body{flex:1;padding:36px 40px;display:flex;flex-direction:column}
+#event-tag{font-size:18px;color:#b3541e;font-weight:700;letter-spacing:4px}
+#event-title{font-size:40px;color:var(--brown);margin:8px 0 12px;letter-spacing:3px}
+#event-desc{font-size:23px;color:var(--brown-l);line-height:1.65}
+#event-opts{margin-top:auto;display:flex;flex-direction:column;gap:14px}
+.ev-opt{display:flex;align-items:center;gap:16px}
+.ev-opt button{flex:1;font-size:24px;font-weight:700;padding:16px 20px;border-radius:16px;border:3px solid var(--gold);
+  background:#fff;color:var(--brown);cursor:pointer;transition:all .15s;text-align:center;line-height:1.4}
+.ev-opt button:hover:not(:disabled){background:#fff6da;transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.15)}
+.ev-opt button:disabled{opacity:.45;cursor:not-allowed}
+.vote{display:flex;flex-direction:column;align-items:center;gap:4px;flex:none;width:86px}
+.vote .vn{font-family:Georgia,serif;font-size:30px;font-weight:700;color:var(--red);min-height:38px}
+.vote .vp{font-size:15px;font-weight:700;padding:4px 14px;border-radius:99px;border:2px solid var(--gold);background:var(--ivory);
+  color:var(--brown);cursor:pointer}
+.vote .vp:active{transform:scale(.92)}
+#event-toast{margin-top:14px;font-size:20px;color:#2e7d46;font-weight:700;min-height:30px;text-align:center}
+
+/* ---------- 终局过场 ---------- */
+#screen-finale{flex-direction:column;align-items:center;justify-content:center;gap:30px;z-index:35;background:rgba(10,2,4,.55)}
+#finale-card{padding:44px 80px;text-align:center;animation:popIn .6s ease both}
+#finale-card .t{font-size:32px;color:var(--brown);letter-spacing:4px;margin-bottom:14px}
+#finale-num{font-size:100px;line-height:1}
+#finale-num::after{content:' MT';font-size:40px}
+#finale-card .s{font-size:22px;color:var(--brown-l);margin-top:12px;letter-spacing:2px}
+
+/* ---------- 结局屏 ---------- */
+#screen-ending{flex-direction:column;align-items:center;justify-content:center;z-index:40}
+#ending-bg{position:absolute;inset:0}
+#ending-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,rgba(10,2,4,.25),rgba(10,2,4,.78))}
+#ending-card{position:relative;z-index:5;width:980px;padding:46px 60px;text-align:center;animation:popIn .7s ease both}
+#ending-title{font-size:64px;letter-spacing:8px;margin-bottom:16px}
+#ending-title.win{color:#b8860b}
+#ending-title.lose{color:var(--red)}
+#ending-desc{font-size:25px;color:var(--brown-l);line-height:1.7;margin-bottom:20px}
+#ending-stats{display:flex;justify-content:center;gap:60px;margin-bottom:22px}
+#ending-stats .st{text-align:center}
+#ending-stats .sv{font-family:Georgia,serif;font-size:44px;font-weight:700;color:var(--brown)}
+#ending-stats .sl{font-size:17px;color:var(--brown-l);letter-spacing:2px;margin-top:2px}
+#ending-motto{display:inline-block;padding:12px 34px;background:linear-gradient(90deg,rgba(201,162,39,.16),rgba(201,162,39,.3),rgba(201,162,39,.16));
+  border-radius:99px;font-size:24px;color:#8a6d12;font-weight:700;letter-spacing:4px;margin-bottom:26px}
+
+/* ---------- 特效层 ---------- */
+#fx{position:absolute;inset:0;pointer-events:none;z-index:150;overflow:hidden}
+.coin{position:absolute;width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fbe7a4,var(--gold) 60%,#8a6d12);
+  border:2px solid #fff2c0;box-shadow:0 2px 8px rgba(0,0,0,.5);
+  transition:transform .8s cubic-bezier(.3,.6,.4,1),opacity .8s;z-index:151}
+.confetti{position:absolute;width:14px;height:22px;top:-30px;z-index:150;animation:cfall linear forwards}
+@keyframes cfall{to{transform:translateY(1180px) rotate(720deg);opacity:.7}}
+.spark{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold-l);box-shadow:0 0 12px var(--gold-l);
+  animation:spop .7s ease-out forwards}
+@keyframes spop{from{transform:scale(.4);opacity:1}to{transform:scale(2.6) translateY(-40px);opacity:0}}
+
+/* ---------- 静音 ---------- */
+#mute-btn{position:absolute;top:20px;right:24px;z-index:300;width:58px;height:58px;border-radius:50%;border:2px solid var(--gold);
+  background:rgba(35,10,16,.85);cursor:pointer;display:flex;align-items:center;justify-content:center}
+#mute-btn svg{width:30px;height:30px}
+#mute-btn .off{display:none}
+#mute-btn.muted .on{display:none}
+#mute-btn.muted .off{display:block}
+</style>
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+
+  <!-- 大幕 -->
+  <div class="curtain" id="curtain-l"></div>
+  <div class="curtain" id="curtain-r"></div>
+
+  <!-- 标题与提示置于幕布层之上（.screen 的 z-index 会形成层叠上下文，困住内部 z-index） -->
+  <div id="opening-title">
+    <h1 class="serif">恩佐的金钱魔法</h1>
+    <p class="serif">MONEY &nbsp;MAGIC</p>
+  </div>
+  <div id="curtain-hint">— 点 击 拉 开 大 幕 —</div>
+
+  <!-- 开场 -->
+  <div class="screen on" id="screen-opening">
+    <div id="spotlight"></div>
+    <div id="opening-stage">
+      <div class="imgwrap" id="enzo-hero"><span class="imglabel">魔术师 恩佐</span></div>
+      <div class="card" id="opening-goal">
+        <b>5 场巡演 · 存下 6,000 MT</b><br>
+        <span>帮恩佐攒够维加斯大舞台的场地费！</span>
+      </div>
+      <div class="card" id="bunny-bubble">
+        <div class="who">助手 · 班纳布斯</div>
+        <div class="say">每场演出赚的钱，都要全部分配好：<b>打广告、发工资、保养道具、存进基金</b>……怎么分，就看你们全班的了！</div>
+      </div>
+      <button class="btn" id="btn-start">开始巡演</button>
+    </div>
+  </div>
+
+  <!-- 游戏布局 -->
+  <div id="game-layout">
+    <div id="sidebar">
+      <div class="logo serif">金钱魔法</div>
+      <div class="meter" id="meter-hype">
+        <div class="mhead"><span class="mic" data-ic="star"></span><span class="mname">人气</span><span class="mval" id="mval-hype">60</span></div>
+        <div class="mtrack"><div class="mfill" id="mfill-hype" style="width:60%"></div></div>
+      </div>
+      <div class="meter" id="meter-morale">
+        <div class="mhead"><span class="mic" data-ic="heart"></span><span class="mname">士气</span><span class="mval" id="mval-morale">60</span></div>
+        <div class="mtrack"><div class="mfill" id="mfill-morale" style="width:60%"></div></div>
+      </div>
+      <div class="meter" id="meter-upkeep">
+        <div class="mhead"><span class="mic" data-ic="wrench"></span><span class="mname">保养</span><span class="mval" id="mval-upkeep">60</span></div>
+        <div class="mtrack"><div class="mfill" id="mfill-upkeep" style="width:60%"></div></div>
+      </div>
+      <div class="pool">
+        <div class="phead"><span class="mic" data-ic="vegas"></span>维加斯基金</div>
+        <div class="pval"><span id="save-val">0</span><span style="font-size:18px;color:rgba(251,247,239,.5)"> / 6,000 MT</span></div>
+        <div class="ptrack"><div class="pfill" id="save-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pool">
+        <div class="phead"><span class="mic" data-ic="shop"></span>魔术店基金</div>
+        <div class="pval" id="shopfund-val">0 MT</div>
+        <div class="psub">用于在魔术店购买戏法</div>
+      </div>
+      <div id="tour">
+        <div class="tt">— 巡演路线 —</div>
+        <div id="tour-list"></div>
+      </div>
+    </div>
+    <div id="main">
+
+      <!-- 发钱 -->
+      <div class="screen" id="screen-deal">
+        <div style="text-align:center">
+          <div id="deal-city" class="serif">第 1 站 · 起点小镇</div>
+          <div id="deal-round">ROUND 1 / 5</div>
+        </div>
+        <div class="card" id="deal-card">
+          <div class="lbl" id="deal-lbl">启 动 资 金</div>
+          <div class="goldnum" id="deal-cash">1,500</div>
+        </div>
+        <div id="deal-note">记住规则：每一分钱都要分配完，一分不剩！</div>
+        <button class="btn" id="btn-deal">领取资金</button>
+      </div>
+
+      <!-- 预算分配 -->
+      <div class="screen" id="screen-budget">
+        <div class="scr-title serif">分配本轮资金</div>
+        <div class="scr-sub">全班讨论决定：每个类目分多少？分完才能继续</div>
+        <div class="card" id="budget-remaining"><span class="lbl">待分配余额</span><span id="remain-num">0</span></div>
+        <div id="alloc-list"></div>
+        <button class="btn" id="btn-budget" disabled>确认预算</button>
+      </div>
+
+      <!-- 魔术店 -->
+      <div class="screen" id="screen-shop">
+        <div class="scr-title serif">魔术店</div>
+        <div class="scr-sub">用魔术店基金购买新戏法，越贵的戏法票房越高　<span style="color:var(--red);font-weight:700">每次仅限购买1个</span></div>
+        <div class="card" id="shop-fund"><span class="lbl">魔术店基金</span><span id="fund-num">0</span></div>
+        <div id="shop-grid"></div>
+        <div id="shop-actions"><button class="btn" id="btn-shop">前往排节目 →</button></div>
+      </div>
+
+      <!-- 排节目 -->
+      <div class="screen" id="screen-routine">
+        <div class="scr-title serif">编排本场节目</div>
+        <div class="scr-sub">开场秀 / 中间秀 / 压轴秀，各选一个已拥有的戏法</div>
+        <div id="routine-grid"></div>
+        <button class="btn" id="btn-routine">开 演 ！</button>
+      </div>
+
+      <!-- 定价 -->
+      <div class="screen" id="screen-price">
+        <div class="scr-title serif">今晚的票，卖多少钱？</div>
+        <div class="scr-sub">当前人气：<b id="price-hype">60</b> / 100　·　票价越贵票房越高，但太贵会掉人气</div>
+        <div id="price-grid">
+          <div class="card pcard" data-p="budget">
+            <h3 class="serif">亲民价</h3>
+            <div class="pe">票房 ×0.8 · 人气 +10</div>
+            <div class="pf">薄利多销，口口相传</div>
+          </div>
+          <div class="card pcard" data-p="std">
+            <h3 class="serif">标准价</h3>
+            <div class="pe">票房 ×1.0 · 无影响</div>
+            <div class="pf">稳稳当当，不冒险</div>
+          </div>
+          <div class="card pcard" data-p="prem">
+            <h3 class="serif">精品价</h3>
+            <div class="pe">票房 ×1.25 · 人气 -15</div>
+            <div class="pf">高价高收，但会吓跑路人粉</div>
+          </div>
+        </div>
+        <div id="price-advice"></div>
+        <button class="btn" id="btn-price" disabled>开 演 ！</button>
+      </div>
+
+      <!-- 演出 -->
+      <div class="screen" id="screen-performance">
+        <div class="applause-light"></div>
+        <div id="perf-act" class="serif">开场秀</div>
+        <div class="imgwrap" id="perf-frame"><span class="imglabel">演出中</span></div>
+        <div id="perf-name" class="serif"></div>
+        <div id="perf-react"></div>
+        <div id="perf-hint">点击画面推进演出 ▸</div>
+      </div>
+
+      <!-- 结算 -->
+      <div class="screen" id="screen-settle">
+        <div class="scr-title serif" id="settle-title">第 1 站 · 演出结算</div>
+        <div id="settle-body">
+          <div class="card" id="settle-left">
+            <h3>演出收入</h3>
+            <div id="income-lines"></div>
+            <div id="settle-total"><span class="t">本轮收入</span><span id="settle-totalnum">0</span></div>
+          </div>
+          <div class="card" id="settle-right">
+            <div id="meter-changes"></div>
+            <div id="settle-save">
+              <div class="srow"><span class="slbl">维加斯基金累计</span><span class="sval" id="settle-saveval">0 MT</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="settle-tipbar"><span class="tic">Tips</span><span class="ttx" id="settle-tips"></span></div>
+        <button class="btn" id="btn-settle">前往下一站 →</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 终局过场 -->
+  <div class="screen" id="screen-finale">
+    <div class="card" id="finale-card">
+      <div class="t">最后一场收入 · 全部存入维加斯基金</div>
+      <div class="goldnum" id="finale-num">0</div>
+      <div class="s" id="finale-sub">正在核算巡演总储蓄……</div>
+    </div>
+  </div>
+
+  <!-- 结局 -->
+  <div class="screen" id="screen-ending">
+    <div class="imgwrap" id="ending-bg"></div>
+    <div class="card" id="ending-card">
+      <div id="ending-title" class="serif win">抵达维加斯！</div>
+      <div id="ending-desc"></div>
+      <div id="ending-stats">
+        <div class="st"><div class="sv" id="end-save">0</div><div class="sl">巡演总储蓄 MT</div></div>
+        <div class="st"><div class="sv" id="end-round">5</div><div class="sl">完成站点</div></div>
+      </div>
+      <div id="ending-motto">储蓄优先 · 量入为出 · 灵活应变</div><br>
+      <button class="btn" id="btn-again">再 玩 一 次</button>
+    </div>
+  </div>
+
+  <!-- 事件弹窗 -->
+  <div id="event-mask">
+    <div class="card" id="event-card">
+      <div class="imgwrap" id="event-img"><span class="imglabel">突发事件</span></div>
+      <div id="event-body">
+        <div id="event-tag">⚡ 突发事件</div>
+        <div id="event-title" class="serif"></div>
+        <div id="event-desc"></div>
+        <div id="event-toast"></div>
+        <div id="event-opts"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="fx"></div>
+  <button id="mute-btn" title="音效开关">
+    <svg class="on" viewBox="0 0 24 24" fill="none" stroke="#E8C766" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z" fill="#E8C766"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+    <svg class="off" viewBox="0 0 24 24" fill="none" stroke="#E8C766" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z" fill="#E8C766"/><line x1="16" y1="9" x2="22" y2="15"/><line x1="22" y1="9" x2="16" y2="15"/></svg>
+  </button>
+
+</div>
+</div>
+
+<script>
+/* ==================== 配置与数据 ==================== */
+const CFG = { rounds:5, target:6000, startCash:1500, base:250, hypeMult:10,
+  decay:20, unfundedDecay:25, meterStart:60, meterCap:100, mtPerPoint:20, step:10, mstep:20,
+  fresh:0.8, attendVar:0.15 };
+const PRICES = {
+  budget:{name:'亲民价', mult:0.8,  hype:10,  fx:'票房 ×0.8 · 人气 +10', flavor:'薄利多销，口口相传'},
+  std:   {name:'标准价', mult:1.0,  hype:0,   fx:'票房 ×1.0 · 无影响',   flavor:'稳稳当当，不冒险'},
+  prem:  {name:'精品价', mult:1.25, hype:-15, fx:'票房 ×1.25 · 人气 -15', flavor:'高价高收，但会吓跑路人粉'},
+};
+
+const STYLE = "vintage 1930s theatrical poster illustration, painterly, cinematic warm lighting, deep crimson velvet and antique gold palette, highly detailed, no text, no words, no letters";
+const ENZO = "elegant cartoon magician: tall friendly man with a long nose, black tuxedo, teal bow tie, tall top hat with teal band, dark blue cape, white gloves";
+const BUNNY = "charming white rabbit magician assistant with tall ears, wearing a teal vest, holding a golden pocket watch";
+const A = n=>"money-magic-assets/"+n+".jpg";
+
+const IMGS = {
+  enzo: A('enzo'),
+  vegas: A('vegas'),
+  strike: A('strike'),
+  accident: A('accident'),
+  broke: A('broke'),
+};
+const TRICKS = {
+  opener:[
+    {id:'cups',  name:'杯中球',   price:0,    inc:0,    fx:{},               img:A('cups')},
+    {id:'sleeve',name:'袖花',     price:200,  inc:240,  fx:{hype:5},         img:A('sleeve')},
+    {id:'fire',  name:'烟火魔术', price:500,  inc:490,  fx:{morale:10,upkeep:-10}, img:A('fire')},
+    {id:'phantom',name:'幻影登场', price:800,  inc:860, fx:{hype:15,upkeep:-10},  img:A('phantom')},
+  ],
+  middle:[
+    {id:'cards', name:'杯牌戏法', price:0,    inc:0,    fx:{},               img:A('cards')},
+    {id:'rabbit',name:'魔术帽兔子',price:400, inc:410,  fx:{morale:15},      img:A('rabbit')},
+    {id:'hypno', name:'催眠术',   price:800,  inc:690,  fx:{hype:10},        img:A('hypno')},
+    {id:'mindread',name:'读心术', price:1300, inc:1380, fx:{hype:15,morale:10}, img:A('mindread')},
+  ],
+  finale:[
+    {id:'levit', name:'悬浮空中', price:0,    inc:0,    fx:{},               img:A('levit')},
+    {id:'knife', name:'蒙眼飞刀', price:600,  inc:610,  fx:{hype:10,upkeep:-10}, img:A('knife')},
+    {id:'escape',name:'逃出生天', price:1000, inc:1020, fx:{hype:15,morale:10}, img:A('escape')},
+    {id:'timetravel',name:'时空穿梭',price:1800,inc:1940,fx:{hype:20,upkeep:-20}, img:A('timetravel')},
+  ],
+};
+const SLOT_NAMES = {opener:'开场秀', middle:'中间秀', finale:'压轴秀'};
+const CITIES = ['起点小镇','河湾城','星光市','金沙镇','拉斯维加斯'];
+const EVENTS = [
+  {id:'ticket', title:'超速罚单！', desc:'巡演车连夜赶路超速，被交警拦了下来。罚款必须当场缴纳，没有商量余地。',
+   img:A('ev-ticket'),
+   opts:[{label:'认缴罚款（-400 MT）', cash:-400}]},
+  {id:'shoes', title:'恩佐想要新鞋', desc:'恩佐在橱窗外盯上了一双闪亮的舞台鞋——"穿上它，我的舞步会发光！"售价 200 MT。',
+   img:A('ev-shoes'),
+   opts:[{label:'买！（-200 MT，士气 +15）', cash:-200, morale:15},
+         {label:'下次再说（士气 -10）', morale:-10}]},
+  {id:'sick', title:'班纳布斯病了', desc:'兔子助手今天无精打采，耳朵都耷拉了。带去镇上看兽医要 500 MT。',
+   img:A('ev-sick'),
+   opts:[{label:'看兽医（-500 MT）', cash:-500},
+         {label:'硬扛着（下场收入 -20%）', sickNext:true}]},
+  {id:'props', title:'道具摔坏了', desc:'装车工人手一滑，一箱道具摔下台阶。立即维修要 300 MT，不然设备状态会很糟。',
+   img:A('ev-props'),
+   opts:[{label:'马上维修（-300 MT）', cash:-300},
+         {label:'凑合着用（保养 -20）', upkeep:-20}]},
+  {id:'press', title:'本地记者采访', desc:'镇上的大报记者来了！花 200 MT 请他们喝杯咖啡、送几张票，报道会写得漂亮得多。',
+   img:A('ev-press'),
+   opts:[{label:'好好招待（-200 MT，人气 +20）', cash:-200, hype:20},
+         {label:'婉拒采访（无效果）'}]},
+  {id:'fans', title:'粉丝打赏！', desc:'一群铁杆粉丝追到后台，往礼帽里塞满了打赏的硬币！',
+   img:A('ev-fans'),
+   opts:[{label:'开心收下（+300 MT）', cash:300}]},
+];
+const CATS = [
+  {id:'ads',   name:'广告投放',  ic:'star',   hint:'每 20 MT → 人气 +1'},
+  {id:'salary',name:'恩佐薪酬',  ic:'heart',  hint:'每 20 MT → 士气 +1'},
+  {id:'upkeep',name:'维护保养',  ic:'wrench', hint:'每 20 MT → 保养 +1'},
+  {id:'vegas', name:'维加斯基金',ic:'vegas',  hint:'直接存入储蓄，冲击 6,000 MT'},
+  {id:'shop',  name:'魔术店基金',ic:'shop',   hint:'存进去，用来购买新戏法'},
+];
+const ICONS = {
+  star:'<svg viewBox="0 0 24 24" fill="#3A2A1E"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.2l7.1-.6z"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="#3A2A1E"><path d="M12 21s-8-5.3-10-10C.5 7 3 4 6.5 4c2 0 3.7 1.2 5.5 3.3C13.8 5.2 15.5 4 17.5 4 21 4 23.5 7 22 11c-2 4.7-10 10-10 10z"/></svg>',
+  wrench:'<svg viewBox="0 0 24 24" fill="#3A2A1E"><path d="M21 6.5a5.5 5.5 0 0 1-7.6 5.1L6 19a2.1 2.1 0 0 1-3-3l7.4-7.4A5.5 5.5 0 0 1 17.5 2l-2.7 2.7 3.5 3.5z"/></svg>',
+  vegas:'<svg viewBox="0 0 24 24" fill="#3A2A1E"><path d="M12 1 3 7v2h18V7zm-7 10v9H3v2h18v-2h-2v-9h-3v9h-3v-9h-2v9H9v-9z"/></svg>',
+  shop:'<svg viewBox="0 0 24 24" fill="#3A2A1E"><path d="M4 4h16l2 5v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0V9zm0 9h16v7H4z"/></svg>',
+};
+
+/* ==================== 状态 ==================== */
+const S = {};
+function resetState(){
+  S.round=1; S.cash=CFG.startCash;
+  S.meters={hype:CFG.meterStart, morale:CFG.meterStart, upkeep:CFG.meterStart};
+  S.savings=0; S.shopFund=0; S.shopBought=false;
+  S.owned={opener:['cups'], middle:['cards'], finale:['levit']};
+  S.routine={opener:'cups', middle:'cards', finale:'levit'};
+  S.alloc={ads:0,salary:0,upkeep:0,vegas:0,shop:0};
+  S.eventDeck=shuffle(EVENTS.slice());
+  S.sickNext=false; S.muted=false; S.log=null; S.income=0; S.perfTimer=null;
+  S.played={opener:{cups:0},middle:{cards:0},finale:{levit:0}};
+  S.price=null; S.attend=1;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const clampM=m=>Math.max(0,Math.min(CFG.meterCap,m));
+const r10=n=>Math.round(n/10)*10;
+const MAX_USES=2;
+function effInc(t,slot){const n=(S.played&&S.played[slot][t.id])||0;return t.inc===0?0:r10(t.inc*(n===0?1:0.8))}
+function freshPct(t,slot){const n=(S.played&&S.played[slot][t.id])||0;return n===0?100:80}
+function usesLeft(t,slot){return t.inc===0?Infinity:MAX_USES-((S.played&&S.played[slot][t.id])||0)}
+
+/* ==================== 音效（WebAudio 合成） ==================== */
+let AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}return AC}
+function tone(f,t0,dur,type,vol){
+  const a=ac(); if(!a||S.muted)return;
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(f,a.currentTime+t0);
+  g.gain.setValueAtTime(0.0001,a.currentTime+t0);
+  g.gain.exponentialRampToValueAtTime(vol||.18,a.currentTime+t0+.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+t0+dur);
+  o.connect(g).connect(a.destination); o.start(a.currentTime+t0); o.stop(a.currentTime+t0+dur+.05);
+}
+function noiseBurst(t0,dur,vol,ff){
+  const a=ac(); if(!a||S.muted)return;
+  const len=a.sampleRate*dur, buf=a.createBuffer(1,len,a.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+  const src=a.createBufferSource(); src.buffer=buf;
+  const f=a.createBiquadFilter(); f.type='bandpass'; f.frequency.value=ff||1200;
+  const g=a.createGain(); g.gain.value=vol||.3;
+  src.connect(f).connect(g).connect(a.destination); src.start(a.currentTime+t0);
+}
+const SFX={
+  click(){tone(660,0,.07,'triangle',.12)},
+  coin(){tone(988,0,.09,'square',.10);tone(1319,.08,.16,'square',.10)},
+  sparkle(){[1320,1568,1865,2217].forEach((f,i)=>tone(f,i*.07,.18,'sine',.08))},
+  fanfare(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.13,.3,'triangle',.16));tone(1319,.55,.5,'triangle',.14)},
+  applause(big){const n=big?7:4;for(let i=0;i<n;i++)noiseBurst(i*.14,.5,big?.22:.12,900+Math.random()*800)},
+  sad(){[392,330,262,196].forEach((f,i)=>tone(f,i*.22,.4,'triangle',.14))},
+  pop(){tone(440,0,.06,'sine',.14);tone(880,.05,.08,'sine',.1)},
+};
+$('mute-btn').onclick=()=>{S.muted=!S.muted;$('mute-btn').classList.toggle('muted',S.muted)};
+
+/* ==================== 工具：图片/特效 ==================== */
+function picEl(url,label,cls){
+  const w=document.createElement('div'); w.className='imgwrap '+(cls||'');
+  const s=document.createElement('span'); s.className='imglabel'; s.textContent=label; w.appendChild(s);
+  const im=new Image(); im.src=url; im.alt=label; im.onerror=()=>im.remove(); w.appendChild(im);
+  return w;
+}
+function stagePos(el){
+  const r=el.getBoundingClientRect(), st=$('stage').getBoundingClientRect(), k=curScale;
+  return {x:(r.left-st.left+r.width/2)/k, y:(r.top-st.top+r.height/2)/k};
+}
+function coinFly(fromEl,toEl,n){
+  n=n||6; const fx=$('fx'), a=stagePos(fromEl), b=stagePos(toEl);
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='coin';
+    c.style.left=(a.x-17+(Math.random()*80-40))+'px'; c.style.top=(a.y-17+(Math.random()*40-20))+'px';
+    fx.appendChild(c);
+    setTimeout(()=>{c.style.transform=`translate(${b.x-a.x+(Math.random()*30-15)}px,${b.y-a.y+(Math.random()*30-15)}px) scale(.6)`;c.style.opacity='0'},30+i*60);
+    setTimeout(()=>c.remove(),1100+i*60);
+  }
+  SFX.coin();
+}
+function confetti(n){
+  const fx=$('fx'), colors=['#E8C766','#FBF7EF','#C9A227','#d9707e','#7fd3c2'];
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*1920+'px'; c.style.background=colors[i%colors.length];
+    c.style.animationDuration=(1.6+Math.random()*1.8)+'s'; c.style.animationDelay=(Math.random()*.8)+'s';
+    fx.appendChild(c); setTimeout(()=>c.remove(),4200);
+  }
+}
+function sparkBurst(x,y,n){
+  const fx=$('fx');
+  for(let i=0;i<(n||14);i++){
+    const s=document.createElement('div'); s.className='spark';
+    s.style.left=(x+(Math.random()*360-180))+'px'; s.style.top=(y+(Math.random()*240-120))+'px';
+    s.style.animationDelay=(Math.random()*.4)+'s';
+    fx.appendChild(s); setTimeout(()=>s.remove(),1400);
+  }
+}
+
+/* ==================== 缩放适配 ==================== */
+let curScale=1;
+function fit(){
+  const w=innerWidth,h=innerHeight;
+  curScale=Math.min(w/1920,h/1080);
+  $('stage').style.transform=`scale(${curScale})`;
+}
+addEventListener('resize',fit); fit();
+
+/* ==================== 屏幕管理 ==================== */
+function show(id){
+  document.querySelectorAll('#main .screen').forEach(s=>s.classList.remove('on'));
+  if(id)$('screen-'+id).classList.add('on');
+}
+function sidebar(onoff){$('game-layout').classList.toggle('on',onoff)}
+function renderSidebar(){
+  ['hype','morale','upkeep'].forEach(k=>{
+    $('mval-'+k).textContent=S.meters[k];
+    $('mfill-'+k).style.width=S.meters[k]+'%';
+    $('meter-'+k).classList.toggle('warn',S.meters[k]<=20);
+  });
+  $('save-val').textContent=fmt(S.savings);
+  $('save-fill').style.width=Math.min(100,S.savings/CFG.target*100)+'%';
+  $('shopfund-val').textContent=fmt(S.shopFund)+' MT';
+  const tl=$('tour-list'); tl.innerHTML='';
+  CITIES.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='tour-dot'+(i+1<S.round?' done':i+1===S.round?' cur':'');
+    d.innerHTML=`<span class="dot"></span><span>第${'一二三四五'[i]}站 · ${c}</span>`;
+    tl.appendChild(d);
+  });
+}
+document.querySelectorAll('.mic').forEach(el=>{el.innerHTML=ICONS[el.dataset.ic]||''});
+
+/* ==================== 流程 ==================== */
+resetState();
+// 开场恩佐立绘 + 全部图片预加载（利用开场时间暖缓存）
+const hero=picEl(IMGS.enzo,'魔术师 恩佐'); hero.id='enzo-hero'; $('enzo-hero').replaceWith(hero);
+[...Object.values(IMGS),...Object.values(TRICKS).flat().map(t=>t.img),...EVENTS.map(e=>e.img)]
+  .forEach(u=>{const i=new Image();i.src=u});
+
+/* ---- 开场 ---- */
+function openCurtains(){
+  if($('stage').classList.contains('open'))return;
+  SFX.fanfare();
+  $('stage').classList.add('open');
+  $('curtain-hint').style.display='none';
+  $('opening-title').style.top='70px';
+  $('opening-title').querySelector('h1').style.fontSize='64px';
+  setTimeout(()=>sparkBurst(960,430,22),900);
+}
+$('curtain-hint').onclick=openCurtains;
+$('screen-opening').addEventListener('click',openCurtains);
+$('btn-start').onclick=()=>{
+  SFX.click(); sidebar(true); $('screen-opening').classList.remove('on');
+  $('opening-title').style.display='none';
+  startRound();
+};
+
+/* ---- 回合开始：发钱 ---- */
+function startRound(){
+  renderSidebar();
+  $('deal-city').textContent=`第 ${'一二三四五'[S.round-1]} 站 · ${CITIES[S.round-1]}`;
+  $('deal-round').textContent=`ROUND ${S.round} / ${CFG.rounds}`;
+  $('deal-lbl').textContent=S.round===1?'启 动 资 金':'上一场演出收入';
+  $('deal-cash').textContent=fmt(S.cash);
+  $('deal-note').textContent=S.round===1?'记住规则：每一分钱都要分配完，一分不剩！':'上一站的票房收入到账了，继续全部分配！';
+  show('deal');
+}
+$('btn-deal').onclick=()=>{
+  SFX.coin();
+  if(S.round>=2){showEvent(S.eventDeck[S.round-2]);}
+  else openBudget();
+};
+
+/* ---- 事件 ---- */
+function showEvent(ev){
+  const mask=$('event-mask');
+  $('event-title').textContent=ev.title;
+  $('event-desc').textContent=ev.desc;
+  $('event-toast').textContent='';
+  const iw=$('event-img'); iw.innerHTML='';
+  const nw=picEl(ev.img,ev.title); iw.replaceWith(nw); nw.id='event-img'; nw.style.cssText='width:480px;height:540px;flex:none';
+  const box=$('event-opts'); box.innerHTML='';
+  ev.opts.forEach(op=>{
+    const row=document.createElement('div'); row.className='ev-opt';
+    const btn=document.createElement('button');
+    btn.textContent=op.label;
+    const needCash=(op.cash||0)<0&&S.cash<-op.cash;
+    if(needCash){btn.disabled=true;btn.textContent=op.label+'（资金不足）'}
+    const vote=document.createElement('div'); vote.className='vote';
+    const vn=document.createElement('span'); vn.className='vn'; vn.textContent='0';
+    const vp=document.createElement('button'); vp.className='vp'; vp.textContent='举手 +1';
+    vp.onclick=e=>{e.stopPropagation();vn.textContent=+vn.textContent+1;SFX.pop()};
+    vote.appendChild(vn); vote.appendChild(vp);
+    btn.onclick=()=>{SFX.click();applyEvent(op);mask.classList.remove('on')};
+    row.appendChild(btn); row.appendChild(vote); box.appendChild(row);
+  });
+  mask.classList.add('on');
+}
+function applyEvent(op){
+  const news=[];
+  if(op.cash){S.cash=Math.max(0,S.cash+op.cash);news.push(op.cash>0?`资金 +${op.cash} MT`:`资金 ${op.cash} MT`)}
+  if(op.hype){S.meters.hype=clampM(S.meters.hype+op.hype);news.push(`人气 +${op.hype}`)}
+  if(op.morale){S.meters.morale=clampM(S.meters.morale+op.morale);news.push(`士气 ${op.morale>0?'+':''}${op.morale}`)}
+  if(op.upkeep){S.meters.upkeep=clampM(S.meters.upkeep+op.upkeep);news.push(`保养 ${op.upkeep>0?'+':''}${op.upkeep}`)}
+  if(op.sickNext){S.sickNext=true;news.push('下场收入 -20%')}
+  S.eventNews=news;
+  renderSidebar();
+  const dead=checkDead();
+  if(dead){endGame(dead);return}
+  openBudget();
+}
+function checkDead(){
+  if(S.meters.morale<=0)return 'strike';
+  if(S.meters.upkeep<=0)return 'accident';
+  return null;
+}
+
+/* ---- 预算分配 ---- */
+function openBudget(){
+  S.alloc={ads:0,salary:0,upkeep:0,vegas:0,shop:0};
+  const list=$('alloc-list'); list.innerHTML='';
+  CATS.forEach(c=>{
+    const row=document.createElement('div'); row.className='card alloc-row';
+    row.innerHTML=`
+      <div class="aic">${ICONS[c.ic]}</div>
+      <div class="ainfo"><div class="aname">${c.name}</div><div class="ahint">${c.hint}</div></div>
+      <input type="range" min="0" max="${S.cash}" value="0" step="${(c.id==='ads'||c.id==='salary'||c.id==='upkeep')?CFG.mstep:CFG.step}" data-cat="${c.id}">
+      <div class="aamt" id="amt-${c.id}">0</div>
+      <div class="afx" id="afx-${c.id}"></div>`;
+    list.appendChild(row);
+    const slider=row.querySelector('input');
+    slider.addEventListener('input',()=>{
+      let v=+slider.value;
+      const others=Object.keys(S.alloc).filter(k=>k!==c.id).reduce((s,k)=>s+S.alloc[k],0);
+      v=Math.min(v,S.cash-others);
+      const st=(c.id==='ads'||c.id==='salary'||c.id==='upkeep')?CFG.mstep:CFG.step;
+      v=Math.floor(v/st)*st;
+      slider.value=v; S.alloc[c.id]=v;
+      slider.style.setProperty('--p',(S.cash?v/S.cash*100:0)+'%');
+      $('amt-'+c.id).textContent=fmt(v);
+      const fxEl=$('afx-'+c.id);
+      if(c.id==='ads')fxEl.textContent=v?`人气 +${v/CFG.mtPerPoint}`:'';
+      else if(c.id==='salary')fxEl.textContent=v?`士气 +${v/CFG.mtPerPoint}`:'';
+      else if(c.id==='upkeep')fxEl.textContent=v?`保养 +${v/CFG.mtPerPoint}`:'';
+      else if(c.id==='vegas')fxEl.textContent=v?'存入储蓄':'';
+      else fxEl.textContent=v?'可购戏法':'';
+      const rem=S.cash-Object.values(S.alloc).reduce((a,b)=>a+b,0);
+      $('remain-num').textContent=fmt(rem);
+      $('remain-num').classList.toggle('zero',rem===0);
+      $('btn-budget').disabled=rem!==0;
+      if(rem===0)SFX.pop();
+    });
+  });
+  $('remain-num').textContent=fmt(S.cash);
+  $('remain-num').classList.remove('zero');
+  $('btn-budget').disabled=true;
+  show('budget');
+}
+$('btn-budget').onclick=()=>{
+  SFX.coin();
+  const a=S.alloc;
+  S.log={hype:[],morale:[],upkeep:[],income:[]};
+  if(a.ads){S.meters.hype=clampM(S.meters.hype+a.ads/CFG.mtPerPoint);S.log.hype.push({t:'广告投入',v:a.ads/CFG.mtPerPoint})}
+  if(a.salary){S.meters.morale=clampM(S.meters.morale+a.salary/CFG.mtPerPoint);S.log.morale.push({t:'薪酬投入',v:a.salary/CFG.mtPerPoint})}
+  if(a.upkeep){S.meters.upkeep=clampM(S.meters.upkeep+a.upkeep/CFG.mtPerPoint);S.log.upkeep.push({t:'保养投入',v:a.upkeep/CFG.mtPerPoint})}
+  S.savings+=a.vegas; S.shopFund+=a.shop;
+  S.shopBought=false;
+  renderSidebar();
+  coinFly($('budget-remaining'),$('save-val').closest('.pool'),5);
+  openShop();
+};
+
+/* ---- 魔术店 ---- */
+function openShop(){
+  $('fund-num').textContent=fmt(S.shopFund);
+  const grid=$('shop-grid'); grid.innerHTML='';
+  ['opener','middle','finale'].forEach(slot=>{
+    const col=document.createElement('div'); col.className='card shop-col';
+    col.innerHTML=`<h3 class="serif">${SLOT_NAMES[slot]}</h3>`;
+    TRICKS[slot].forEach(t=>{
+      const owned=S.owned[slot].includes(t.id);
+      const el=document.createElement('div'); el.className='trick'+(owned?' owned':'');
+      const fxTxt=Object.entries(t.fx).map(([k,v])=>{
+        const n={hype:'人气',morale:'士气',upkeep:'保养'}[k];
+        return `${n} ${v>0?'+':''}${v}`;
+      }).join('，');
+      el.innerHTML=`
+        <div class="tinfo" style="display:none"></div>
+        <div class="tinfo">
+          <div class="tname">${t.name}</div>
+          <div class="teff">票房 <b>+${t.inc}</b>${fxTxt?'　'+fxTxt:''}</div>
+        </div>`;
+      const img=document.createElement('div'); el.insertBefore(img,el.children[1]);
+      img.replaceWith(picEl(t.img,t.name,'timg'));
+      el.children[0].classList.add('timg');
+      el.querySelector('div[style*="display:none"]').remove();
+      if(owned){
+        el.insertAdjacentHTML('beforeend','<span class="tag">已拥有</span>');
+      }else{
+        const can=S.shopFund>=t.price&&!S.shopBought;
+        el.insertAdjacentHTML('beforeend',
+          `<span class="tprice">${fmt(t.price)} MT</span><button ${can?'':'disabled'} data-slot="${slot}" data-t="${t.id}">购买</button>`);
+      }
+      col.appendChild(el);
+    });
+    grid.appendChild(col);
+  });
+  grid.querySelectorAll('button[data-t]').forEach(b=>{
+    b.onclick=()=>{
+      if(S.shopBought)return;
+      const slot=b.dataset.slot,t=TRICKS[slot].find(x=>x.id===b.dataset.t);
+      if(S.shopFund<t.price)return;
+      S.shopFund-=t.price; S.owned[slot].push(t.id);
+      S.shopBought=true;
+      SFX.sparkle(); sparkBurst(960,480,16);
+      openShop(); renderSidebar();
+    };
+  });
+  show('shop');
+}
+$('btn-shop').onclick=()=>{SFX.click();openRoutine()};
+
+/* ---- 排节目 ---- */
+function openRoutine(){
+  const grid=$('routine-grid'); grid.innerHTML='';
+  ['opener','middle','finale'].forEach(slot=>{
+    const col=document.createElement('div'); col.className='card rslot';
+    col.innerHTML=`<h3 class="serif">${SLOT_NAMES[slot]}</h3><div class="rsub">每个戏法最多演 2 次：首次 100%，第二次 80%</div>`;
+    const avail=TRICKS[slot].filter(t=>S.owned[slot].includes(t.id)&&usesLeft(t,slot)>0);
+    if(avail.length&&!avail.some(t=>t.id===S.routine[slot]))S.routine[slot]=avail[0].id;
+    avail.forEach(t=>{
+      const b=document.createElement('button'); b.className='rpick'+(S.routine[slot]===t.id?' sel':'');
+      const fxTxt=Object.entries(t.fx).map(([k,v])=>`${{hype:'人气',morale:'士气',upkeep:'保养'}[k]} ${v>0?'+':''}${v}`).join('，');
+      const n=S.played[slot][t.id]||0;
+      const freshTxt=t.inc>0?`票房 +${effInc(t,slot)}${n?` <i>新鲜感 ${freshPct(t,slot)}%</i>`:''}`:'票房 +0';
+      b.innerHTML=`<div class="tinfo"><div class="tname">${t.name}</div><div class="teff">${freshTxt}${fxTxt?'　'+fxTxt:''}</div></div>`;
+      b.insertBefore(picEl(t.img,t.name,'timg'),b.children[0]);
+      b.onclick=()=>{S.routine[slot]=t.id;SFX.click();openRoutine()};
+      col.appendChild(b);
+    });
+    grid.appendChild(col);
+  });
+  show('routine');
+}
+$('btn-routine').onclick=()=>{SFX.click();openPrice()};
+
+/* ---- 定价 ---- */
+function openPrice(){
+  S.price=null;
+  $('price-hype').textContent=S.meters.hype;
+  const adv=S.meters.hype>=70?'人气正旺，可以试试精品价！':S.meters.hype>=45?'标准价最稳妥，精品价也不是不行。':'人气有点低迷……亲民价拉拉人气吧！';
+  $('price-advice').textContent='班纳布斯建议：'+adv;
+  document.querySelectorAll('.pcard').forEach(c=>{
+    c.classList.remove('sel');
+    c.onclick=()=>{document.querySelectorAll('.pcard').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel'); S.price=c.dataset.p; $('btn-price').disabled=false; SFX.pop()};
+  });
+  $('btn-price').disabled=true;
+  show('price');
+}
+$('btn-price').onclick=()=>{if(!S.price)return;SFX.fanfare();startPerformance()};
+
+/* ---- 演出 ---- */
+function startPerformance(){
+  const pr=PRICES[S.price];
+  // 票价影响人气
+  if(pr.hype){S.meters.hype=clampM(S.meters.hype+pr.hype);S.log.hype.push({t:`${pr.name}定价`,v:pr.hype})}
+  // 戏法附加效果
+  const sideLog=[];
+  ['opener','middle','finale'].forEach(slot=>{
+    const t=TRICKS[slot].find(x=>x.id===S.routine[slot]);
+    Object.entries(t.fx).forEach(([k,v])=>{
+      S.meters[k]=clampM(S.meters[k]+v);
+      sideLog.push({k,t:`「${t.name}」`,v});
+    });
+  });
+  sideLog.forEach(s=>S.log[s.k].push({t:s.t,v:s.v}));
+  renderSidebar();
+  // 收入
+  const hypeNow=S.meters.hype;
+  const hypeCash=r10(hypeNow*CFG.hypeMult);
+  const lines=[{t:'基础票房',v:CFG.base},{t:`人气票房（当前人气 ${hypeNow}）`,v:hypeCash}];
+  let total=CFG.base+hypeCash;
+  ['opener','middle','finale'].forEach(slot=>{
+    const t=TRICKS[slot].find(x=>x.id===S.routine[slot]);
+    const inc=effInc(t,slot);
+    if(inc>0){
+      const fp=freshPct(t,slot);
+      lines.push({t:`「${t.name}」票房加成${fp<100?`（新鲜感 ${fp}%）`:''}`,v:inc});total+=inc;
+    }
+  });
+  if(S.sickNext){const cut=r10(total*.2);lines.push({t:'班纳布斯带病坚持',v:-cut});total-=cut;S.sickNext=false}
+  // 票价倍率
+  const afterPrice=r10(total*pr.mult);
+  lines.push({t:`${pr.name}（票房 ×${pr.mult}）`,v:afterPrice-total}); total=afterPrice;
+  // 上座率波动
+  S.attend=1+(Math.random()*2-1)*CFG.attendVar;
+  const pct=Math.round(S.attend*100);
+  const afterAtt=r10(total*S.attend);
+  const attTxt=pct>=105?`观众爆满！上座率 ${pct}%`:pct<95?`观众稀稀拉拉……上座率 ${pct}%`:`上座率 ${pct}%`;
+  lines.push({t:attTxt,v:afterAtt-total}); total=afterAtt;
+  // 记录演出次数（戏法保鲜度衰减）
+  ['opener','middle','finale'].forEach(slot=>{const id=S.routine[slot];S.played[slot][id]=(S.played[slot][id]||0)+1});
+  S.income=total; S.incomeLines=lines;
+  S.perfHype=hypeNow;
+  // 演出序列
+  S.perfIdx=-1;
+  show('performance');
+  $('screen-performance').onclick=advancePerf;
+  advancePerf();
+}
+function advancePerf(){
+  clearTimeout(S.perfTimer);
+  S.perfIdx++;
+  const acts=['opener','middle','finale'];
+  if(S.perfIdx>=acts.length){finishPerformance();return}
+  const slot=acts[S.perfIdx], t=TRICKS[slot].find(x=>x.id===S.routine[slot]);
+  $('perf-act').textContent=SLOT_NAMES[slot];
+  $('perf-name').textContent=t.name;
+  const fr=$('perf-frame'); fr.innerHTML='';
+  const nw=picEl(t.img,t.name); fr.replaceWith(nw); nw.id='perf-frame';
+  nw.style.cssText='width:900px;height:560px;border:5px solid var(--gold);border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.7);z-index:5;animation:popIn .5s ease both';
+  $('perf-react').textContent='';
+  SFX.applause(S.perfHype>=45);
+  if(S.perfHype>=45)confetti(S.perfHype>=75?40:18);
+  S.perfTimer=setTimeout(advancePerf,3600);
+}
+function finishPerformance(){
+  clearTimeout(S.perfTimer);
+  $('screen-performance').onclick=null;
+  const h=S.perfHype;
+  const react=h>=75?'全场沸腾，掌声雷动！观众起立欢呼！':h>=45?'观众反响热烈，好评如潮！':h>=25?'观众稀稀拉拉，掌声零零星星……':'台下冷冷清清，有人提前退场了';
+  $('perf-act').textContent='演出结束';
+  $('perf-name').textContent=react;
+  $('perf-react').textContent=h>=45?'票房大卖！':'票房平平……人气越高，票房越好';
+  const fr=$('perf-frame'); fr.innerHTML='';
+  const nw=picEl(IMGS.enzo,'谢幕',''); fr.replaceWith(nw); nw.id='perf-frame';
+  nw.style.cssText='width:900px;height:560px;border:5px solid var(--gold);border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.7);z-index:5;animation:popIn .5s ease both';
+  if(h>=45){confetti(60);SFX.applause(true)}else{SFX.applause(false)}
+  S.perfTimer=setTimeout(openSettlement,2600);
+  $('screen-performance').onclick=()=>{clearTimeout(S.perfTimer);openSettlement()};
+}
+
+/* ---- 结算 ---- */
+function openSettlement(){
+  // 自然消耗
+  ['hype','morale','upkeep'].forEach(k=>{
+    const catId={hype:'ads',morale:'salary',upkeep:'upkeep'}[k];
+    const funded=S.alloc[catId]>0;
+    const d=funded?CFG.decay:CFG.unfundedDecay;
+    S.meters[k]=clampM(S.meters[k]-d);
+    S.log[k].push({t:funded?'每场固定消耗':'零投入 · 加速损耗',v:-d});
+  });
+  renderSidebar();
+  $('settle-title').textContent=`第 ${'一二三四五'[S.round-1]} 站 · 演出结算`;
+  // 收入明细
+  const il=$('income-lines'); il.innerHTML='';
+  S.incomeLines.forEach((l,i)=>{
+    const d=document.createElement('div'); d.className='ilinea';
+    d.style.animation=`fadeIn .4s ease ${i*.18}s both`;
+    d.innerHTML=`<span>${l.t}</span><span class="v ${l.v>=0?'pos':'neg'}">${l.v>=0?'+':''}${fmt(l.v)}</span>`;
+    il.appendChild(d);
+  });
+  // 收入数字滚动
+  const numEl=$('settle-totalnum'); const t0=performance.now();
+  (function tick(now){
+    const p=Math.min(1,(now-t0)/1200);
+    numEl.textContent=fmt(S.income*(0.2+0.8*p)*(p===1?1:p));
+    if(p<1)requestAnimationFrame(tick);else{numEl.textContent=fmt(S.income);SFX.coin()}
+  })(t0);
+  // 仪表变化
+  const mc=$('meter-changes'); mc.innerHTML='';
+  const names={hype:'人气',morale:'士气',upkeep:'保养'};
+  ['hype','morale','upkeep'].forEach(k=>{
+    const g=document.createElement('div'); g.className='mgroup';
+    const sum=S.log[k].reduce((s,x)=>s+x.v,0);
+    let html=`<div class="gname">${ICONS[{hype:'star',morale:'heart',upkeep:'wrench'}[k]]}${names[k]}
+      <span style="margin-left:auto" class="v ${sum>=0?'pos':'neg'}">${sum>=0?'▲':'▼'} ${sum>=0?'+':''}${sum}</span></div>`;
+    S.log[k].forEach(x=>{html+=`<div class="mline"><span>${x.t}</span><span class="v ${x.v>=0?'pos':'neg'}">${x.v>=0?'+':''}${x.v}</span></div>`});
+    html+=`<div class="gend">当前 ${names[k]}：${S.meters[k]} / 100</div>`;
+    g.innerHTML=html; mc.appendChild(g);
+  });
+  $('settle-saveval').textContent=fmt(S.savings)+' MT';
+  // Tips
+  $('settle-tips').textContent=makeTips();
+  const dead=checkDead();
+  const btn=$('btn-settle');
+  if(dead){btn.textContent='查看结果……'}
+  else if(S.round>=CFG.rounds){btn.textContent='揭晓最终结果！'}
+  else{btn.textContent='前往下一站 →'}
+  btn.onclick=()=>{
+    SFX.click();
+    if(dead){endGame(dead);return}
+    if(S.round>=CFG.rounds){finale();return}
+    S.cash=S.income; S.round++;
+    startRound();
+  };
+  show('settle');
+}
+function makeTips(){
+  const tips=[];
+  const drop=k=>S.log[k].reduce((s,x)=>s+x.v,0)<0;
+  if(S.meters.morale<=20)tips.push('士气快见底了！下轮一定要给恩佐加薪，否则他会罢工！');
+  else if(drop('morale'))tips.push('士气有所下降，留意恩佐的心情。');
+  if(S.meters.upkeep<=20)tips.push('保养快见底了！下轮必须维修道具，否则演出会出事故！');
+  else if(drop('upkeep'))tips.push('保养数值下降，道具需要维护了。');
+  if(S.meters.hype<40)tips.push('人气不足，票房会越来越差，考虑多投广告。');
+  const pace=CFG.target*S.round/CFG.rounds;
+  if(S.savings<pace-600)tips.push('储蓄进度落后了，维加斯基金要多存一点！');
+  if(!tips.length)tips.push('一切顺利！保持这个节奏，维加斯就在眼前！');
+  return tips.slice(0,2).join('　');
+}
+
+/* ---- 终局 ---- */
+function finale(){
+  show(null); $('screen-finale').classList.add('on');
+  const numEl=$('finale-num'); numEl.textContent='0';
+  $('finale-sub').textContent='正在核算巡演总储蓄……';
+  SFX.fanfare();
+  const t0=performance.now();
+  (function tick(now){
+    const p=Math.min(1,(now-t0)/1600);
+    numEl.textContent=fmt(S.income*p);
+    if(p<1)requestAnimationFrame(tick);
+    else{
+      S.savings+=S.income;
+      numEl.textContent=fmt(S.income);
+      $('finale-sub').textContent=`巡演总储蓄：${fmt(S.savings)} MT`;
+      renderSidebar(); confetti(30); SFX.coin();
+      setTimeout(()=>{
+        $('screen-finale').classList.remove('on');
+        endGame(S.savings>=CFG.target?'win':'broke');
+      },1800);
+    }
+  })(t0);
+}
+function endGame(type){
+  show(null); sidebar(false);
+  const bg=$('ending-bg'); bg.innerHTML='';
+  const conf={
+    win:{img:IMGS.vegas,cls:'win',title:'抵达维加斯！',
+      desc:`5 场巡演结束，你们存下了 <b>${fmt(S.savings)} MT</b>！恩佐终于站上了维加斯的大舞台，班纳布斯也戴上了金色领结。`,
+      motto:'储蓄优先 · 量入为出 · 灵活应变',win:true},
+    broke:{img:IMGS.broke,cls:'lose',title:'还差一点点……',
+      desc:`巡演结束，只存下 <b>${fmt(S.savings)} MT</b>，距离 ${fmt(CFG.target)} MT 的场地费还差 <b>${fmt(CFG.target-S.savings)} MT</b>。下次试试：早点投资戏法提高票房，每轮都记得存钱！`,
+      motto:'赚到钱 ≠ 存下钱，先储蓄再消费'},
+    strike:{img:IMGS.strike,cls:'lose',title:'恩佐罢工了！',
+      desc:`士气归零——恩佐把礼帽一摔，拒绝再上台了！巡演被迫中止。<br>记住：再省也不能省掉伙伴的薪酬。`,
+      motto:'照顾好团队，团队才能照顾好收入'},
+    accident:{img:IMGS.accident,cls:'lose',title:'演出事故！',
+      desc:`保养归零——锯子卡壳、道具散架，演出当场翻车！巡演被迫中止。<br>记住：设备维护是省不得的硬成本。`,
+      motto:'该花的维护费，一分都不能省'},
+  }[type];
+  bg.appendChild(picEl(conf.img,conf.title));
+  bg.querySelector('.imgwrap').style.cssText='position:absolute;inset:0';
+  $('ending-title').textContent=conf.title;
+  $('ending-title').className='serif '+conf.cls;
+  $('ending-desc').innerHTML=conf.desc;
+  $('ending-motto').textContent='💡 '+conf.motto;
+  $('end-save').textContent=fmt(S.savings);
+  $('end-round').textContent=`${S.round} / ${CFG.rounds}`;
+  $('screen-ending').classList.add('on');
+  if(conf.win){confetti(90);SFX.fanfare();setTimeout(()=>SFX.applause(true),600)}
+  else SFX.sad();
+}
+$('btn-again').onclick=()=>location.reload();
+</script>
+</body>
+</html>
