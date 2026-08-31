@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Truck Challenge — 玩家手册 · Player's Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#FBF8F3; --ivory2:#F5EEE2; --card:#FFFFFF;
+  --red:#D71920; --red-d:#A8121A; --red-soft:#FBE3E3; --red-mist:#F7EFEA;
+  --ink:#37302B; --ink2:#7A6F66; --ink3:#A89C90;
+  --gold:#C9A227; --gold-soft:#F5EBCF;
+  --green:#4E7A5A; --green-soft:#E4EFE6;
+  --line:#ECE1D2; --line2:#E0D4C2;
+  --sh:0 1px 2px rgba(80,50,40,.05),0 10px 30px rgba(80,50,40,.07);
+  --sh-lg:0 2px 6px rgba(80,50,40,.06),0 24px 60px rgba(80,50,40,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','Noto Sans SC',system-ui,sans-serif;color:var(--ink);background:var(--ivory);
+  background-image:radial-gradient(circle at 15% -5%,#fff 0%,transparent 45%),radial-gradient(circle at 110% 10%,#F3E9D8 0%,transparent 40%);
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.serif{font-family:'Fraunces','Noto Serif SC',Georgia,serif}
+.zh-serif{font-family:'Noto Serif SC',serif}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink2)}
+.en{font-family:'Fraunces',serif;font-style:italic;color:var(--ink2);font-size:.86em}
+
+/* ---------- progress bar ---------- */
+#progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--red),#E88588);width:0;z-index:200;transition:width .1s linear}
+
+/* ---------- header band ---------- */
+.band{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#C8161D 0%,#E23335 60%,#C8161D 100%);color:#FFF7EC;
+  padding:13px 22px;box-shadow:0 4px 18px rgba(168,18,26,.25)}
+.band-in{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-family:'Fraunces',serif;font-style:italic;font-weight:700;font-size:20px;letter-spacing:.3px}
+.logo span{opacity:.75;font-weight:500;font-size:12px;margin-left:8px;font-style:normal;letter-spacing:1.5px;text-transform:uppercase}
+.band .spacer{flex:1}
+.band-tag{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600}
+
+/* ---------- layout ---------- */
+.wrap{max-width:920px;margin:0 auto;padding:0 22px 110px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;border-radius:26px;overflow:hidden;box-shadow:var(--sh-lg);margin-top:26px}
+.hero-img{width:100%;height:400px;object-fit:cover;display:block}
+.hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,20,15,.05) 20%,rgba(40,20,15,.7) 100%)}
+.hero-txt{position:absolute;left:0;right:0;bottom:0;padding:36px 40px;color:#FFF7EC}
+.hero-txt .kick{font-size:11.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px}
+.hero-txt h1{font-size:44px;font-weight:700;font-style:italic;line-height:1.05;text-shadow:0 2px 20px rgba(0,0,0,.35)}
+.hero-txt h1 .zh{display:block;font-style:normal;font-family:'Noto Serif SC',serif;font-weight:900;font-size:30px;margin-top:6px;letter-spacing:1px}
+.hero-txt p{margin-top:10px;font-size:14.5px;opacity:.94;max-width:600px;line-height:1.6}
+
+/* ---------- table of contents ---------- */
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:22px}
+.toc a{display:flex;flex-direction:column;gap:4px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;
+  padding:13px 15px;text-decoration:none;color:var(--ink);transition:.18s;box-shadow:var(--sh)}
+.toc a:hover{border-color:var(--red);transform:translateY(-2px)}
+.toc a b{font-size:13.5px}
+.toc a .n{font-family:'Fraunces',serif;color:var(--red);font-weight:700;font-size:12px}
+.toc a span{font-size:11.5px;color:var(--ink2)}
+
+/* ---------- sections ---------- */
+section{margin-top:64px;scroll-margin-top:80px}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:2.2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--red)}
+h2.sec{font-size:32px;font-weight:700;line-height:1.1}
+h2.sec .zh{font-family:'Noto Serif SC',serif;font-weight:900;font-size:26px;display:block;margin-top:4px}
+.sec-lede{margin-top:12px;font-size:15px;line-height:1.75;color:var(--ink2);max-width:680px}
+.sec-lede b{color:var(--ink)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);padding:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--ivory2);border:1px solid var(--line);
+  border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--ink2)}
+.chip.red{background:var(--red-soft);border-color:#F2C4C5;color:var(--red-d)}
+.chip.gold{background:var(--gold-soft);border-color:#E7D9A8;color:#8A6E12}
+.chip.green{background:var(--green-soft);border-color:#CBDFD0;color:var(--green)}
+
+/* big stat row */
+.stat-row{display:flex;gap:14px;margin-top:20px;flex-wrap:wrap}
+.tstat{flex:1;min-width:140px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--sh)}
+.tstat b{display:block;font-size:26px;font-family:'Fraunces',serif;color:var(--red)}
+.tstat span{font-size:12.5px;color:var(--ink2)}
+
+/* product / location cards */
+.p-card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;transition:.2s}
+.p-card:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);border-color:var(--red)}
+.p-card img{width:100%;height:170px;object-fit:cover;display:block}
+.p-body{padding:16px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.p-body h3{font-size:19px}
+.p-body .en{display:block}
+.p-vibe{font-size:12.5px;color:var(--ink2);line-height:1.6;flex:1}
+.p-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+
+/* tables */
+table.t{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+table.t th{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink2);font-weight:700;
+  padding:8px 10px;border-bottom:2px solid var(--line2);text-align:left}
+table.t td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.5}
+table.t tr:last-child td{border-bottom:none}
+table.t td.r,table.t th.r{text-align:right}
+table.t td.c,table.t th.c{text-align:center}
+
+/* stars */
+.stars{display:inline-flex;gap:1px;color:var(--gold)}
+.stars .off{color:#E5D9C8}
+.stars svg{width:12px;height:12px}
+
+/* flow diagram */
+.flow{display:flex;flex-direction:column;gap:0;margin-top:20px}
+.flow-step{display:flex;gap:16px;align-items:flex-start}
+.flow-step .dot{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-weight:700;font-size:15px;box-shadow:0 4px 12px rgba(215,25,32,.3)}
+.flow-step .f-body{flex:1;padding-bottom:22px;border-left:2px solid var(--line2);margin-left:0;padding-left:0;position:relative}
+.flow-step .f-content{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--sh)}
+.flow-step .f-content b{font-size:14.5px}
+.flow-step .f-content p{font-size:12.8px;color:var(--ink2);margin-top:3px;line-height:1.6}
+.flow-line{width:2px;background:var(--line2);margin-left:21px;height:14px}
+
+/* callout */
+.note{border-left:4px solid var(--red);background:linear-gradient(90deg,var(--red-mist),transparent);border-radius:0 12px 12px 0;
+  padding:14px 18px;margin-top:18px;font-size:13.5px;line-height:1.7}
+.note.gold{border-color:var(--gold);background:linear-gradient(90deg,var(--gold-soft),transparent)}
+.note.green{border-color:var(--green);background:linear-gradient(90deg,var(--green-soft),transparent)}
+.note b{color:var(--red-d)}
+.note.gold b{color:#8A6E12}
+.note.green b{color:var(--green)}
+
+/* intel tags */
+.intel-tag{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700}
+.intel-w1{background:var(--red-soft);color:var(--red-d);border:1px solid #F2C4C5}
+.intel-own{background:var(--gold-soft);color:#8A6E12;border:1px solid #E7D9A8}
+.intel-res{background:var(--green-soft);color:var(--green);border:1px solid #CBDFD0}
+
+/* checklist */
+.check{list-style:none;margin-top:14px}
+.check li{display:flex;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line);align-items:flex-start;font-size:14px;line-height:1.6}
+.check li:last-child{border-bottom:none}
+.check .box{flex-shrink:0;width:22px;height:22px;border-radius:6px;border:2px solid var(--red);margin-top:1px;display:flex;align-items:center;justify-content:center;color:var(--red)}
+
+/* pk code */
+.pk-code{font-family:'Courier New',ui-monospace,monospace;font-size:22px;font-weight:700;letter-spacing:2.5px;background:#FFF7EC;border:2px dashed var(--red);border-radius:14px;padding:16px 18px;text-align:center;user-select:all;word-break:break-all}
+
+/* vs compare */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+@media(max-width:640px){.vs{grid-template-columns:1fr}}
+.vs .side{border-radius:16px;padding:18px;border:1.5px solid var(--line)}
+.vs .side.bad{background:#FDF3F2;border-color:#F0C9C8}
+.vs .side.good{background:#F2F7F3;border-color:#CBDFD0}
+.vs .side h4{font-size:14px;margin-bottom:6px}
+.vs .side.bad h4{color:var(--red-d)}
+.vs .side.good h4{color:var(--green)}
+.vs .side p{font-size:12.8px;line-height:1.65;color:var(--ink2)}
+
+/* footer */
+footer{margin-top:80px;text-align:center;color:var(--ink3);font-size:12.5px;line-height:1.8;padding-top:26px;border-top:1px solid var(--line)}
+footer .serif{font-style:italic;color:var(--red);font-size:15px}
+
+/* back to top */
+#top-btn{position:fixed;right:24px;bottom:24px;width:46px;height:46px;border-radius:50%;background:var(--red);color:#fff;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(215,25,32,.4);opacity:0;pointer-events:none;transition:.25s;z-index:90}
+#top-btn.show{opacity:1;pointer-events:auto}
+#top-btn:hover{background:var(--red-d)}
+
+/* section reveal */
+section{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+section.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- ======= HEADER ======= -->
+<div class="band"><div class="band-in">
+  <div class="logo">Food Truck Challenge<span>Player's Guide</span></div>
+  <div class="spacer"></div>
+  <div class="band-tag">玩家手册 · 读完就能上手</div>
+</div></div>
+
+<div class="wrap">
+
+  <!-- ======= HERO ======= -->
+  <div class="hero">
+    <img class="hero-img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=vintage%20red%20food%20truck%20parked%20on%20a%20sunny%20american%20main%20street%2C%20retro%20advertising%20poster%20illustration%2C%20cream%20and%20ivory%20tones%20with%20coca-cola%20red%20accents%2C%20golden%20hour%20light%2C%20clean%20vector%20style%2C%20no%20text%20no%20words&image_size=landscape_16_9" alt="Boomtown food truck" onerror="this.style.display='none'">
+    <div class="hero-veil"></div>
+    <div class="hero-txt">
+      <div class="kick">Welcome to Boomtown</div>
+      <h1>Food Truck Challenge<span class="zh">餐车创业挑战 · 玩家手册</span></h1>
+      <p>你是 Boomtown 仅有的 5 张餐车执照持有者之一。给你 $10,000 和 5 周时间——把这家小生意做成全城最赚钱的那一个。这一页讲清所有规则，读完就能开局。</p>
+    </div>
+  </div>
+
+  <!-- ======= TOC ======= -->
+  <nav class="toc">
+    <a href="#s-goal"><span class="n">01</span><b>你的任务</b><span>目标 · 时间 · 资金</span></a>
+    <a href="#s-flow"><span class="n">02</span><b>一周怎么过</b><span>决策 → 经营 → 反馈</span></a>
+    <a href="#s-mode"><span class="n">03</span><b>四种经营方式</b><span>餐车 · 推车 · 调研</span></a>
+    <a href="#s-what"><span class="n">04</span><b>卖什么</b><span>3 种产品</span></a>
+    <a href="#s-where"><span class="n">05</span><b>去哪卖</b><span>6 个地点</span></a>
+    <a href="#s-price"><span class="n">06</span><b>定多少钱</b><span>3 档定价</span></a>
+    <a href="#s-stock"><span class="n">07</span><b>备多少货</b><span>需求与库存</span></a>
+    <a href="#s-market"><span class="n">08</span><b>读懂市场</b><span>天气·趋势·事件·对手</span></a>
+    <a href="#s-intel"><span class="n">09</span><b>花钱买情报</b><span>调研与信息</span></a>
+    <a href="#s-pk"><span class="n">10</span><b>算赢与 PK</b><span>成绩 · 班级排行</span></a>
+    <a href="#s-start"><span class="n">11</span><b>开局清单</b><span>上手第一步</span></a>
+  </nav>
+
+  <!-- ================= 01 GOAL ================= -->
+  <section id="s-goal">
+    <div class="eyebrow">01 · The Mission</div>
+    <h2 class="sec">Your Mission<span class="zh">你的任务</span></h2>
+    <p class="sec-lede">你带着 <b>$10,000</b> 启动资金来到 Boomtown，要在 <b>5 周（25 个经营日）</b> 里把生意做大。游戏结束时，<b>期末现金 − $10,000 = 你的净利润</b>。谁赚得最多，谁就赢。</p>
+
+    <div class="stat-row">
+      <div class="tstat"><b class="num">$10,000</b><span>启动资金<br>Starting cash</span></div>
+      <div class="tstat"><b class="num">5 周</b><span>25 个经营日<br>Mon – Fri</span></div>
+      <div class="tstat"><b class="num">净利润</b><span>期末现金 − 本金<br>Net profit</span></div>
+      <div class="tstat"><b class="num">&lt; $200</b><span>周一现金不足就破产<br>Bankrupt</span></div>
+    </div>
+
+    <div class="note">
+      <b>破产规则：</b>如果某个<b>周一</b>做决策时你的现金低于 <b>$200</b>，生意立刻倒闭，本轮提前结束。所以永远给自己留一点周转的余地——现金不是利润，是氧气。
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="eyebrow" style="margin-bottom:6px">一句话记住</div>
+      <p class="serif" style="font-style:italic;font-size:20px;line-height:1.4">"Start small, learn fast, then scale what works."<br><span class="zh-serif" style="font-style:normal;font-size:16px;color:var(--ink2)">从小做起，快速试错，把验证有效的方法放大——这就是全部秘密。</span></p>
+    </div>
+  </section>
+
+  <!-- ================= 02 FLOW ================= -->
+  <section id="s-flow">
+    <div class="eyebrow">02 · The Weekly Loop</div>
+    <h2 class="sec">A Week in Boomtown<span class="zh">一周怎么过</span></h2>
+    <p class="sec-lede">整个游戏就是重复 5 次下面的循环。每一周你都会做一次<b>大决策</b>（用什么方式经营），然后在每个营业日做<b>小决策</b>（卖什么、去哪、备多少）。</p>
+
+    <div class="flow">
+      <div class="flow-step"><div class="dot">一</div><div class="f-content"><b>周一 · 战略决策 <span class="en">Strategic</span></b><p>选择本周的经营方式：餐车、推车、快速调研或深度调研。这是最重要的一步——它决定你这周的灵活度和信息量。</p></div></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><div class="dot">天</div><div class="f-content"><b>每天早晨 · 战术执行 <span class="en">Tactical</span></b><p>决定产品、地点、定价，以及最关键的——<b>备多少货</b>。推车每天早晨都能重新决定；餐车则周一一次锁定整周。</p></div></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><div class="dot">晚</div><div class="f-content"><b>每天傍晚 · 反馈卡 <span class="en">Feedback</span></b><p>看到今天的销量、缺货和报废。这是你更新认知的时刻：哪里生意好？哪种产品在涨？记下来。</p></div></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><div class="dot">末</div><div class="f-content"><b>周末 · 简报与传闻 <span class="en">Briefing</span></b><p>收到本周小结和几条"传闻"。传闻不完整、可能误导——但它指向下周的机会。然后回到周一，调整策略再来。</p></div></div>
+    </div>
+
+    <div class="note gold">
+      <b>你在做五种思考：</b>战略层（赌还是试还是买信息）→ 战术层（卖什么/在哪/多少钱）→ 运营层（备多少货）→ 学习层（从反馈更新认知）→ 元认知层（这到底是个什么样的市场）。高手五层都在转。
+    </div>
+  </section>
+
+  <!-- ================= 03 MODE ================= -->
+  <section id="s-mode">
+    <div class="eyebrow">03 · Four Ways to Play</div>
+    <h2 class="sec">Four Ways to Operate<span class="zh">四种经营方式</span></h2>
+    <p class="sec-lede">每周一你要先选一个"主方式"。核心区别是：<b>餐车 = 批发换规模，推车 = 现采买灵活，调研 = 花钱买信息</b>。</p>
+
+    <div class="card">
+      <table class="t">
+        <tr><th style="width:21%"></th><th>餐车 <span class="en">Food Truck</span></th><th>推车 <span class="en">Pushcart</span></th><th>快速调研 <span class="en">Quick Survey</span></th><th>深度调研 <span class="en">Deep Research</span></th></tr>
+        <tr><td><b>何时能选</b></td><td>仅周一</td><td>任意早晨</td><td>本周还剩 ≥2 天时</td><td>仅周一</td></tr>
+        <tr><td><b>费用</b></td><td class="num">$1,500 / 周</td><td class="num">$80 / 天</td><td class="num">$100 / 次</td><td class="num">$200</td></tr>
+        <tr><td><b>进货</b></td><td>周一<b>批发整周</b><br>成本 ×0.9</td><td>每天<b>现采</b><br>原价</td><td>调研后现采</td><td>—</td></tr>
+        <tr><td><b>锁定</b></td><td>产品+地点+定价<br>整周不变</td><td>每天可换</td><td>占 2 天<br>(当天+次日)</td><td>整周不经营</td></tr>
+        <tr><td><b>断货后果</b></td><td>整周空转<br>固定成本沉没</td><td>只损失当天</td><td>只损失当天</td><td>—</td></tr>
+        <tr><td><b>报废</b></td><td>周末剩余全报废</td><td>当晚报废</td><td>当晚报废</td><td>—</td></tr>
+        <tr><td><b>信息产出</b></td><td>1 个数据点/周</td><td><b>5 个数据点/周</b></td><td>下周精确预测</td><td><b>下两周全图</b></td></tr>
+      </table>
+    </div>
+
+    <div class="vs">
+      <div class="side good">
+        <h4>✓ 经典打法：推车探索 → 餐车收割</h4>
+        <p>先用便宜的推车每天换着试，找到真正赚钱的"产品 × 地点"组合；确认之后，下周换成餐车、批发进货、一次锁定整周，把验证过的方法放大。这就是商业里的 <b>MVP → 规模化</b>。</p>
+      </div>
+      <div class="side bad">
+        <h4>✗ 两个极端都危险</h4>
+        <p><b>每周都调研</b>＝永远告别餐车的规模经济，信息成瘾有明确代价；<b>一上来就满仓餐车豪赌</b>＝现金压光、一旦看错整周报废。平衡才是关键。</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>餐车备货是"整周"的：</b>餐车周一一次性批发 5 天的货，中途不能补。所以选餐车时，你要估的是<b>5 天总需求</b>，不是一天——备少了后面几天空转，备多了周末全报废。
+    </div>
+  </section>
+
+  <!-- ================= 04 WHAT ================= -->
+  <section id="s-what">
+    <div class="eyebrow">04 · What to Sell</div>
+    <h2 class="sec">Three Products<span class="zh">卖什么 · 三种产品</span></h2>
+    <p class="sec-lede">每种产品都有自己的"性格"。没有绝对最好的产品，只有<b>最适合某个地点、某段时间的产品</b>。</p>
+
+    <div class="grid3" style="margin-top:18px">
+      <div class="p-card">
+        <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=classic%20vanilla%20soft%20serve%20ice%20cream%20cone%20in%20red%20striped%20paper%20cup%2C%20studio%20product%20photography%2C%20warm%20cream%20background%2C%20retro%20american%20diner%20style%2C%20appetizing%2C%20centered%2C%20no%20text&image_size=square" alt="Classic Ice Cream" onerror="this.style.display='none'">
+        <div class="p-body">
+          <h3>经典冰淇淋<span class="en">Classic Ice Cream</span></h3>
+          <p class="p-vibe"><b>走量款。</b>全龄段都爱，儿童和家庭是高峰，需求最稳定。</p>
+          <div class="p-meta">
+            <span class="chip">售价 <b class="num">$12</b></span>
+            <span class="chip">成本 <b class="num">$5</b></span>
+            <span class="chip green">毛利 $7</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=frozen%20yogurt%20cup%20topped%20with%20fresh%20berries%20and%20granola%2C%20studio%20product%20photography%2C%20warm%20cream%20background%2C%20fresh%20healthy%20dessert%2C%20centered%2C%20no%20text&image_size=square" alt="Frozen Yogurt" onerror="this.style.display='none'">
+        <div class="p-body">
+          <h3>轻卡冻酸奶<span class="en">Frozen Yogurt</span></h3>
+          <p class="p-vibe"><b>趋势款。</b>学生和年轻人专供，健康风潮的受益者——风口来了涨得飞快。</p>
+          <div class="p-meta">
+            <span class="chip">售价 <b class="num">$18</b></span>
+            <span class="chip">成本 <b class="num">$8</b></span>
+            <span class="chip green">毛利 $10</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cold%20brew%20coffee%20in%20tall%20glass%20with%20ice%20cubes%2C%20dark%20rich%20coffee%2C%20studio%20product%20photography%2C%20warm%20cream%20background%2C%20premium%20cafe%20style%2C%20centered%2C%20no%20text&image_size=square" alt="Cold Brew Coffee" onerror="this.style.display='none'">
+        <div class="p-body">
+          <h3>冷萃咖啡<span class="en">Cold Brew Coffee</span></h3>
+          <p class="p-vibe"><b>利润款。</b>白领窄众、高毛利，但萃取慢、装载量低，选错地点就死。</p>
+          <div class="p-meta">
+            <span class="chip">售价 <b class="num">$26</b></span>
+            <span class="chip">成本 <b class="num">$13</b></span>
+            <span class="chip green">毛利 $13</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note gold">
+      <b>装载上限不同：</b>同样一台推车，一天最多装 150 支冰淇淋、100 杯冻酸奶、或 60 杯冷萃。贵的产品"装得少"——所以高毛利 ≠ 一定更赚，要看地点有没有人买。
+    </div>
+  </section>
+
+  <!-- ================= 05 WHERE ================= -->
+  <section id="s-where">
+    <div class="eyebrow">05 · Where to Sell</div>
+    <h2 class="sec">Six Locations<span class="zh">去哪卖 · 六个地点</span></h2>
+    <p class="sec-lede">每个地点客流量不同，对不同产品的"转化率"（路人变顾客的比例）也不同。你看到的是<b>星级</b>，精确的百分比要靠经营反馈或调研才能获得。</p>
+
+    <div class="card" style="margin-top:18px">
+      <table class="t">
+        <tr><th>地点</th><th class="r">日客流</th><th class="c">冰淇淋</th><th class="c">冻酸奶</th><th class="c">冷萃</th><th>隐藏性格</th></tr>
+        <tr><td><b>Train Station</b><br><span class="muted small">火车站</span></td><td class="r num">20,000</td><td class="c"><span class="stars">★<span class="off">★★★★</span></span></td><td class="c"><span class="stars">★<span class="off">★★★★</span></span></td><td class="c"><span class="stars">★★<span class="off">★★★</span></span></td><td class="small muted">人流王，但都行色匆匆，转化垫底</td></tr>
+        <tr><td><b>University</b><br><span class="muted small">大学城</span></td><td class="r num">9,000</td><td class="c"><span class="stars">★★★<span class="off">★★</span></span></td><td class="c"><span class="stars">★★★★<span class="off">★</span></span></td><td class="c"><span class="stars">★★<span class="off">★★★</span></span></td><td class="small muted">冻酸奶天堂，价格敏感</td></tr>
+        <tr><td><b>Downtown</b><br><span class="muted small">市中心</span></td><td class="r num">12,000</td><td class="c"><span class="stars">★<span class="off">★★★★</span></span></td><td class="c"><span class="stars">★★★<span class="off">★★</span></span></td><td class="c"><span class="stars">★★★<span class="off">★★</span></span></td><td class="small muted">冷萃天堂，高价接受度高</td></tr>
+        <tr><td><b>City Market</b><br><span class="muted small">市集</span></td><td class="r num">8,000</td><td class="c"><span class="stars">★★★★★</span></td><td class="c"><span class="stars">★★★<span class="off">★★</span></span></td><td class="c"><span class="stars">★★<span class="off">★★★</span></span></td><td class="small muted">冰淇淋基本盘最稳</td></tr>
+        <tr><td><b>Beach</b><br><span class="muted small">海滩</span></td><td class="r num">5,000</td><td class="c"><span class="stars">★★★★★</span></td><td class="c"><span class="stars">★★★<span class="off">★★</span></span></td><td class="c"><span class="stars">★<span class="off">★★★★</span></span></td><td class="small muted">天气放大器——晴天爆、雨天鬼城</td></tr>
+        <tr><td><b>Arts District</b><br><span class="muted small">艺术区</span></td><td class="r num">10,000</td><td class="c"><span class="stars">★★★<span class="off">★★</span></span></td><td class="c"><span class="stars">★★★<span class="off">★★</span></span></td><td class="c"><span class="stars">★★<span class="off">★★★</span></span></td><td class="small muted">稳定，摊位费 $60/天，雨天反而旺</td></tr>
+      </table>
+    </div>
+
+    <div class="note green">
+      <b>核心动作是"匹配"：</b>火车站人最多，但没人停下来买冰淇淋；海滩人少，但晴天人手一支。<b>客流 × 转化率</b>才是真需求。把对的产品放到对的人面前，比选"人最多的地方"重要得多。
+    </div>
+  </section>
+
+  <!-- ================= 06 PRICE ================= -->
+  <section id="s-price">
+    <div class="eyebrow">06 · How Much to Charge</div>
+    <h2 class="sec">Three Price Tiers<span class="zh">定多少钱 · 三档定价</span></h2>
+    <p class="sec-lede">同一款产品可以卖三档价。<b>提价会拉低转化，降价会拉高转化</b>——你选的不是价格，是"要更多客人，还是每个客人多赚点"。</p>
+
+    <div class="grid3" style="margin-top:18px">
+      <div class="card center"><span class="chip green">Value 亲民</span><p style="margin-top:10px;font-size:13px;line-height:1.7">价格 <b class="num">×0.85</b><br>转化 <b class="num">×1.20</b></p><p class="small muted" style="margin-top:6px">薄利多销</p></div>
+      <div class="card center"><span class="chip">Standard 标准</span><p style="margin-top:10px;font-size:13px;line-height:1.7">价格 <b class="num">×1.00</b><br>转化 <b class="num">×1.00</b></p><p class="small muted" style="margin-top:6px">按标价来</p></div>
+      <div class="card center"><span class="chip gold">Premium 轻奢</span><p style="margin-top:10px;font-size:13px;line-height:1.7">价格 <b class="num">×1.20</b><br>转化 <b class="num">×0.75</b></p><p class="small muted" style="margin-top:6px">少而精</p></div>
+    </div>
+
+    <div class="note">
+      <b>地点会改变价格效果：</b>大学城学生对价格敏感（亲民档转化 ×1.35、轻奢档 ×0.65），市中心白领钱包松（轻奢档只降到 ×0.85）。<b>在大学城卖轻奢、在市中心打价格战，都是把钱留在桌上。</b>
+    </div>
+  </section>
+
+  <!-- ================= 07 STOCK ================= -->
+  <section id="s-stock">
+    <div class="eyebrow">07 · How Much to Stock</div>
+    <h2 class="sec">Stocking Up<span class="zh">备多少货 · 最难的一题</span></h2>
+    <p class="sec-lede">这是整局游戏最核心的技巧。备货界面的 Intel 条会给你一个 <b>"≈ N units/day"</b> 的估计——它是你的锚，但你要先搞懂它<b>可不可信</b>。</p>
+
+    <div class="card" style="margin-top:18px">
+      <div class="eyebrow" style="margin-bottom:6px">这个数字怎么来的</div>
+      <p class="small" style="line-height:1.8;color:var(--ink2)">日需求 = <b>日客流 × 转化率 × 定价倍率 × 天气 × 趋势 × 事件 × 竞争分流</b>。每天真实需求还会在这个均值附近 <b>±15% 随机波动</b>——所以没有任何预测是完美的，你只能"备得聪明"。</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="eyebrow" style="margin-bottom:10px">第一步 · 看标签，定信任度</div>
+      <p class="small muted" style="margin-bottom:12px;line-height:1.7">数字前面有个小标签，它告诉你这个估计有多可靠——<b>先看标签，再看数字</b>。</p>
+      <table class="t">
+        <tr><th>标签</th><th>含义</th><th>怎么备</th></tr>
+        <tr><td><span class="intel-tag intel-w1">W1 report estimate</span></td><td class="small">只有第 1 周的旧报告，市场可能早变了</td><td class="small"><b>保守 ×0.8</b>，或先用推车试一天</td></tr>
+        <tr><td><span class="intel-tag intel-own">Your intel</span></td><td class="small">报告 + 你亲手经营学到的数据（卖过的产品、去过的地点才是新认知）</td><td class="small">实测过的组合可放心，没碰过的仍是旧认知</td></tr>
+        <tr><td><span class="intel-tag intel-res">Research-verified</span></td><td class="small">本周买过调研，给的是精确值</td><td class="small"><b>放心按毛利系数备</b></td></tr>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="eyebrow" style="margin-bottom:10px">第二步 · 看毛利，定偏向</div>
+      <p class="small" style="line-height:1.8;color:var(--ink2)">缺货（少赚）和报废（亏成本）哪个更疼，取决于毛利。<b>毛利越厚 → 越该备在均值之上</b>（缺货比报废疼）；毛利越薄 → 越该保守。冰淇淋毛利高、敢多备；冷萃毛利占比低、要克制。</p>
+    </div>
+
+    <div class="note">
+      <b>记住这个公式：</b><span class="serif" style="font-style:italic">备货量 ≈ 显示均值 × 标签修正 × 毛利系数</span>。标签修正管"信不信"（影响大，差 30%），毛利系数管"偏哪边"（微调，差几个百分点）。
+    </div>
+  </section>
+
+  <!-- ================= 08 MARKET ================= -->
+  <section id="s-market">
+    <div class="eyebrow">08 · Reading the Market</div>
+    <h2 class="sec">Four Market Forces<span class="zh">读懂市场 · 四股力量</span></h2>
+    <p class="sec-lede">每天的需求不是固定的，它被四股力量推拉。学会辨认它们，你就能提前一步。</p>
+
+    <div class="grid2" style="margin-top:18px">
+      <div class="card">
+        <span class="chip">Weather 天气</span>
+        <p class="small" style="margin-top:10px;line-height:1.75;color:var(--ink2)">每天公开预报，永远准确。<b>雨天</b>海滩变鬼城（×0.3）、艺术区反而旺（×1.2）；<b>热浪</b>海滩更爆（×1.5）。出门前先抬头看天。</p>
+      </div>
+      <div class="card">
+        <span class="chip red">Trend 趋势</span>
+        <p class="small" style="margin-top:10px;line-height:1.75;color:var(--ink2)">口味的缓慢漂移，会<b>复利叠加</b>——每周 +15%，五周就是 ×2.1。它不会写在任何免费报告里，只能靠经营数据或调研发现。<b>这是第 1 周报告会"过期"的原因。</b></p>
+      </div>
+      <div class="card">
+        <span class="chip gold">Event 事件</span>
+        <p class="small" style="margin-top:10px;line-height:1.75;color:var(--ink2)">美食节、返校节、网红打卡……某一周某个地点客流暴增（×2.5 甚至 ×3）。传闻会先放风，调研能确证。<b>风口属于提前读到信号的人。</b></p>
+      </div>
+      <div class="card">
+        <span class="chip">Rivals 竞争对手</span>
+        <p class="small" style="margin-top:10px;line-height:1.75;color:var(--ink2)">别的餐车会抢生意：同街同产品，你只能分到约 <b>65%</b> 的需求。追热点撞对手、或满仓撞上一场风暴，是本游戏最贵的两个错误。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 09 INTEL ================= -->
+  <section id="s-intel">
+    <div class="eyebrow">09 · Buying Information</div>
+    <h2 class="sec">Research & Intel<span class="zh">花钱买情报</span></h2>
+    <p class="sec-lede">Boomtown 的信息是<b>不完整</b>的——你开局只有一份第 1 周的报告，之后它慢慢过期。你可以免费观察，也可以花钱买确定。</p>
+
+    <div class="grid2" style="margin-top:18px">
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:6px">Quick Survey · $100</div>
+        <p class="small" style="line-height:1.75;color:var(--ink2)">占用 2 天（不能营业），次日晚拿到<b>下周</b>的精确预测。便宜、快，适合"就看下一周"。<b>需要连续 2 天空出来，本周只剩 1 天时不能发起。</b></p>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:6px">Deep Research · $200</div>
+        <p class="small" style="line-height:1.75;color:var(--ink2)">仅周一发起，整周不经营，拿到<b>下两周</b>的完整预测。信息量大，但机会成本高——一整周没有收入。</p>
+      </div>
+    </div>
+
+    <div class="note gold">
+      <b>调研的真正成本不只是钱：</b>是<b>机会成本</b>。一次快调 $100，但那 2 天你本可以赚的钱才是大头。买之前先问自己——<b>这条信息会改变我的决定吗？</b>如果答案是否，就别买。信息只有能改变行动时才有价值。
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="eyebrow" style="margin-bottom:6px">顶栏两个随身入口</div>
+      <p class="small" style="line-height:1.8;color:var(--ink2)"><b>Market Intel</b>：随时回看第 1 周基础报告 + 你本周已观测到的成本/对手/天气。<b>Reports</b>：你买过的所有调研报告都在这，随时可查。学会常看这两个面板，比闷头乱试强得多。</p>
+    </div>
+  </section>
+
+  <!-- ================= 10 PK ================= -->
+  <section id="s-pk">
+    <div class="eyebrow">10 · Winning & PK</div>
+    <h2 class="sec">Scoring & Class PK<span class="zh">怎么算赢 · 班级对战</span></h2>
+    <p class="sec-lede">游戏结束时按<b>净利润</b>排名。如果老师组织了班级 PK，下面两步让你和全班公平对战。</p>
+
+    <div class="grid2" style="margin-top:18px">
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:8px">开局前 · 输入种子码</div>
+        <p class="small" style="line-height:1.8;color:var(--ink2)">在场景选择页的 <b>"PK mode"</b> 条里，输入老师公布的<b>种子码</b>（如 <b class="num">MANGO-05</b>）。输入后，<b>你和全班面对的是一模一样的市场</b>——同样的天气、同样的需求波动，PK 才公平。留空则是练习模式（随机世界）。</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:8px">结束后 · 报出成绩码</div>
+        <p class="small" style="line-height:1.8;color:var(--ink2)">通关后结算页顶部会生成一串<b>成绩码</b>，里面编码了你的场景、种子和净利润，还带防伪校验。把它<b>念给老师或抄上黑板</b>即可——改一个数字都会被系统识破。</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="eyebrow" style="margin-bottom:8px">成绩码长这样</div>
+      <div class="pk-code">S1 - MANGO-05 - 58420 - 7K</div>
+      <p class="small muted" style="line-height:1.7;margin-top:10px">场景 · 种子码 · 净利润 · 校验位。老师录入后自动排名。<b>只有种子码相同的成绩才能一起比</b>——种子不同，玩的就是另一局。</p>
+    </div>
+  </section>
+
+  <!-- ================= 11 START ================= -->
+  <section id="s-start">
+    <div class="eyebrow">11 · Your First Shift</div>
+    <h2 class="sec">Opening Checklist<span class="zh">开局清单 · 第一天怎么做</span></h2>
+    <p class="sec-lede">把下面这几步走一遍，你就已经赢过大多数凭直觉乱玩的对手了。</p>
+
+    <div class="card" style="margin-top:18px">
+      <ul class="check">
+        <li><span class="box"></span><span><b>读第 1 周市场报告</b>（开局必读）——看哪个"产品 × 地点"组合的 客流×转化率 最高，心里形成第一个假设。</span></li>
+        <li><span class="box"></span><span><b>如果是 PK，先输种子码</b>——确认顶栏出现了 <b>PK · 你的种子码</b> 徽章再开始。</span></li>
+        <li><span class="box"></span><span><b>第一周别急着满仓餐车</b>——用便宜的推车试 1~2 个组合，看哪边生意真的好。</span></li>
+        <li><span class="box"></span><span><b>每天傍晚读反馈卡</b>——记下哪里缺货、哪里报废，明天就调。</span></li>
+        <li><span class="box"></span><span><b>周末读传闻</b>——它不完整，但可能指向一个能让你翻倍的风口。</span></li>
+        <li><span class="box"></span><span><b>验证了再加码</b>——确认哪个组合赚钱后，换餐车、批发、锁定整周，把它放大。</span></li>
+        <li><span class="box"></span><span><b>周一留够 $200</b>——永远别让现金断流，破产等于直接出局。</span></li>
+      </ul>
+    </div>
+
+    <div class="note green" style="margin-top:18px">
+      <b>最后一句：</b>这个游戏的赢家不是运气最好的人，而是<b>最快把"我以为"变成"我验证过"</b>的人。祝你在 Boomtown 开业大吉。
+    </div>
+  </section>
+
+  <footer>
+    <p class="serif">Food Truck Challenge · Boomtown</p>
+    <p>玩家手册 Player's Guide · 与游戏规则同步 v4.3<br>读完后，打开游戏，开始你的第一班。</p>
+  </footer>
+</div>
+
+<button id="top-btn" title="回到顶部" aria-label="回到顶部">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+// reading progress
+const prog=document.getElementById('progress'),topBtn=document.getElementById('top-btn');
+function onScroll(){
+  const h=document.documentElement;
+  const p=h.scrollTop/(h.scrollHeight-h.clientHeight);
+  prog.style.width=(p*100)+'%';
+  topBtn.classList.toggle('show',h.scrollTop>500);
+}
+document.addEventListener('scroll',onScroll,{passive:true});onScroll();
+topBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+
+// section reveal on scroll
+const secs=document.querySelectorAll('section');
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}});
+},{threshold:.12});
+secs.forEach(s=>io.observe(s));
+</script>
+</body>
+</html>
