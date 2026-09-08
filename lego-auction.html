@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEGO Priority Auction · 乐高管理优先级拍卖</title>
+<style>
+  :root{
+    --paper:#FAF9F4; --card:#FFFFFF; --ink:#18181D; --muted:#6E7280; --line:#E7E3D8;
+    --red:#D01012; --yellow:#FFC500; --blue:#0067C0; --gray:#9AA0A6; --green:#00A550;
+    --sans:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--paper); color:var(--ink); font-family:var(--sans); overflow:hidden; font-size:16px}
+  .screen{position:fixed; inset:0; display:none; flex-direction:column; animation:fadeIn .45s ease; overflow:hidden}
+  .screen.active{display:flex}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+  @keyframes popIn{0%{transform:scale(.6); opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1); opacity:1}}
+  @keyframes starPop{0%{transform:scale(.3); opacity:0}70%{transform:scale(1.35)}100%{transform:scale(1); opacity:1}}
+
+  .btn{font-family:var(--sans); cursor:pointer; border:none; border-radius:12px;
+    padding:15px 36px; font-size:17px; font-weight:800; letter-spacing:.12em; transition:.2s;
+    background:var(--ink); color:#fff; box-shadow:0 4px 0 rgba(0,0,0,.18)}
+  .btn:hover{transform:translateY(-2px); box-shadow:0 6px 0 rgba(0,0,0,.18)}
+  .btn:active{transform:translateY(1px); box-shadow:0 2px 0 rgba(0,0,0,.18)}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none}
+  .btn.red{background:var(--red)}
+  .btn.ghost{background:transparent; color:var(--muted); border:2px solid var(--line); box-shadow:none; font-weight:600}
+  .btn.ghost:hover{border-color:var(--ink); color:var(--ink)}
+  .btn.sm{padding:9px 20px; font-size:14px; border-radius:9px}
+
+  /* 乐高凸点装饰条 */
+  .stud-bar{display:flex; gap:14px; align-items:center}
+  .stud{width:20px; height:20px; border-radius:50%; box-shadow:inset 0 -3px 0 rgba(0,0,0,.18), 0 2px 4px rgba(0,0,0,.15)}
+  .stud.r{background:var(--red)} .stud.y{background:var(--yellow)} .stud.b{background:var(--blue)} .stud.g{background:var(--green)}
+
+  /* ========== 封面 ========== */
+  #screen-cover{background:
+    radial-gradient(circle at 15% 20%, rgba(255,197,0,.14), transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(0,103,192,.10), transparent 45%),
+    var(--paper)}
+  .cover-inner{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; text-align:center; padding:30px}
+  .cover-logo{display:flex; align-items:center; gap:16px; background:var(--red); color:#fff;
+    font-weight:900; font-size:26px; letter-spacing:.06em; padding:12px 26px; border-radius:14px;
+    box-shadow:0 5px 0 rgba(0,0,0,.15)}
+  .cover-logo .stud{width:16px; height:16px; background:rgba(255,255,255,.92)}
+  .cover-title{font-size:64px; font-weight:900; letter-spacing:.02em; line-height:1.15}
+  .cover-sub{font-size:22px; font-weight:700; color:var(--muted); letter-spacing:.06em}
+  .cover-tags{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:6px}
+  .cover-tags span{font-weight:800; font-size:15px; letter-spacing:.08em; color:var(--ink);
+    background:#fff; border:2px solid var(--line); border-radius:999px; padding:9px 22px}
+  .cover-tags span b{color:var(--red)}
+
+  /* ========== 任务与规则 / 分组设置 ========== */
+  #screen-setup{overflow-y:auto}
+  .setup-inner{max-width:1020px; width:100%; margin:0 auto; padding:44px 28px 60px; display:flex; flex-direction:column; gap:26px}
+  .setup-head{text-align:center}
+  .setup-head .kicker{color:var(--red); font-weight:900; letter-spacing:.4em; font-size:13px}
+  .setup-head h1{font-size:38px; font-weight:900; margin-top:10px}
+  .setup-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+  .panel{background:var(--card); border:2px solid var(--line); border-radius:18px; padding:24px 26px}
+  .panel h3{font-size:15px; font-weight:900; letter-spacing:.18em; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:10px}
+  .panel h3::before{content:""; width:12px; height:12px; border-radius:3px; background:var(--yellow); box-shadow:0 2px 0 rgba(0,0,0,.12)}
+  .mission-res{font-size:44px; font-weight:900; color:var(--blue); line-height:1.1}
+  .mission-res span{font-size:15px; color:var(--muted); font-weight:600}
+  .rule-list{list-style:none; display:flex; flex-direction:column; gap:9px; font-size:14.5px; line-height:1.6}
+  .rule-list li{display:flex; gap:10px; align-items:flex-start}
+  .rule-list li::before{content:""; flex:none; width:9px; height:9px; border-radius:50%; background:var(--red); margin-top:7px}
+  .rule-list b{color:var(--red)}
+  .stepper{display:flex; align-items:center; gap:16px}
+  .stepper button{width:44px; height:44px; border-radius:12px; border:2px solid var(--line);
+    background:#fff; color:var(--ink); font-size:22px; font-weight:800; cursor:pointer; transition:.15s}
+  .stepper button:hover{border-color:var(--ink)}
+  .stepper .val{font-size:34px; font-weight:900; min-width:70px; text-align:center}
+  .names-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .name-row{display:flex; align-items:center; gap:9px}
+  .name-row .dot{width:14px; height:14px; border-radius:50%; flex:none; box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+  .name-row input{flex:1; border:2px solid var(--line); border-radius:9px; padding:8px 12px;
+    font-size:14px; font-weight:600; outline:none; min-width:0}
+  .name-row input:focus{border-color:var(--blue)}
+  .setup-foot{text-align:center}
+
+  /* ========== 拍卖主界面 ========== */
+  #screen-auction{background:var(--paper)}
+  .auc-head{display:flex; align-items:center; justify-content:space-between; padding:16px 26px; gap:14px;
+    background:var(--card); border-bottom:2px solid var(--line); flex-wrap:wrap}
+  .auc-head .brand{display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.05em; font-size:15px}
+  .auc-head .brand .logo{background:var(--red); color:#fff; font-size:12px; font-weight:900;
+    border-radius:7px; padding:5px 10px; letter-spacing:.08em}
+  .auc-progress{display:flex; gap:20px; align-items:center; color:var(--muted); font-size:13.5px; font-weight:600}
+  .auc-progress b{color:var(--ink); font-size:17px; font-weight:900}
+  .auc-body{flex:1; display:flex; gap:20px; padding:20px 26px 22px; min-height:0}
+
+  .ev-card{flex:1.5; background:var(--card); border:2px solid var(--line); border-radius:20px;
+    overflow:hidden; display:flex; flex-direction:column; min-width:0}
+  .ev-img-wrap{position:relative; flex:1; min-height:0; overflow:hidden; background:#EFEDE6}
+  .ev-img-wrap img{width:100%; height:100%; object-fit:cover; display:block}
+  .ev-img-wrap::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 55%, rgba(0,0,0,.55) 100%)}
+  .ev-dept{position:absolute; top:14px; left:14px; z-index:2; background:rgba(24,24,29,.88); color:#fff;
+    font-size:12.5px; font-weight:800; letter-spacing:.14em; padding:6px 14px; border-radius:8px}
+  .ev-no{position:absolute; top:14px; right:14px; z-index:2; background:var(--yellow); color:var(--ink);
+    font-size:13px; font-weight:900; padding:6px 14px; border-radius:8px; box-shadow:0 3px 0 rgba(0,0,0,.15)}
+  .ev-title-on-img{position:absolute; left:20px; right:20px; bottom:14px; z-index:2; color:#fff;
+    font-size:30px; font-weight:900; line-height:1.25; text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .ev-info{padding:16px 22px 18px; display:flex; flex-direction:column; gap:11px}
+  .ev-desc{color:#3A3D47; font-size:14.5px; line-height:1.75}
+  .ev-hook{display:flex; gap:10px; align-items:flex-start; background:#FFF7E0; border:2px solid var(--yellow);
+    border-radius:12px; padding:11px 16px; font-weight:700; font-size:14.5px; line-height:1.6}
+  .ev-hook::before{content:"⚡"; flex:none}
+  .ev-foot{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .start-bid{color:var(--muted); font-size:13px; font-weight:600}
+  .start-bid b{color:var(--ink); font-size:20px; font-weight:900}
+
+  .side{flex:1; display:flex; flex-direction:column; gap:12px; min-width:320px; min-height:0}
+  .teams-panel{flex:1; display:flex; flex-direction:column; gap:9px; overflow-y:auto; padding:2px}
+  .team-card{display:flex; align-items:center; gap:12px; background:var(--card); border:2px solid var(--line);
+    border-radius:14px; padding:11px 16px; cursor:pointer; transition:.15s}
+  .team-card:hover{border-color:#C9C4B4}
+  .team-card.selected{border-color:var(--blue); box-shadow:0 0 0 2px rgba(0,103,192,.25); background:#F4F9FF}
+  .team-card .dot{width:14px; height:14px; border-radius:50%; flex:none; box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+  .team-card .t-name{font-weight:800; font-size:15.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .team-card .t-score{font-weight:900; font-size:21px; color:var(--red)}
+  .team-card .t-score span{font-size:11px; color:var(--muted); font-weight:600}
+  .team-card .t-res{text-align:right; min-width:86px}
+  .team-card .t-res b{font-size:16px; font-weight:900}
+  .team-card .res-bar{height:5px; border-radius:3px; background:#EFEDE6; overflow:hidden; margin-top:4px}
+  .team-card .res-bar>div{height:100%; background:var(--blue); border-radius:3px; transition:width .4s}
+  .team-card .t-won{font-size:11px; color:var(--muted); margin-top:2px}
+
+  .ctrl{background:var(--card); border:2px solid var(--line); border-radius:16px; padding:14px 16px;
+    display:flex; flex-direction:column; gap:11px}
+  .ctrl-row{display:flex; align-items:center; gap:12px}
+  .price-stepper{display:flex; align-items:center; gap:10px}
+  .price-stepper button{width:44px; height:44px; border-radius:11px; border:2px solid var(--line);
+    background:#fff; color:var(--ink); font-size:21px; font-weight:800; cursor:pointer; transition:.15s}
+  .price-stepper button:hover:not(:disabled){border-color:var(--ink)}
+  .price-stepper button:disabled{opacity:.3; cursor:not-allowed}
+  #priceInput{width:120px; text-align:center; font-size:27px; font-weight:900; color:var(--ink);
+    border:2px solid var(--line); border-radius:11px; padding:5px 8px; outline:none}
+  #priceInput:focus{border-color:var(--blue)}
+  #priceInput.over{border-color:var(--red); color:var(--red); animation:shake .4s}
+  @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .ctrl-msg{color:var(--red); font-size:12.5px; font-weight:600; min-height:16px}
+  .ctrl-actions{display:flex; gap:10px}
+  .ctrl-actions .btn.red{flex:1; font-size:19px; padding:14px}
+  #soldFlash{position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center;
+    pointer-events:none}
+  #soldFlash.show{display:flex}
+  #soldFlash .sold-txt{font-size:110px; font-weight:900; color:var(--red); letter-spacing:.05em;
+    text-shadow:0 6px 0 rgba(0,0,0,.12); animation:popIn .5s cubic-bezier(.2,1.4,.4,1)}
+
+  /* ========== Reveal 揭晓页 ========== */
+  #screen-reveal{background:var(--ink); color:#fff}
+  .rv-inner{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:20px; text-align:center; padding:34px 26px; max-width:860px; margin:0 auto; width:100%;
+    overflow-y:auto; justify-content:safe center}
+  .rv-kicker{color:#9C9FA8; font-size:13px; font-weight:800; letter-spacing:.4em}
+  .rv-title{font-size:36px; font-weight:900; line-height:1.3}
+  .rv-buyer{color:#B9BDC7; font-size:15px; font-weight:600}
+  .rv-buyer b{color:var(--yellow)}
+  .rv-stars{display:flex; flex-direction:column; gap:12px; margin-top:6px}
+  .star-row{display:flex; align-items:center; gap:16px; justify-content:center; opacity:0; transform:translateY(8px); transition:.35s}
+  .star-row.on{opacity:1; transform:none}
+  .star-row .s-label{width:130px; text-align:right; font-size:14px; font-weight:800; letter-spacing:.22em; color:#9C9FA8}
+  .stars{display:flex; gap:6px}
+  .stars i{font-style:normal; font-size:30px; color:#3A3D44; transition:.2s}
+  .stars i.lit{color:var(--yellow); text-shadow:0 0 18px rgba(255,197,0,.55); animation:starPop .3s}
+  .rv-quad{display:none; flex-direction:column; align-items:center; gap:6px; animation:popIn .5s cubic-bezier(.2,1.4,.4,1)}
+  .rv-quad.on{display:flex}
+  .quad-badge{font-size:42px; font-weight:900; letter-spacing:.08em; padding:10px 38px; border-radius:16px;
+    box-shadow:0 6px 0 rgba(0,0,0,.3)}
+  .quad-badge.now{background:var(--red); color:#fff}
+  .quad-badge.plan{background:var(--yellow); color:var(--ink)}
+  .quad-badge.delegate{background:var(--blue); color:#fff}
+  .quad-badge.drop{background:var(--gray); color:#fff}
+  .quad-sub{font-size:15px; font-weight:700; color:#C9CDD6; letter-spacing:.1em}
+  .rv-score{display:none; font-size:88px; font-weight:900; line-height:1; color:var(--yellow);
+    text-shadow:0 0 50px rgba(255,197,0,.4)}
+  .rv-score.on{display:block; animation:popIn .55s cubic-bezier(.2,1.4,.4,1)}
+  .rv-score span{font-size:20px; color:#9C9FA8; font-weight:700; letter-spacing:.2em}
+  .rv-why{display:none; max-width:620px; color:#C9CDD6; font-size:15.5px; line-height:1.85}
+  .rv-why.on{display:block; animation:fadeIn .5s}
+  .rv-next{display:none; margin-top:8px}
+  .rv-next.on{display:block; animation:fadeIn .4s}
+  .rv-skip{position:fixed; right:20px; bottom:20px; color:#6E7280; font-size:12.5px; font-weight:600;
+    background:none; border:none; cursor:pointer; letter-spacing:.1em}
+  .rv-skip:hover{color:#fff}
+
+  /* ========== 排行榜(中场/最终) ========== */
+  #screen-mid,#screen-final{background:var(--paper); overflow-y:auto}
+  .rank-inner{max-width:980px; width:100%; margin:0 auto; padding:44px 26px 60px; display:flex; flex-direction:column; gap:22px}
+  .rank-head{text-align:center}
+  .rank-head .kicker{color:var(--red); font-weight:900; letter-spacing:.4em; font-size:13px}
+  .rank-head h1{font-size:42px; font-weight:900; margin-top:8px}
+  .champ-banner{background:var(--ink); color:#fff; border-radius:20px; padding:30px 26px; text-align:center;
+    box-shadow:0 8px 0 rgba(0,0,0,.14)}
+  .champ-banner .cb-kicker{color:var(--yellow); font-weight:900; letter-spacing:.35em; font-size:13px}
+  .champ-banner .cb-name{font-size:46px; font-weight:900; margin:10px 0 6px}
+  .champ-banner .cb-score{color:#C9CDD6; font-size:16px; font-weight:600}
+  .champ-banner .cb-score b{color:var(--yellow); font-size:24px; font-weight:900}
+  .rank-table{width:100%; border-collapse:separate; border-spacing:0 10px}
+  .rank-table th{color:var(--muted); font-size:12.5px; font-weight:800; letter-spacing:.16em; padding:0 16px; text-align:left}
+  .rank-table td{background:var(--card); padding:15px 16px; border-top:2px solid var(--line);
+    border-bottom:2px solid var(--line); font-size:15px; vertical-align:middle}
+  .rank-table td:first-child{border-left:2px solid var(--line); border-radius:14px 0 0 14px}
+  .rank-table td:last-child{border-right:2px solid var(--line); border-radius:0 14px 14px 0}
+  .rank-table tr.top1 td{background:#FFF7E0; border-color:var(--yellow)}
+  .rank-num{font-size:23px; font-weight:900; color:var(--muted); width:46px}
+  tr.top1 .rank-num{color:var(--red)}
+  .rank-name{font-weight:800; font-size:17px}
+  .rank-name .dot{display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:9px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+  .rank-score{font-size:24px; font-weight:900; color:var(--red)}
+  .rank-score span{font-size:11.5px; color:var(--muted); font-weight:600}
+  .rank-res b{font-size:17px; font-weight:900; color:var(--blue)}
+  .rank-foot{text-align:center; display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
+
+  /* ========== 知识回收页 ========== */
+  #screen-recap{background:var(--paper); overflow-y:auto}
+  .recap-inner{max-width:1020px; width:100%; margin:0 auto; padding:44px 26px 60px; display:flex; flex-direction:column; gap:26px; align-items:center}
+  .recap-inner .rank-head h1{font-size:36px}
+  .quad-grid{display:grid; grid-template-columns:auto 1fr 1fr; gap:10px; width:100%; max-width:920px}
+  .qg-axis{display:flex; align-items:center; justify-content:center; color:var(--muted);
+    font-size:12.5px; font-weight:800; letter-spacing:.2em; padding:6px}
+  .qg-cell{border-radius:16px; padding:16px 18px; min-height:150px; border:2px solid transparent}
+  .qg-cell h4{font-size:19px; font-weight:900; letter-spacing:.06em}
+  .qg-cell .qg-sub{font-size:12px; font-weight:700; opacity:.75; margin:3px 0 10px}
+  .qg-cell.now{background:#FDE8E8; border-color:var(--red)} .qg-cell.now h4{color:var(--red)}
+  .qg-cell.plan{background:#FFF7E0; border-color:var(--yellow)} .qg-cell.plan h4{color:#8a6d00}
+  .qg-cell.delegate{background:#E8F2FC; border-color:var(--blue)} .qg-cell.delegate h4{color:var(--blue)}
+  .qg-cell.drop{background:#F0F0F0; border-color:var(--gray)} .qg-cell.drop h4{color:#5f6368}
+  .qg-ev{display:inline-flex; align-items:center; gap:6px; background:#fff; border:1.5px solid var(--line);
+    border-radius:9px; padding:4px 10px 4px 5px; margin:0 6px 6px 0; font-size:12px; font-weight:700}
+  .qg-ev img{width:34px; height:24px; object-fit:cover; border-radius:5px}
+  .qg-ev b{color:var(--red); font-weight:900}
+  .takeaway{text-align:center; background:var(--ink); color:#fff; border-radius:20px; padding:32px 40px; max-width:820px}
+  .takeaway .big{font-size:38px; font-weight:900}
+  .takeaway .big em{font-style:normal; color:var(--red); text-decoration:line-through}
+  .takeaway .big b{color:var(--yellow)}
+  .takeaway p{color:#C9CDD6; font-size:15.5px; line-height:1.9; margin-top:14px}
+
+  /* ========== 出价前 · 思考引导页 ========== */
+  #screen-guide{overflow-y:auto}
+  .guide-inner{max-width:980px; width:100%; margin:0 auto; padding:44px 28px 56px;
+    display:flex; flex-direction:column; gap:24px; align-items:center}
+  .guide-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px; width:100%}
+  .guide-card{background:var(--card); border:2px solid var(--line); border-radius:18px;
+    padding:24px 26px 24px 32px; position:relative; overflow:hidden}
+  .guide-card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:8px}
+  .guide-card.imp::before{background:var(--blue)}
+  .guide-card.urg::before{background:var(--red)}
+  .guide-card .g-tag{font-size:12px; font-weight:900; letter-spacing:.28em; color:var(--muted)}
+  .guide-card .g-title{font-size:26px; font-weight:900; margin:8px 0 3px}
+  .guide-card.imp .g-title{color:var(--blue)}
+  .guide-card.urg .g-title{color:var(--red)}
+  .guide-card .g-en{font-size:12.5px; font-weight:900; letter-spacing:.22em; color:var(--muted); margin-bottom:12px}
+  .guide-card p{font-size:14.5px; line-height:1.8; color:#3A3D47}
+  .guide-card p b{color:var(--ink)}
+  .quad-grid.compact{max-width:860px}
+  .quad-grid.compact .qg-cell{min-height:0; padding:12px 16px}
+  .guide-tip{background:#FFF7E0; border:2px solid var(--yellow); border-radius:12px;
+    padding:13px 20px; font-weight:700; font-size:15px; line-height:1.75; max-width:860px; width:100%;
+    display:flex; gap:10px; align-items:flex-start}
+  .guide-tip::before{content:"⚡"; flex:none}
+  .guide-tip b{color:var(--red)}
+  .res-hint{color:var(--muted); font-size:12.5px; font-weight:600; margin-top:8px; letter-spacing:.04em}
+
+  #soundBtn{position:fixed; right:16px; bottom:16px; z-index:200; width:44px; height:44px;
+    border-radius:50%; border:2px solid var(--line); background:var(--card);
+    font-size:18px; cursor:pointer; transition:.2s}
+  #soundBtn:hover{border-color:var(--ink)}
+  #soundBtn.off{opacity:.45}
+
+  ::-webkit-scrollbar{width:8px}
+  ::-webkit-scrollbar-thumb{background:#D8D3C4; border-radius:4px}
+
+  @media (max-width:1000px){
+    .auc-body{flex-direction:column; overflow-y:auto}
+    .side{min-width:0}
+    .ev-img-wrap{min-height:240px; flex:none}
+    .cover-title{font-size:42px}
+    .setup-grid{grid-template-columns:1fr}
+    .guide-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= Page 1 · 封面 ================= -->
+<section id="screen-cover" class="screen active">
+  <div class="cover-inner">
+    <div class="cover-logo"><span class="stud"></span>LEGO<span class="stud"></span></div>
+    <div class="cover-title">PRIORITY AUCTION</div>
+    <div class="cover-sub">如果这一周,由你来经营 LEGO</div>
+    <div class="cover-tags">
+      <span><b>1000</b> 点管理资源</span>
+      <span><b>12</b> 个决策</span>
+      <span>什么才真正<b>重要</b>?</span>
+    </div>
+    <button class="btn red" style="font-size:20px; padding:17px 52px" onclick="goSetup()">开 始 游 戏</button>
+  </div>
+</section>
+
+<!-- ================= Page 2 · 任务 / 规则 / 分组 ================= -->
+<section id="screen-setup" class="screen">
+  <div class="setup-inner">
+    <div class="setup-head">
+      <div class="kicker">YOUR MISSION</div>
+      <h1>你们是 LEGO 管理团队</h1>
+    </div>
+    <div class="setup-grid">
+      <div class="panel">
+        <h3>本周资源</h3>
+        <div class="stepper">
+          <button onclick="chgRes(-100)">−</button>
+          <div class="val" id="resVal" style="min-width:120px">1000</div>
+          <button onclick="chgRes(100)">+</button>
+        </div>
+        <div class="res-hint">点管理资源 / 组 · 建议 1000(每次调整 ±100)</div>
+        <div class="rule-list" style="margin-top:14px">
+          <li>每组 <b id="tokenText">10 张 × 100 点</b> 代币,花完就没了</li>
+          <li>12 件事都会被送来,都说自己「很重要、很急」</li>
+          <li>资源有限 —— 你们不可能全部处理</li>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>拍卖规则</h3>
+        <ul class="rule-list">
+          <li>起拍 <b>100</b>,每次加价 <b>100</b></li>
+          <li>成交后才揭晓真正的 重要性 / 紧急度 / 得分</li>
+          <li>总得分最高的小组获胜</li>
+          <li>同分时,<b>剩余资源更多</b>的小组排名更高</li>
+        </ul>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>队伍设置</h3>
+      <div style="display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap">
+        <div>
+          <div style="color:var(--muted); font-size:13px; font-weight:700; margin-bottom:10px">队伍数量</div>
+          <div class="stepper">
+            <button onclick="chgGroups(-1)">−</button>
+            <div class="val" id="groupVal">4</div>
+            <button onclick="chgGroups(1)">+</button>
+          </div>
+        </div>
+        <div style="flex:1; min-width:280px">
+          <div style="color:var(--muted); font-size:13px; font-weight:700; margin-bottom:10px">队伍名称(可修改)</div>
+          <div class="names-grid" id="namesGrid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="setup-foot">
+      <button class="btn red" style="font-size:19px; padding:16px 48px" onclick="startGame()">开 始 拍 卖</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Page 2.5 · 出价前 · 思考引导 ================= -->
+<section id="screen-guide" class="screen">
+  <div class="guide-inner">
+    <div class="setup-head">
+      <div class="kicker">BEFORE YOU BID</div>
+      <h1>出价之前,先想清楚两个问题</h1>
+    </div>
+    <div class="guide-grid">
+      <div class="guide-card imp">
+        <div class="g-tag">问题 ①</div>
+        <div class="g-title">这件事有多重要?</div>
+        <div class="g-en">IMPORTANCE · 重要性</div>
+        <p>如果这件事没做好,对顾客、对 LEGO 的生意影响有多大?<br><b>影响越大 → 越值得投入</b></p>
+      </div>
+      <div class="guide-card urg">
+        <div class="g-tag">问题 ②</div>
+        <div class="g-title">这件事有多紧急?</div>
+        <div class="g-en">URGENCY · 紧急度</div>
+        <p>如果今天不处理,会发生什么?这件事还能再等等吗?<br><b>越等不起 → 越需要马上行动</b></p>
+      </div>
+    </div>
+    <div class="quad-grid compact">
+      <div class="qg-axis"></div>
+      <div class="qg-axis">紧急 URGENT</div>
+      <div class="qg-axis">不紧急 NOT URGENT</div>
+      <div class="qg-axis">重要<br>IMPORTANT</div>
+      <div class="qg-cell now"><h4>DO NOW</h4><div class="qg-sub">重要 + 紧急 · 立即处理</div></div>
+      <div class="qg-cell plan"><h4>PLAN</h4><div class="qg-sub">重要 + 不紧急 · 提前规划</div></div>
+      <div class="qg-axis">较低<br>重要性</div>
+      <div class="qg-cell delegate"><h4>DELEGATE</h4><div class="qg-sub">紧急 + 较低重要性 · 交由合适团队</div></div>
+      <div class="qg-cell drop"><h4>DROP / LATER</h4><div class="qg-sub">较低重要性 + 不紧急 · 可以等等</div></div>
+    </div>
+    <div class="guide-tip">每件事都会有人喊「很重要、很紧急」—— 小心,<b>紧急 ≠ 重要</b>。看起来很急的事,不一定值得出高价;现在不急的事,也可能决定 LEGO 的未来。</div>
+    <button class="btn red" style="font-size:19px; padding:16px 48px" onclick="beginAuction()">我 们 准 备 好 了</button>
+  </div>
+</section>
+
+<!-- ================= Page 3 · 拍卖主界面 ================= -->
+<section id="screen-auction" class="screen">
+  <div class="auc-head">
+    <div class="brand"><span class="logo">LEGO</span> PRIORITY AUCTION</div>
+    <div class="auc-progress">
+      <span>当前事件 <b id="evNo">01</b> / 12</span>
+      <span>已成交 <b id="soldCount">0</b></span>
+      <span>待处理 <b id="remainCount">12</b></span>
+    </div>
+  </div>
+  <div class="auc-body">
+    <div class="ev-card">
+      <div class="ev-img-wrap">
+        <img id="evImg" src="" alt="">
+        <div class="ev-dept" id="evDept"></div>
+        <div class="ev-no" id="evNoBadge"></div>
+        <div class="ev-title-on-img" id="evTitle"></div>
+      </div>
+      <div class="ev-info">
+        <div class="ev-desc" id="evDesc"></div>
+        <div class="ev-hook" id="evHook"></div>
+        <div class="ev-foot">
+          <div class="start-bid">起拍价 <b>100</b> · 每次加价 <b>100</b></div>
+          <div class="stud-bar"><span class="stud r"></span><span class="stud y"></span><span class="stud b"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="teams-panel" id="teamsPanel"></div>
+      <div class="ctrl">
+        <div class="ctrl-row">
+          <div class="price-stepper">
+            <button onclick="stepPrice(-100)">−</button>
+            <input id="priceInput" value="100" inputmode="numeric" oninput="onPriceInput()">
+            <button onclick="stepPrice(100)">+</button>
+          </div>
+        </div>
+        <div class="ctrl-msg" id="ctrlMsg">先点击左侧选择获胜队伍,再确认成交价</div>
+        <div class="ctrl-actions">
+          <button class="btn red" id="soldBtn" onclick="sold()">成交 SOLD</button>
+          <button class="btn ghost" onclick="passEvent()">流 拍</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="soldFlash"><div class="sold-txt">SOLD!</div></div>
+
+<!-- ================= Page 4 · Reveal 揭晓页 ================= -->
+<section id="screen-reveal" class="screen">
+  <div class="rv-inner">
+    <div class="rv-kicker">PRIORITY REVEAL</div>
+    <div class="rv-title" id="rvTitle"></div>
+    <div class="rv-buyer" id="rvBuyer"></div>
+    <div class="rv-stars">
+      <div class="star-row" id="rowImp">
+        <span class="s-label">重要性</span>
+        <div class="stars" id="starsImp"></div>
+      </div>
+      <div class="star-row" id="rowUrg">
+        <span class="s-label">紧急度</span>
+        <div class="stars" id="starsUrg"></div>
+      </div>
+    </div>
+    <div class="rv-quad" id="rvQuad">
+      <div class="quad-badge" id="quadBadge"></div>
+      <div class="quad-sub" id="quadSub"></div>
+    </div>
+    <div class="rv-score" id="rvScore"></div>
+    <div class="rv-why" id="rvWhy"></div>
+    <button class="btn red rv-next" id="rvNext" onclick="nextEvent()">下 一 件 事 务 →</button>
+  </div>
+  <button class="rv-skip" onclick="skipReveal()">跳过动画 ›</button>
+</section>
+
+<!-- ================= Page 5 · 中场排行榜 ================= -->
+<section id="screen-mid" class="screen">
+  <div class="rank-inner">
+    <div class="rank-head">
+      <div class="kicker">HALF-TIME</div>
+      <h1>中场排行榜</h1>
+    </div>
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>队伍</th><th>当前得分</th><th>剩余资源</th><th>已拍得</th></tr></thead>
+      <tbody id="midBody"></tbody>
+    </table>
+    <div class="rank-foot">
+      <button class="btn red" onclick="continueAuction()">继 续 拍 卖</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Page 6 · 最终排行榜 ================= -->
+<section id="screen-final" class="screen">
+  <div class="rank-inner">
+    <div class="rank-head">
+      <div class="kicker">FINAL PRIORITY RANKING</div>
+      <h1>最终排行榜</h1>
+    </div>
+    <div class="champ-banner" id="champBanner"></div>
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>队伍</th><th>总得分</th><th>剩余资源</th><th>已拍得</th></tr></thead>
+      <tbody id="finalBody"></tbody>
+    </table>
+    <div class="rank-foot">
+      <button class="btn red" onclick="showRecap()">知 识 回 收 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Page 7 · 知识回收 ================= -->
+<section id="screen-recap" class="screen">
+  <div class="recap-inner">
+    <div class="rank-head">
+      <div class="kicker">WHAT WE LEARNED</div>
+      <h1>优先级四象限</h1>
+    </div>
+    <div class="quad-grid">
+      <div class="qg-axis"></div>
+      <div class="qg-axis">紧急 URGENT</div>
+      <div class="qg-axis">不紧急 NOT URGENT</div>
+      <div class="qg-axis">重要<br>IMPORTANT</div>
+      <div class="qg-cell now"><h4>DO NOW</h4><div class="qg-sub">立即处理</div><div id="qgNow"></div></div>
+      <div class="qg-cell plan"><h4>PLAN</h4><div class="qg-sub">计划处理</div><div id="qgPlan"></div></div>
+      <div class="qg-axis">较低<br>重要性</div>
+      <div class="qg-cell delegate"><h4>DELEGATE</h4><div class="qg-sub">交由合适团队</div><div id="qgDelegate"></div></div>
+      <div class="qg-cell drop"><h4>DROP / LATER</h4><div class="qg-sub">暂缓处理</div><div id="qgDrop"></div></div>
+    </div>
+    <div class="takeaway">
+      <div class="big"><em>URGENT</em> ≠ <b>IMPORTANT</b><br>紧急 ≠ 重要</div>
+      <p>最吵、最急的事情,不一定是最值得投入资源的事情。<br>
+      资源有限时,真正重要的不是做更多事情 —— 而是知道什么值得先做。</p>
+    </div>
+    <div class="rank-foot">
+      <button class="btn ghost" onclick="location.reload()">重 新 开 局</button>
+    </div>
+  </div>
+</section>
+
+<button id="soundBtn" onclick="toggleSound()" title="音效开关">🔊</button>
+
+<script>
+/* ================= 事件数据(按设计顺序固定出场) ================= */
+const EVENTS=[
+ {id:1, title:"新品零件安全警报", dept:"PRODUCT / SAFETY",
+  desc:"LEGO 一款新品距离正式上市还有 2 天。测试团队刚刚发现:其中一个小零件在极端情况下可能更容易脱落。部分产品目前已经运往门店。",
+  hook:"目前还没有消费者投诉。",
+  img:"images/event-01.jpg", imp:5, urg:5, quad:"now", score:25,
+  why:"儿童产品安全是核心问题。即使事故尚未发生,也需要在上市前立即处理。"},
+ {id:2, title:"300 万粉丝正在等", dept:"MARKETING / CREATOR",
+  desc:"一位拥有 300 万粉丝的 LEGO 内容创作者准备今晚发布新品视频。对方团队突然要求修改拍摄位置和发布时间。",
+  hook:"30 分钟内没有确认,对方可能取消今晚的视频。",
+  img:"images/event-02.jpg", imp:3, urg:5, quad:"delegate", score:12,
+  why:"确实很急,也有商业价值,但未必值得公司核心管理层投入大量资源,可以交由市场团队快速处理。"},
+ {id:3, title:"明年的玩家,现在研究?", dept:"PRODUCT / RESEARCH",
+  desc:"LEGO 研究团队提出:未来 3 个月持续观察 10–14 岁学生现在最喜欢什么类型的游戏、内容与创造方式。研究结果不会影响今年已经上市的产品,但会影响明年的产品开发。",
+  hook:"今年完全用不上。",
+  img:"images/event-03.jpg", imp:5, urg:2, quad:"plan", score:21,
+  why:"短期不产生直接结果,但会影响未来产品方向,是典型的重要但不紧急事项。"},
+ {id:4, title:"Checkout Down", dept:"DIGITAL / E-COMMERCE",
+  desc:"LEGO 新品已经上线。消费者可以正常把商品加入购物车,但付款页面持续报错。目前已有大量消费者在线等待。",
+  hook:"商品还在购物车里,并没有消失。",
+  img:"images/event-04.jpg", imp:5, urg:5, quad:"now", score:24,
+  why:"直接影响消费者体验与销售,需要立即修复。"},
+ {id:5, title:"LEGO HQ 新展示区", dept:"BRAND / OFFICE",
+  desc:"LEGO 总部希望重新设计访客展示区。计划使用最新产品系列打造更具品牌感的体验空间。",
+  hook:"未来一年会有很多重要合作伙伴参观。",
+  img:"images/event-05.jpg", imp:2, urg:1, quad:"drop", score:6,
+  why:"有一定品牌价值,但相较其他经营问题,优先级较低。"},
+ {id:6, title:"儿童账号安全升级", dept:"DIGITAL / SAFETY",
+  desc:"LEGO 计划在半年后上线新的数字体验。技术团队希望从现在开始升级儿童账号的数据与隐私保护流程。",
+  hook:"目前没有发生任何数据事故。",
+  img:"images/event-06.jpg", imp:5, urg:2, quad:"plan", score:20,
+  why:"没有事故不代表不重要。儿童数据安全需要提前规划,而不是等出问题后再处理。"},
+ {id:7, title:"VIP Seat Problem", dept:"EVENT / PARTNERSHIP",
+  desc:"LEGO 大型新品活动还有 1 小时开始。一位重要合作伙伴发现自己的座位位置不满意,希望工作人员立即重新安排。",
+  hook:"对方是 LEGO 的重要合作伙伴。",
+  img:"images/event-07.jpg", imp:2, urg:5, quad:"delegate", score:9,
+  why:"事情很急,但不值得核心管理团队投入过多资源,应由现场活动团队解决。"},
+ {id:8, title:"未来一年的包装改革", dept:"SUSTAINABILITY / OPERATIONS",
+  desc:"LEGO 包装团队提出:未来一年逐步优化包装方案,并提前进行材料、生产与供应链测试。",
+  hook:"如果今天不做,对本周销售没有任何影响。",
+  img:"images/event-08.jpg", imp:4, urg:1, quad:"plan", score:18,
+  why:"短期不紧急,但涉及长期运营、品牌和可持续发展,需要提前规划。"},
+ {id:9, title:"40 分钟后自动发布", dept:"SOCIAL MEDIA",
+  desc:"LEGO 官方社交媒体新品倒计时图片将在 40 分钟后自动发布。团队发现图片中的积木排列和最终上市版本有一个很小的不同。不影响消费者理解产品。",
+  hook:"这是 LEGO 官方账号。",
+  img:"images/event-09.jpg", imp:2, urg:4, quad:"delegate", score:8,
+  why:"需要尽快确认,但影响有限,不应该占用大量核心管理资源。"},
+ {id:10, title:"只剩两天库存", dept:"SUPPLY CHAIN",
+  desc:"LEGO 今年重点推广的新系列销量远超预期。部分核心市场的库存只够维持约两天。",
+  hook:"现在产品卖得非常好。",
+  img:"images/event-10.jpg", imp:4, urg:5, quad:"now", score:22,
+  why:"销售强劲是好事,但快速缺货会直接影响消费者体验与销售机会,需要立即协调供应链。"},
+ {id:11, title:"员工限定 LEGO Set", dept:"PEOPLE / CULTURE",
+  desc:"公司内部建议设计一套限量版员工纪念积木。计划用于今年的年度员工活动。",
+  hook:"可以提升员工参与感和品牌文化。",
+  img:"images/event-11.jpg", imp:2, urg:1, quad:"drop", score:5,
+  why:"并非完全没有价值,但相比关键经营事项,优先级较低。"},
+ {id:12, title:"让管理会议更像 LEGO", dept:"INTERNAL / MANAGEMENT",
+  desc:"管理团队建议重新设计公司的内部月度经营报告。加入新的 LEGO 视觉元素、动态图表和积木风格页面,让内部会议更有品牌感。",
+  hook:"所有高层管理人员每个月都会看到。",
+  img:"images/event-12.jpg", imp:1, urg:1, quad:"drop", score:3,
+  why:"视觉体验可以改善,但几乎不会改变真正的业务结果,应放在更重要事务之后。"},
+];
+const QUADS={
+  now:{cls:"now", label:"DO NOW", sub:"重要 + 紧急"},
+  plan:{cls:"plan", label:"PLAN", sub:"重要 + 不紧急"},
+  delegate:{cls:"delegate", label:"DELEGATE", sub:"紧急 + 较低重要性"},
+  drop:{cls:"drop", label:"DROP / LATER", sub:"较低重要性 + 不紧急"},
+};
+const TEAM_COLORS=["#D01012","#0067C0","#FFC500","#00A550","#7C4DBE","#FF7A00"];
+const MIN_BID=100, STEP=100;
+
+/* ================= 全局状态 ================= */
+const S={teams:[], groupCount:4, startRes:1000, cur:0, sold:0, selected:-1};
+
+/* ================= 音效(克制:成交锤/星星/揭晓/冠军) ================= */
+const SFX={
+  ctx:null, on:true,
+  ac(){ if(!this.ctx)this.ctx=new (window.AudioContext||window.webkitAudioContext)(); return this.ctx; },
+  tone(f,d=0.1,type="sine",g=0.16,t=0){
+    if(!this.on)return;
+    const ac=this.ac(),o=ac.createOscillator(),gn=ac.createGain(),t0=ac.currentTime+t;
+    o.type=type; o.frequency.value=f;
+    gn.gain.setValueAtTime(0.0001,t0);
+    gn.gain.exponentialRampToValueAtTime(g,t0+0.012);
+    gn.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+    o.connect(gn); gn.connect(ac.destination); o.start(t0); o.stop(t0+d+0.05);
+  },
+  click(){this.tone(880,0.06,"square",0.06);},
+  bid(){this.tone(660,0.09,"triangle",0.12);},
+  sold(){ this.tone(180,0.16,"square",0.3); this.tone(120,0.22,"square",0.28,0.05); },
+  star(){this.tone(1320,0.07,"sine",0.1);},
+  quad(){ this.tone(523,0.14,"triangle",0.18); this.tone(784,0.2,"triangle",0.18,0.1); },
+  score(){ this.tone(659,0.1,"triangle",0.16); this.tone(880,0.14,"triangle",0.16,0.09); this.tone(1175,0.24,"triangle",0.18,0.18); },
+  fanfare(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,0.22,"triangle",0.18,i*0.14)); },
+};
+function toggleSound(){
+  SFX.on=!SFX.on;
+  const b=document.getElementById("soundBtn");
+  b.classList.toggle("off",!SFX.on); b.textContent=SFX.on?"🔊":"🔇";
+  if(SFX.on)SFX.click();
+}
+
+/* ================= 页面切换 ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+function goSetup(){ SFX.click(); renderNames(); show("screen-setup"); }
+
+/* ================= 分组设置 ================= */
+function chgGroups(d){
+  S.groupCount=Math.min(6,Math.max(2,S.groupCount+d));
+  document.getElementById("groupVal").textContent=S.groupCount;
+  SFX.click(); renderNames();
+}
+function chgRes(d){
+  S.startRes=Math.min(5000,Math.max(500,S.startRes+d));
+  document.getElementById("resVal").textContent=S.startRes;
+  document.getElementById("tokenText").textContent=(S.startRes/100)+" 张 × 100 点";
+  SFX.click();
+}
+function renderNames(){
+  const g=document.getElementById("namesGrid");
+  const old=[...g.querySelectorAll("input")].map(i=>i.value);
+  g.innerHTML="";
+  for(let i=0;i<S.groupCount;i++){
+    g.innerHTML+=`<div class="name-row">
+      <span class="dot" style="background:${TEAM_COLORS[i]}"></span>
+      <input value="${old[i]||("Team "+String.fromCharCode(65+i))}" maxlength="12">
+    </div>`;
+  }
+}
+function startGame(){
+  SFX.click();
+  const names=[...document.querySelectorAll("#namesGrid input")].map(i=>i.value.trim());
+  S.teams=[];
+  for(let i=0;i<S.groupCount;i++){
+    S.teams.push({name:names[i]||("Team "+String.fromCharCode(65+i)),
+      color:TEAM_COLORS[i], res:S.startRes, score:0, won:[]});
+  }
+  S.cur=0; S.sold=0;
+  show("screen-guide");
+}
+function beginAuction(){ SFX.click(); showAuction(); }
+
+/* ================= 拍卖主界面 ================= */
+function curEv(){ return EVENTS[S.cur]; }
+function showAuction(){
+  const e=curEv();
+  document.getElementById("evImg").src=e.img;
+  document.getElementById("evDept").textContent=e.dept;
+  document.getElementById("evNoBadge").textContent="EVENT "+String(e.id).padStart(2,"0");
+  document.getElementById("evTitle").textContent=e.title;
+  document.getElementById("evDesc").textContent=e.desc;
+  document.getElementById("evHook").textContent=e.hook;
+  document.getElementById("evNo").textContent=String(e.id).padStart(2,"0");
+  document.getElementById("remainCount").textContent=EVENTS.length-S.cur;
+  document.getElementById("soldCount").textContent=S.sold;
+  S.selected=-1;
+  setPrice(MIN_BID);
+  setMsg("先点击选择获胜队伍,再确认成交价",true);
+  renderTeams();
+  show("screen-auction");
+}
+function renderTeams(){
+  document.getElementById("teamsPanel").innerHTML=S.teams.map((t,i)=>`
+    <div class="team-card ${i===S.selected?"selected":""}" onclick="selectTeam(${i})">
+      <span class="dot" style="background:${t.color}"></span>
+      <span class="t-name">${t.name}</span>
+      <span class="t-score">${t.score}<span> 分</span></span>
+      <span class="t-res"><b>${t.res}</b> 资源
+        <div class="res-bar"><div style="width:${t.res/S.startRes*100}%"></div></div>
+        <div class="t-won">已拍得 ${t.won.length} 件</div>
+      </span>
+    </div>`).join("");
+}
+function selectTeam(i){
+  S.selected=i; SFX.click(); renderTeams(); validate();
+}
+function getPrice(){ return parseInt(document.getElementById("priceInput").value)||0; }
+function setPrice(v){
+  document.getElementById("priceInput").value=Math.max(MIN_BID,v);
+  document.getElementById("priceInput").classList.remove("over");
+}
+function stepPrice(d){ SFX.click(); setPrice(getPrice()+d); validate(); }
+function onPriceInput(){ validate(); }
+function setMsg(t,ok){ const m=document.getElementById("ctrlMsg"); m.textContent=t; m.style.color=ok?"var(--muted)":"var(--red)"; }
+function validate(){
+  if(S.selected<0){ setMsg("先点击选择获胜队伍",true); return false; }
+  const p=getPrice(), t=S.teams[S.selected];
+  if(p<MIN_BID){ setMsg("起拍价 100"); return false; }
+  if(p%STEP!==0){ setMsg("加价单位为 100"); return false; }
+  if(p>t.res){
+    setMsg(`${t.name} 只剩 ${t.res} 点资源,出价超标!`);
+    document.getElementById("priceInput").classList.add("over");
+    SFX.click(); return false;
+  }
+  document.getElementById("priceInput").classList.remove("over");
+  setMsg(`即将成交:${t.name} · ${p} 点`,true);
+  return true;
+}
+
+/* ================= 成交 / 流拍 ================= */
+function sold(){
+  if(S.selected<0){ setMsg("请先选择获胜队伍!"); SFX.click(); return; }
+  if(!validate())return;
+  const p=getPrice(), t=S.teams[S.selected], e=curEv();
+  t.res-=p; t.won.push({eid:e.id, price:p});
+  S.sold++;
+  SFX.sold();
+  const f=document.getElementById("soldFlash");
+  f.classList.add("show");
+  setTimeout(()=>{ f.classList.remove("show"); showReveal(t,p,e); },750);
+}
+function passEvent(){
+  SFX.click();
+  showReveal(null,null,curEv());
+}
+
+/* ================= Reveal(分步动画) ================= */
+let rvTimers=[];
+function rvLater(fn,ms){ rvTimers.push(setTimeout(fn,ms)); }
+function clearRv(){ rvTimers.forEach(clearTimeout); rvTimers=[]; }
+function starRow(el,n){
+  el.innerHTML=Array.from({length:5},(_,i)=>`<i>★</i>`).join("");
+  return [...el.children].slice(0,n);
+}
+function showReveal(team,price,e){
+  clearRv();
+  document.getElementById("rvTitle").textContent=e.title;
+  document.getElementById("rvBuyer").innerHTML=team
+    ? `<b>${team.name}</b> 以 <b>${price}</b> 点资源拍得`
+    : `本事件流拍 —— 没有团队投入资源`;
+  ["rowImp","rowUrg"].forEach(id=>document.getElementById(id).classList.remove("on"));
+  ["rvQuad","rvScore","rvWhy","rvNext"].forEach(id=>document.getElementById(id).classList.remove("on"));
+  document.getElementById("rvNext").textContent = S.cur>=EVENTS.length-1 ? "查 看 最 终 排 名 →" : "下 一 件 事 务 →";
+  const q=QUADS[e.quad];
+  const badge=document.getElementById("quadBadge");
+  badge.className="quad-badge "+q.cls; badge.textContent=q.label;
+  document.getElementById("quadSub").textContent=q.sub;
+  document.getElementById("rvScore").innerHTML=`+${e.score} <span>PRIORITY POINTS</span>`;
+  document.getElementById("rvWhy").textContent=e.why;
+  show("screen-reveal");
+
+  const impStars=starRow(document.getElementById("starsImp"),e.imp);
+  const urgStars=starRow(document.getElementById("starsUrg"),e.urg);
+  let t=700;
+  rvLater(()=>{document.getElementById("rowImp").classList.add("on");},t); t+=250;
+  impStars.forEach((s,i)=>rvLater(()=>{s.classList.add("lit"); SFX.star();},t+i*160));
+  t+=impStars.length*160+300;
+  rvLater(()=>{document.getElementById("rowUrg").classList.add("on");},t); t+=250;
+  urgStars.forEach((s,i)=>rvLater(()=>{s.classList.add("lit"); SFX.star();},t+i*160));
+  t+=urgStars.length*160+350;
+  rvLater(()=>{document.getElementById("rvQuad").classList.add("on"); SFX.quad();},t); t+=700;
+  rvLater(()=>{
+    document.getElementById("rvScore").classList.add("on");
+    if(team){ team.score+=e.score; }
+    SFX.score();
+  },t); t+=650;
+  rvLater(()=>{document.getElementById("rvWhy").classList.add("on");},t); t+=500;
+  rvLater(()=>{document.getElementById("rvNext").classList.add("on");},t);
+}
+function skipReveal(){
+  clearRv();
+  const e=curEv();
+  document.getElementById("rowImp").classList.add("on");
+  document.getElementById("rowUrg").classList.add("on");
+  const si=starRow(document.getElementById("starsImp"),e.imp); si.forEach(s=>s.classList.add("lit"));
+  const su=starRow(document.getElementById("starsUrg"),e.urg); su.forEach(s=>s.classList.add("lit"));
+  const team=S.teams.find(t=>t.won.some(w=>w.eid===e.id&&w.price!=null));
+  ["rvQuad","rvScore","rvWhy","rvNext"].forEach(id=>document.getElementById(id).classList.add("on"));
+}
+
+/* ================= 流程推进 ================= */
+function nextEvent(){
+  SFX.click();
+  S.cur++;
+  if(S.cur===6){ showMid(); return; }          // 第 6 件后中场排行
+  if(S.cur>=EVENTS.length){ showFinal(); return; }
+  showAuction();
+}
+function continueAuction(){ SFX.click(); showAuction(); }
+function rankRows(){
+  return S.teams.map((t,i)=>({...t,idx:i}))
+    .sort((a,b)=>b.score-a.score || b.res-a.res);
+}
+function showMid(){
+  const rows=rankRows();
+  document.getElementById("midBody").innerHTML=rows.map((t,r)=>`
+    <tr class="${r===0?"top1":""}">
+      <td class="rank-num">${r+1}</td>
+      <td class="rank-name"><span class="dot" style="background:${t.color}"></span>${t.name}</td>
+      <td class="rank-score">${t.score}<span> 分</span></td>
+      <td class="rank-res"><b>${t.res}</b> 资源</td>
+      <td>${t.won.length} 件</td>
+    </tr>`).join("");
+  show("screen-mid");
+}
+function showFinal(){
+  const rows=rankRows(), c=rows[0];
+  document.getElementById("champBanner").innerHTML=`
+    <div class="cb-kicker">BEST LEGO MANAGEMENT TEAM</div>
+    <div class="cb-name">${c.name}</div>
+    <div class="cb-score">总得分 <b>${c.score}</b> · 剩余资源 <b>${c.res}</b> · 拍得 ${c.won.length} 件</div>`;
+  document.getElementById("finalBody").innerHTML=rows.map((t,r)=>`
+    <tr class="${r===0?"top1":""}">
+      <td class="rank-num">${r+1}</td>
+      <td class="rank-name"><span class="dot" style="background:${t.color}"></span>${t.name}</td>
+      <td class="rank-score">${t.score}<span> 分</span></td>
+      <td class="rank-res"><b>${t.res}</b> 资源</td>
+      <td>${t.won.length} 件</td>
+    </tr>`).join("");
+  show("screen-final");
+  SFX.fanfare();
+}
+
+/* ================= 知识回收 ================= */
+function showRecap(){
+  SFX.click();
+  const map={now:"qgNow", plan:"qgPlan", delegate:"qgDelegate", drop:"qgDrop"};
+  for(const k in map){
+    document.getElementById(map[k]).innerHTML=EVENTS.filter(e=>e.quad===k).map(e=>{
+      const w=S.teams.find(t=>t.won.some(x=>x.eid===e.id));
+      return `<span class="qg-ev"><img src="${e.img}" alt="">${e.title} <b>+${e.score}</b>${w?" · "+w.name:""}</span>`;
+    }).join("");
+  }
+  show("screen-recap");
+}
+</script>
+</body>
+</html>
