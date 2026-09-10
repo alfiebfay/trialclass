@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课堂回顾 · 餐车创业挑战 | Food Truck Challenge — Session Recap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#FBF8F3; --ivory2:#F5EEE2; --card:#FFFFFF;
+  --red:#D71920; --red-d:#A8121A; --red-soft:#FBE3E3; --red-mist:#F7EFEA;
+  --ink:#37302B; --ink2:#7A6F66; --ink3:#A89C90;
+  --gold:#C9A227; --gold-soft:#F5EBCF;
+  --green:#4E7A5A; --green-soft:#E4EFE6;
+  --line:#ECE1D2; --line2:#E0D4C2;
+  --sh:0 1px 2px rgba(80,50,40,.05),0 10px 30px rgba(80,50,40,.07);
+  --sh-lg:0 2px 6px rgba(80,50,40,.06),0 24px 60px rgba(80,50,40,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','Noto Sans SC',system-ui,sans-serif;color:var(--ink);background:var(--ivory);
+  background-image:radial-gradient(circle at 15% -5%,#fff 0%,transparent 45%),radial-gradient(circle at 110% 10%,#F3E9D8 0%,transparent 40%);
+  min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.7;
+}
+h1,h2,h3,.serif{font-family:'Fraunces','Noto Serif SC',Georgia,serif}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink2)}
+.en{font-family:'Fraunces',serif;font-style:italic;color:var(--ink2);font-size:.9em}
+.small{font-size:12.5px}
+
+/* ---------- header band ---------- */
+.band{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#C8161D 0%,#E23335 60%,#C8161D 100%);color:#FFF7EC;padding:13px 22px;box-shadow:0 4px 18px rgba(168,18,26,.25)}
+.band-in{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-family:'Fraunces',serif;font-style:italic;font-weight:700;font-size:20px;letter-spacing:.3px}
+.logo span{opacity:.75;font-weight:500;font-size:12px;margin-left:8px;font-style:normal;letter-spacing:1.5px;text-transform:uppercase}
+.band .spacer{flex:1}
+.band-tag{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600}
+
+.wrap{max-width:920px;margin:0 auto;padding:0 22px 100px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;border-radius:26px;overflow:hidden;box-shadow:var(--sh-lg);margin-top:26px}
+.hero-img{width:100%;height:380px;object-fit:cover;display:block}
+.hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,20,15,.08) 20%,rgba(40,20,15,.72) 100%)}
+.hero-txt{position:absolute;left:0;right:0;bottom:0;padding:34px 40px;color:#FFF7EC}
+.hero-txt .kick{font-size:11.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px}
+.hero-txt h1{font-size:38px;font-weight:900;font-family:'Noto Serif SC',serif;line-height:1.15;text-shadow:0 2px 20px rgba(0,0,0,.35)}
+.hero-txt h1 .en-sub{display:block;font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:20px;margin-top:6px;opacity:.92}
+.hero-txt p{margin-top:10px;font-size:14px;opacity:.94;max-width:640px;line-height:1.65}
+
+/* ---------- sections ---------- */
+section{margin-top:60px;scroll-margin-top:80px}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:2.2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--red)}
+h2.sec{font-size:30px;font-weight:900;font-family:'Noto Serif SC',serif;line-height:1.2}
+h2.sec .en{display:block;font-size:17px;margin-top:4px}
+.sec-lede{margin-top:12px;font-size:15px;line-height:1.8;color:var(--ink2);max-width:700px}
+.sec-lede b{color:var(--ink)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);padding:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+/* ---------- knowledge cards ---------- */
+.k-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+@media(max-width:720px){.k-grid{grid-template-columns:1fr}}
+.k-card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:.2s}
+.k-card:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);border-color:var(--red)}
+.k-card::before{content:attr(data-n);position:absolute;right:14px;top:6px;font-family:'Fraunces',serif;font-size:52px;font-weight:700;color:var(--red-mist);line-height:1}
+.k-card h3{font-size:17px;font-family:'Noto Serif SC',serif;font-weight:900;position:relative}
+.k-card .en-term{display:block;font-family:'Fraunces',serif;font-style:italic;color:var(--red);font-size:13px;margin-top:2px}
+.k-card .exp{margin-top:12px;font-size:13px;line-height:1.75;color:var(--ink)}
+.k-card .exp b{color:var(--red-d)}
+.k-card .why{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.7;color:var(--ink2)}
+.k-card .why b{color:var(--ink)}
+
+/* ---------- timeline ---------- */
+.tl{margin-top:22px;position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:var(--line2)}
+.tl-item{position:relative;padding:0 0 22px 18px}
+.tl-item::before{content:"";position:absolute;left:-24px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px var(--red-soft)}
+.tl-item .t-time{font-size:11.5px;font-weight:700;letter-spacing:1px;color:var(--red);text-transform:uppercase}
+.tl-item b{font-size:15px;display:block;margin-top:2px}
+.tl-item .t-tag{display:inline-block;margin-left:8px;font-size:10.5px;font-weight:700;color:var(--ink2);background:var(--ivory2);border:1px solid var(--line);border-radius:999px;padding:2px 9px;vertical-align:2px}
+.tl-item p{font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.7}
+
+/* ---------- scenario cards ---------- */
+.scn{background:var(--card);border:1.5px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--sh);margin-top:20px}
+.scn-head{position:relative;height:170px}
+.scn-head img{width:100%;height:100%;object-fit:cover;display:block}
+.scn-head .veil{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(40,20,15,.68) 100%)}
+.scn-head .scn-title{position:absolute;left:22px;bottom:14px;color:#FFF7EC}
+.scn-head .scn-title .idx{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.85}
+.scn-head .scn-title h3{font-size:24px;font-weight:900;font-family:'Noto Serif SC',serif;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.scn-head .scn-title .en-sub{font-family:'Fraunces',serif;font-style:italic;font-size:14px;opacity:.9}
+.scn-body{padding:22px}
+.scn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:640px){.scn-grid{grid-template-columns:1fr}}
+.scn-block{border-radius:12px;padding:14px 16px;border:1.5px solid var(--line)}
+.scn-block.trait{background:var(--ivory2)}
+.scn-block.win{background:var(--green-soft);border-color:#CBDFD0}
+.scn-block.trap{background:#FDF3F2;border-color:#F0C9C8}
+.scn-block h5{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.scn-block.trait h5{color:var(--ink2)}
+.scn-block.win h5{color:var(--green)}
+.scn-block.trap h5{color:var(--red-d)}
+.scn-block p,.scn-block li{font-size:12.8px;line-height:1.7;color:var(--ink)}
+.scn-block.trait p{color:var(--ink2)}
+.scn-block ul{padding-left:16px}
+.scn-block li{margin-bottom:4px}
+.scn-block li:last-child{margin-bottom:0}
+.scn-block b{color:var(--red-d)}
+.scn-block.win b{color:var(--green)}
+
+/* ---------- gallery ---------- */
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+@media(max-width:720px){.gal{grid-template-columns:1fr}}
+.gal-item{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--sh);transition:.2s}
+.gal-item:hover{transform:translateY(-3px);box-shadow:var(--sh-lg)}
+.gal-item img{width:100%;display:block;object-fit:cover;border-bottom:1px solid var(--line)}
+.gal-cap{padding:14px 18px}
+.gal-cap b{font-size:14px;display:block}
+.gal-cap p{font-size:12.5px;color:var(--ink2);margin-top:4px;line-height:1.65}
+.gal-cap .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:1px;color:var(--red);text-transform:uppercase;margin-bottom:4px}
+
+/* ---------- note ---------- */
+.note{border-left:4px solid var(--red);background:linear-gradient(90deg,var(--red-mist),transparent);border-radius:0 12px 12px 0;padding:14px 18px;margin-top:18px;font-size:13.5px;line-height:1.75}
+.note.gold{border-color:var(--gold);background:linear-gradient(90deg,var(--gold-soft),transparent)}
+.note b{color:var(--red-d)}
+.note.gold b{color:#8A6E12}
+
+/* ---------- takeaway / footer ---------- */
+.takeaway{margin-top:80px;background:linear-gradient(135deg,#C8161D 0%,#E23335 60%,#C8161D 100%);border-radius:24px;padding:44px 40px;color:#FFF7EC;text-align:center;box-shadow:var(--sh-lg);position:relative;overflow:hidden}
+.takeaway::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(255,255,255,.14),transparent 50%)}
+.takeaway .tk-kick{font-size:11.5px;font-weight:700;letter-spacing:3px;text-transform:uppercase;opacity:.8;position:relative}
+.takeaway .tk-main{font-family:'Noto Serif SC',serif;font-weight:900;font-size:26px;line-height:1.5;margin-top:14px;position:relative}
+.takeaway .tk-sub{font-family:'Fraunces',serif;font-style:italic;font-size:15px;opacity:.85;margin-top:10px;position:relative}
+.takeaway .tk-body{margin:20px auto 0;max-width:640px;font-size:14px;line-height:1.9;opacity:.94;position:relative}
+.takeaway .tk-body b{color:#FFE9A8}
+
+footer{margin-top:60px;text-align:center;color:var(--ink3);font-size:12.5px;line-height:1.9;padding-top:26px;border-top:1px solid var(--line)}
+footer .serif{font-style:italic;color:var(--red);font-size:15px}
+
+@media print{
+  .band{position:static}
+  .gal-item,.k-card,.card,.scn{break-inside:avoid}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<div class="band"><div class="band-in">
+  <div class="logo">Food Truck Challenge<span>Session Recap</span></div>
+  <div class="spacer"></div>
+  <div class="band-tag">课堂回顾 · 你的经营笔记</div>
+</div></div>
+
+<div class="wrap">
+
+  <!-- ======= HERO ======= -->
+  <div class="hero">
+    <img class="hero-img" src="report-shots/hero.png" alt="Boomtown food truck" onerror="this.style.display='none'">
+    <div class="hero-veil"></div>
+    <div class="hero-txt">
+      <div class="kick">Session Recap · 课堂回顾</div>
+      <h1>餐车创业挑战：三种市场，一位创业者<span class="en-sub">Food Truck Challenge — Three Markets, One Entrepreneur</span></h1>
+      <p>三种市场结构，25 天 × 3 轮的完整经营周期。这份回顾帮助你系统整理课堂上的每一次决策与反馈——把赛场上的直觉，沉淀为可复用的商业判断。</p>
+    </div>
+  </div>
+
+  <!-- ================= 1 WHAT ================= -->
+  <section id="what">
+    <div class="eyebrow">01 · The Simulation You Ran</div>
+    <h2 class="sec">这节课，你经营了什么<span class="en">What happened in class</span></h2>
+    <p class="sec-lede">你在 <b>Food Truck Challenge（餐车创业挑战）</b>中扮演 Boomtown 小镇的餐车创业者：以 <b>$10,000</b> 启动资金，完成 <b>5 周 × 5 个工作日</b>的完整经营周期——解读市场报告、选择产品、确定点位、制定价格、管理库存，并判断何时值得为信息付费。这是一个具备真实财务后果的模拟市场：天气改变客流结构，消费偏好持续漂移，竞争者争夺同一批顾客，供应商随时调整价格——<b>你的每一个决策，都会直接体现在利润表上</b>。</p>
+
+    <div class="grid2" style="margin-top:20px">
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:6px">规则一句话</div>
+        <p class="small" style="line-height:1.8;color:var(--ink2)">经营期满时，<b>期末现金 − $10,000 = 净利润（Net Profit）</b>，全班按净利润排名。周一现金低于 <b>$200</b> 即宣告破产——与真实商业世界一致：<b>利润决定你能走多远，现金流决定你能否走到</b>。</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:6px">本次课程的设计</div>
+        <p class="small" style="line-height:1.8;color:var(--ink2)">课程直接进入三种非理想市场环境：<b>需求侧漂移、竞争侧挤压、供给侧冲击</b>。三种市场结构对应三种截然不同的经营策略——能在三种环境中都保持盈利，才算真正理解了经营决策的本质。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2 SCENARIOS ================= -->
+  <section id="scenarios">
+    <div class="eyebrow">02 · Three Markets, Three Strategies</div>
+    <h2 class="sec">三个市场，三种策略<span class="en">The three scenarios you faced</span></h2>
+    <p class="sec-lede">本次课程包含三轮模拟，分别对应三种典型的市场结构。复盘的第一步，是识别你身处的是哪一种市场——<b>对市场结构的判断，优先于对单个数字的判断</b>。</p>
+
+    <!-- S1 -->
+    <div class="scn">
+      <div class="scn-head">
+        <img src="report-shots/scn-s1.png" alt="Shifting Winds" onerror="this.style.display='none'">
+        <div class="veil"></div>
+        <div class="scn-title"><div class="idx">ROUND 1 · 需求侧</div><h3>需求迁移 · 风潮来了又去<span class="en-sub">Shifting Winds — Demand Shifts</span></h3></div>
+      </div>
+      <div class="scn-body">
+        <p class="small muted" style="line-height:1.75">本轮外部扰动集中在需求侧：无恶劣天气、无直接竞争、成本稳定，唯一的变量是<b style="color:var(--ink)">消费者偏好的持续漂移</b>——健康风潮推动冻酸奶需求逐周加速上升，冷萃则被逐步挤出市场；中途的美食节更将单点客流放大数倍。你手中的第 1 周市场报告，从第 2 周起便开始失效。</p>
+        <div class="scn-grid">
+          <div class="scn-block trait">
+            <h5>市场特点 · Traits</h5>
+            <ul>
+              <li>趋势（Trend）逐周复利：每周 +15%，五周即 ×2.1</li>
+              <li>市场报告是<b>快照而非承诺</b>——它会过期</li>
+              <li>事件驱动（如美食节）可使单点流量达到日常的 2.5 倍</li>
+              <li>传闻免费但模糊，调研精确但有成本</li>
+            </ul>
+          </div>
+          <div class="scn-block win">
+            <h5>最优策略 · Winning Play</h5>
+            <ul>
+              <li>每周以最新经营数据修正假设，而非依赖过期报告</li>
+              <li>识别趋势后<b>果断迁移产品组合</b>，不困于初始判断</li>
+              <li>在事件窗口到来前完成备货，红利属于提前布局者</li>
+            </ul>
+          </div>
+          <div class="scn-block trap" style="grid-column:1/-1">
+            <h5>代价最高的错误 · The Costly Mistake</h5>
+            <p>"沿用第 1 周的最优组合直至终局"——五周内市场主角已经更替，固守者的利润较趋势跟随者低近三成。<b>在需求漂移的市场中，经验的有效期只有一周。</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="scn">
+      <div class="scn-head">
+        <img src="report-shots/scn-s2.png" alt="Red Ocean" onerror="this.style.display='none'">
+        <div class="veil"></div>
+        <div class="scn-title"><div class="idx">ROUND 2 · 竞争</div><h3>竞争红海 · 对手在争夺你的点位<span class="en-sub">Red Ocean — Rival Trucks</span></h3></div>
+      </div>
+      <div class="scn-body">
+        <p class="small muted" style="line-height:1.75">本轮引入两位 AI 竞争者：一位固守高流量点位，一位持续追逐上一周的热门区域。同点位同品类竞争时，你只能获得约 <b style="color:var(--ink)">65%</b> 的原始需求。与此同时市场信号纷杂——返校节、网红效应、一场正在逼近的风暴——孰真孰假，唯有调研能够确证。</p>
+        <div class="scn-grid">
+          <div class="scn-block trait">
+            <h5>市场特点 · Traits</h5>
+            <ul>
+              <li>同点位同品类 → 需求被分流近半</li>
+              <li>追热点的竞争者<b>永远滞后一周</b>——其入场时需求可能已转移</li>
+              <li>极端天气破坏力强：风暴可将满仓库存变为重大亏损</li>
+              <li>传闻与调研是本轮价值最高的信息</li>
+            </ul>
+          </div>
+          <div class="scn-block win">
+            <h5>最优策略 · Winning Play</h5>
+            <ul>
+              <li><b>差异化定位</b>：竞争者聚焦冰淇淋时，转向冷萃与冻酸奶</li>
+              <li>热点持续性须经调研确证，再决定是否跟进</li>
+              <li>面对风暴预警，主动收缩库存优于满仓硬扛</li>
+            </ul>
+          </div>
+          <div class="scn-block trap" style="grid-column:1/-1">
+            <h5>代价最高的错误 · The Costly Mistake</h5>
+            <p>"满仓追逐上一周的热点"——或与同样追热点的竞争者相互分流，或在热点退潮后迎面遭遇风暴，曾有队伍单周亏损 $12,000。<b>在竞争市场中，滞后一周的信息往往已是陷阱。</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="scn">
+      <div class="scn-head">
+        <img src="report-shots/scn-s3.png" alt="Supply Storm" onerror="this.style.display='none'">
+        <div class="veil"></div>
+        <div class="scn-title"><div class="idx">ROUND 3 · 供给侧</div><h3>成本风暴 · 供应商的来电<span class="en-sub">Supply Storm — Cost Shocks</span></h3></div>
+      </div>
+      <div class="scn-body">
+        <p class="small muted" style="line-height:1.75">本轮需求端平稳，压力全部来自供给侧：<b style="color:var(--ink)">成本</b>。供应商每周一发布新的成本通告——乳制品、咖啡豆、燃油轮番上调，中途的霜冻事件更令原料成本翻倍、供货减半。顾客没有变化，但你的毛利（Margin）正被逐周侵蚀。</p>
+        <div class="scn-grid">
+          <div class="scn-block trait">
+            <h5>市场特点 · Traits</h5>
+            <ul>
+              <li>成本通告每周一公开发布——信息零成本，关键在于<b>是否使用</b></li>
+              <li>霜冻类冲击：成本倍增 + 供给减半的双重打击</li>
+              <li>高成本产品受冲击更深，毛利收缩最剧烈</li>
+              <li>需求端稳定：核心问题变为"该产品是否仍值得经营"</li>
+            </ul>
+          </div>
+          <div class="scn-block win">
+            <h5>最优策略 · Winning Play</h5>
+            <ul>
+              <li>每周一优先核算新成本下的单位毛利，再安排经营组合</li>
+              <li>成本侵蚀毛利至阈值时，<b>果断向受影响较小的产品迁移</b></li>
+              <li>盯住毛利而非营业额——忙碌不等于盈利</li>
+            </ul>
+          </div>
+          <div class="scn-block trap" style="grid-column:1/-1">
+            <h5>代价最高的错误 · The Costly Mistake</h5>
+            <p>"上周畅销，本周照卖"——霜冻周仍满仓冷萃的队伍，单周利润从 $14,000 跌至 $3,000。<b>在供给侧冲击中，沿用旧成本结构无异于持续失血。</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note gold">
+      <b>三个市场指向同一条结论：</b>需求会变（S1）、竞争格局会变（S2）、成本结构会变（S3）——唯一稳定的优势，是<b>持续以最新信息修正决策的能力</b>，而不是任何一次初始判断的自信。
+    </div>
+  </section>
+
+  <!-- ================= 3 KNOWLEDGE ================= -->
+  <section id="knowledge">
+    <div class="eyebrow">03 · Key Takeaways</div>
+    <h2 class="sec">你练到的六个商业概念<span class="en">Six concepts you learned by doing</span></h2>
+    <p class="sec-lede">以下六个概念并非来自讲授，而是你在三轮模拟中<b>实际运用、验证并修正过</b>的。逐条对照：你在哪一轮用到了它？</p>
+
+    <div class="k-grid">
+      <div class="k-card" data-n="1">
+        <h3>需求、定价与转化<span class="en-term">Demand, Pricing &amp; Conversion</span></h3>
+        <p class="exp">火车站客流量最大，但行色匆匆的通勤者极少购买冰淇淋；海滩客流最小，晴天转化率却最高。真实需求 = <b>客流 × 转化率（Traffic × Conversion）</b>。三档定价之间的选择，本质是"更多客流"与"更高单客毛利"之间的权衡。</p>
+        <p class="why"><b>回忆一下：</b>哪个"产品 × 地点"组合曾带给你超预期的一天？背后是哪一个变量在起作用？</p>
+      </div>
+      <div class="k-card" data-n="2">
+        <h3>成本、毛利与现金流<span class="en-term">Margin &amp; Cash Flow</span></h3>
+        <p class="exp">餐车每周固定成本 $1,500、推车每天 $80——<b>固定成本不因停业而消失</b>。你学会了关注毛利（Margin）而非营业额，也理解了现金储备的意义：周一现金不足 $200，经营即刻终止。</p>
+        <p class="why"><b>回忆一下：</b>S3 霜冻周你的毛利收缩了多少？是否及时调整了产品组合？</p>
+      </div>
+      <div class="k-card" data-n="3">
+        <h3>库存与风险权衡<span class="en-term">The Newsvendor Trade-off</span></h3>
+        <p class="exp">备货量是本课程中决策难度最高的环节：备货不足产生<b>缺货损失</b>（错失的销售），备货过量产生<b>报废损失</b>（沉没的成本）。你学会了以毛利结构指导权衡——毛利高则偏向多备，毛利薄则必须保守。这正是经典的<b>报童模型（Newsvendor Model）</b>。</p>
+        <p class="why"><b>回忆一下：</b>报废损失最大的一天，是信息不足，还是明知风险仍选择激进？</p>
+      </div>
+      <div class="k-card" data-n="4">
+        <h3>先验证，再规模化<span class="en-term">MVP → Scale-up</span></h3>
+        <p class="exp">启动资金不足以支撑满配餐车——这是模拟的刻意设计。最优路径是以低成本的<b>推车（Pushcart）</b>快速测试多个"产品 × 地点"组合，验证盈利模型后再切换<b>餐车（Food Truck）</b>规模化。这正是创业中的<b>最小可行产品（MVP）</b>方法。</p>
+        <p class="why"><b>回忆一下：</b>三轮中你是否曾在第一周便重仓投入？后续轮次你的节奏有何变化？</p>
+      </div>
+      <div class="k-card" data-n="5">
+        <h3>信息是有价格的<span class="en-term">The Value of Information</span></h3>
+        <p class="exp">市场报告会失效，传闻可能失真。你可以购买<b>调研（Research）</b>获得精确预测——但调研占用的营业天数才是真正的成本。购买决策的标准只有一条：<b>"这条信息是否会改变我的行动？"</b>若否，则无购买价值。</p>
+        <p class="why"><b>回忆一下：</b>S2 风暴周，购买调研与未购买的队伍，结局相差多少？</p>
+      </div>
+      <div class="k-card" data-n="6">
+        <h3>竞争与差异化<span class="en-term">Competition &amp; Differentiation</span></h3>
+        <p class="exp">同点位同品类竞争将分流近半数需求。盲目追逐"上一周的热点"，往往与竞争者正面相撞或遭遇需求转向——这是模拟中<b>代价最高的决策错误</b>。采用差异化定位的队伍，盈利稳定性显著更高。</p>
+        <p class="why"><b>回忆一下：</b>S2 中你是否与竞争者正面遭遇？下一次你会如何规避？</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4 TIMELINE ================= -->
+  <section id="flow">
+    <div class="eyebrow">04 · Class Timeline</div>
+    <h2 class="sec">课堂流程<span class="en">How the session unfolded</span></h2>
+
+    <div class="tl">
+      <div class="tl-item">
+        <span class="t-time">Warm-up &amp; Rules</span>
+        <b>开场与规则</b>
+        <p>认识 Boomtown：全城仅有 5 张餐车执照，你持有其一。共读市场报告，练习以"客流 × 转化率"估算需求，理解四种经营方式在成本结构与灵活性上的差异。</p>
+      </div>
+      <div class="tl-item">
+        <span class="t-time">Round 1</span>
+        <b>需求迁移<span class="t-tag">Shifting Winds</span></b>
+        <p>第一轮模拟。消费偏好持续漂移、期初报告逐步失效——先识别趋势者，先获得美食节红利。</p>
+      </div>
+      <div class="tl-item">
+        <span class="t-time">Debrief 1</span>
+        <b>快速复盘 1</b>
+        <p>对照结果：固守冷萃与迁移冻酸奶的队伍，利润差距从何而来？</p>
+      </div>
+      <div class="tl-item">
+        <span class="t-time">Round 2</span>
+        <b>竞争红海<span class="t-tag">Red Ocean</span></b>
+        <p>第二轮模拟。两位 AI 竞争者入场争夺点位，市场信号纷杂——返校节、网红效应、逼近的风暴，哪些值得投入成本确证？</p>
+      </div>
+      <div class="tl-item">
+        <span class="t-time">Debrief 2</span>
+        <b>快速复盘 2</b>
+        <p>追逐热点遭遇风暴的单周亏损，与调研避险创造的 $20k 差距。</p>
+      </div>
+      <div class="tl-item">
+        <span class="t-time">Round 3</span>
+        <b>成本风暴<span class="t-tag">Supply Storm</span></b>
+        <p>第三轮模拟。需求平稳而成本剧烈波动：每周一的成本通告决定经营组合，霜冻周检验真章。</p>
+      </div>
+      <div class="tl-item">
+        <span class="t-time">Final Debrief</span>
+        <b>总结复盘</b>
+        <p>三轮结果汇总；将各轮最优策略映射回六个核心概念——三种市场结构，三种经营策略，一条共同主线。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5 GALLERY ================= -->
+  <section id="gallery">
+    <div class="eyebrow">05 · In the Classroom</div>
+    <h2 class="sec">课堂掠影<span class="en">Screenshots from your session</span></h2>
+    <p class="sec-lede">以下画面均来自你在课堂上实际操作过的界面。</p>
+
+    <div class="gal">
+      <div class="gal-item">
+        <img src="report-shots/01-title.png" alt="游戏标题页" loading="lazy">
+        <div class="gal-cap"><span class="tag">Opening</span><b>开场画面 <span class="en">Title Screen</span></b><p>"Five weeks. One truck. Every dollar is a decision." —— 五周、一辆车、每一块钱都是决策。你的 Boomtown 经营从这里开始。</p></div>
+      </div>
+      <div class="gal-item">
+        <img src="report-shots/03-briefing.png" alt="开场简报与市场报告" loading="lazy">
+        <div class="gal-cap"><span class="tag">Analysis</span><b>市场报告 <span class="en">Market Report</span></b><p>你的第一份经营数据：六个点位的客流与转化率。请记得——在需求迁移的市场中，它从第 2 周起便开始失效。</p></div>
+      </div>
+      <div class="gal-item">
+        <img src="report-shots/04-monday.png" alt="周一战略决策" loading="lazy">
+        <div class="gal-cap"><span class="tag">Strategy</span><b>每周一的战略决策 <span class="en">The Weekly Strategic Call</span></b><p>餐车、推车、快速调研、深度调研——规模、灵活性与信息三者不可兼得，这是你每周的资源配置取舍。</p></div>
+      </div>
+      <div class="gal-item">
+        <img src="report-shots/05-stocking.png" alt="备货决策界面" loading="lazy">
+        <div class="gal-cap"><span class="tag">Operations</span><b>选品、点位与备货 <span class="en">Stocking Decisions</span></b><p>产品 × 点位 × 定价的组合，加上备货量的风险判断——还记得 Intel 条的标签吗？先判断信息可信度，再采用数字。</p></div>
+      </div>
+      <div class="gal-item">
+        <img src="report-shots/06-settle.png" alt="每日结算" loading="lazy">
+        <div class="gal-cap"><span class="tag">Feedback</span><b>每日结算与复盘 <span class="en">Daily Feedback</span></b><p>每日经营复盘：需求、销量、收入、净利与系统反馈。优秀的经营者每天都在此处修正自己的假设。</p></div>
+      </div>
+      <div class="gal-item">
+        <img src="report-shots/02-scenarios.png" alt="场景选择" loading="lazy">
+        <div class="gal-cap"><span class="tag">Scenarios</span><b>市场场景 <span class="en">Market Scenarios</span></b><p>四种场景对应四种市场结构。本次课程完成了其中三场高阶挑战：需求、竞争与成本。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TAKEAWAY ================= -->
+  <div class="takeaway">
+    <div class="tk-kick">The Takeaway · 本课要点</div>
+    <div class="tk-main">市场不会奖励最初的自信，<br>只会奖励修正认知的速度。</div>
+    <div class="tk-sub">Markets reward how fast you update, not how confident you start.</div>
+    <div class="tk-body">
+      需求会变、竞争格局会变、成本结构会变——三轮模拟里唯一不变的赢法，是<b>持续以最新信息修正决策</b>。<br>
+      先判断市场结构，再投入资源；先小成本验证，再规模化放大；让数据替直觉做证。<br>
+      这是 Boomtown 给你的一课，也是真实商业世界每天都在重复的一课。
+    </div>
+  </div>
+
+  <footer>
+    <p class="serif">Food Truck Challenge · Boomtown Edition</p>
+  </footer>
+</div>
+
+</body>
+</html>
