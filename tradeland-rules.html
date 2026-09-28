@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>TRADELAND ADVENTURE - 游戏规则</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+/* ========== CSS Variables ========== */
+:root {
+  --bg: #0c0918;
+  --bg2: #151024;
+  --surface: #1d1633;
+  --surface-light: #2a2144;
+  --ink: #ece4d0;
+  --ink-dim: #a89f8a;
+  --accent: #d4af37;
+  --accent-light: #ecd28a;
+  --accent-dark: #9a7b2d;
+  --border: rgba(255,255,255,0.08);
+  --border-accent: rgba(212,175,55,0.35);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-body: 'EB Garamond', 'PingFang SC', 'Microsoft YaHei', serif;
+  --font-display: 'Cinzel', 'PingFang SC', 'STSong', serif;
+  --section-spacing: 100px;
+}
+
+/* ========== Reset & Base ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.8;
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ========== Typography ========== */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+}
+h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 20px; }
+h3 { font-size: clamp(1.2rem, 3vw, 1.6rem); margin-bottom: 14px; }
+h4 { font-size: clamp(1rem, 2.5vw, 1.25rem); margin-bottom: 10px; }
+p { margin-bottom: 16px; color: var(--ink-dim); font-size: clamp(1rem, 2.5vw, 1.15rem); }
+strong { color: var(--accent-light); font-weight: 700; }
+
+/* ========== Layout ========== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* ========== Hero Section ========== */
+.hero {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 60px 0 80px;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(12,9,24,0.3) 0%, rgba(12,9,24,0.85) 70%, var(--bg) 100%),
+    url('assets/hero_bg.jpg') center/cover no-repeat;
+  z-index: 0;
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(212,175,55,0.15);
+  border: 1px solid var(--border-accent);
+  color: var(--accent);
+  padding: 6px 18px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  margin-bottom: 16px;
+  text-shadow: 0 4px 30px rgba(0,0,0,0.6);
+}
+.hero-subtitle {
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  color: var(--ink-dim);
+  margin-bottom: 28px;
+}
+.hero-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  color: var(--ink-dim);
+}
+.hero-meta span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.scroll-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  animation: bounce 2s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ========== Section ========== */
+.section {
+  padding: var(--section-spacing) 0;
+  position: relative;
+}
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
+  margin: 0 auto;
+  max-width: 200px;
+}
+
+/* ========== Chapter Header ========== */
+.chapter-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.chapter-num {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--accent-dark);
+  opacity: 0.5;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.chapter-label {
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* ========== Cards ========== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+.card-accent {
+  border-left: 4px solid var(--accent);
+}
+.card-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  display: block;
+}
+.card h4 {
+  color: var(--accent-light);
+  margin-bottom: 8px;
+}
+.card p {
+  margin-bottom: 0;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+}
+
+/* ========== Grid ========== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .grid-3, .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ========== Resource Items ========== */
+.res-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 32px 20px;
+  text-align: center;
+}
+.res-item .emoji {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.res-item h4 {
+  margin-bottom: 4px;
+  font-size: 1.1rem;
+}
+.res-item p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ========== Rule Items ========== */
+.rule-item {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+}
+.rule-num {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--bg);
+}
+.rule-content h4 {
+  margin-bottom: 4px;
+  color: var(--accent-light);
+}
+.rule-content p {
+  margin: 0;
+}
+
+/* ========== Tips Box ========== */
+.tips-box {
+  background: linear-gradient(135deg, rgba(212,175,55,0.08), rgba(212,175,55,0.02));
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-top: 24px;
+}
+.tips-box h4 {
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tips-box ul {
+  margin: 0;
+  padding-left: 24px;
+}
+.tips-box li {
+  margin-bottom: 10px;
+  color: var(--ink-dim);
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+}
+.tips-box li:last-child { margin-bottom: 0; }
+
+/* ========== Highlight Box ========== */
+.highlight-box {
+  background: var(--surface-light);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  margin: 20px 0;
+  text-align: center;
+}
+.highlight-box .emoji { font-size: 2rem; display: block; margin-bottom: 8px; }
+.highlight-box h4 { margin-bottom: 6px; }
+.highlight-box p { margin: 0; }
+
+/* ========== Image Section ========== */
+.img-section {
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 36px 0;
+  position: relative;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.img-section img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.img-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40px 24px 20px;
+  background: linear-gradient(transparent, rgba(12,9,24,0.9));
+  font-size: 0.9rem;
+  color: var(--ink-dim);
+}
+
+/* ========== Footer CTA ========== */
+.footer-cta {
+  text-align: center;
+  padding: 100px 24px 80px;
+  background: linear-gradient(180deg, var(--bg), var(--bg2));
+  position: relative;
+}
+.footer-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
+}
+.footer-cta h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 16px;
+}
+.footer-cta p {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  max-width: 500px;
+  margin: 0 auto 32px;
+}
+.footer-meta {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}
+
+/* ========== Floating Nav ========== */
+.floating-nav {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26,35,64,0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-accent);
+  border-radius: 30px;
+  padding: 10px 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+  max-width: 90vw;
+}
+.floating-nav a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.floating-nav a:hover, .floating-nav a.active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* ========== Scroll Reveal ========== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== Back to Top ========== */
+.back-to-top {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border-accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 99;
+}
+.back-to-top.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ========== Floating Nav ========== -->
+<nav class="floating-nav" id="floatingNav">
+  <a href="#story">背景</a>
+  <a href="#equipment">装备</a>
+  <a href="#auction">拍卖</a>
+  <a href="#production">生产</a>
+  <a href="#trade">交易</a>
+  <a href="#settlement">结算</a>
+  <a href="#tips">秘诀</a>
+</nav>
+
+<!-- ========== Hero ========== -->
+<section class="hero">
+  <div class="container hero-content">
+    <div class="hero-badge">课堂互动游戏 · 约 60 分钟</div>
+    <h1>TRADELAND<br>ADVENTURE</h1>
+    <p class="hero-subtitle">冒险家们的商业传奇 · 游戏规则指南</p>
+    <div class="hero-meta">
+      <span>🎮 分组竞技</span>
+      <span>👥 团队决策</span>
+      <span>🏆 建造最多房子</span>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ 向下滚动</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ========== Chapter 1: Story ========== -->
+<section class="section" id="story">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">01</div>
+      <div class="chapter-label">Chapter One</div>
+      <h2>欢迎来到冒险世界</h2>
+    </div>
+
+    <div class="img-section reveal">
+      <img src="assets/hero_bg.jpg" alt="Adventure World">
+    </div>
+
+    <p class="reveal">在古老的 <strong>TRADELAND 大陆</strong>上，各个冒险公会正在争夺建造城市的荣耀。你们的队伍是一支新兴的建造团队，目标是通过智慧的经营，建造出最多的房屋，成为大陆上最伟大的建筑师！</p>
+
+    <div class="grid-3 reveal">
+      <div class="card card-accent">
+        <span class="card-icon">🎯</span>
+        <h4>核心目标</h4>
+        <p>建造最多的房子</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">💰</span>
+        <h4>关键资源</h4>
+        <p>合理管理资金</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">🤝</span>
+        <h4>制胜策略</h4>
+        <p>善用交易谈判</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ========== Chapter 2: Equipment ========== -->
+<section class="section" id="equipment">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">02</div>
+      <div class="chapter-label">Chapter Two</div>
+      <h2>你的装备</h2>
+    </div>
+
+    <p class="reveal">每个冒险队伍出发时都携带相同的初始装备。善用这些资源，是赢得胜利的第一步。</p>
+
+    <div class="grid-4 reveal">
+      <div class="res-item">
+        <span class="emoji">💰</span>
+        <h4>初始资金</h4>
+        <p>30000 金币</p>
+      </div>
+      <div class="res-item">
+        <span class="emoji">🪵</span>
+        <h4>木材</h4>
+        <p>0 单位</p>
+      </div>
+      <div class="res-item">
+        <span class="emoji">🧱</span>
+        <h4>砖块</h4>
+        <p>0 单位</p>
+      </div>
+      <div class="res-item">
+        <span class="emoji">⚙️</span>
+        <h4>金属</h4>
+        <p>0 单位</p>
+      </div>
+    </div>
+
+    <div class="highlight-box reveal">
+      <span class="emoji">🏠</span>
+      <h4>建造一座房子需要</h4>
+      <p><strong>3 单位木材</strong> + <strong>2 单位砖块</strong> + <strong>1 单位金属</strong></p>
+    </div>
+
+    <div class="card reveal">
+      <h4>⚠️ 重要提醒</h4>
+      <p>未使用的机器和原材料在结算时<strong>不计入得分</strong>！只有建成的房子才算数。所以拿到机器就要用，拿到资源就要造房子！</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ========== Chapter 3: Auction ========== -->
+<section class="section" id="auction">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">03</div>
+      <div class="chapter-label">Chapter Three</div>
+      <h2>拍卖大会</h2>
+    </div>
+
+    <div class="img-section reveal">
+      <img src="assets/auction_scene.jpg" alt="Auction">
+    </div>
+
+    <p class="reveal">在大陆最繁华的拍卖行里，各类神奇的机器正在等待出价最高的冒险者。用你手中的金币拍下机器，就能获得源源不断的原材料生产能力！</p>
+
+    <div class="grid-3 reveal">
+      <div class="card">
+        <span class="card-icon">🔨</span>
+        <h4>共两轮拍卖</h4>
+        <p>每轮都会出现随机机器</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🎰</span>
+        <h4>随机出现</h4>
+        <p>机器类型和顺序不确定</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">💵</span>
+        <h4>价高者得</h4>
+        <p>出价最高的队伍获得机器</p>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="margin-top:40px;">拍卖规则</h3>
+
+    <div class="reveal">
+      <div class="rule-item">
+        <div class="rule-num">1</div>
+        <div class="rule-content">
+          <h4>起拍价 5000 金币</h4>
+          <p>每次加价至少 <strong>1000 金币</strong>。最终成交价由主持人记录，价高者得。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">2</div>
+        <div class="rule-content">
+          <h4>机器类型有三种</h4>
+          <p>🪵 <strong>木材机</strong> · 🧱 <strong>砖块机</strong> · ⚙️ <strong>金属机</strong>。每种只能生产对应资源。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">3</div>
+        <div class="rule-content">
+          <h4>机器有使用限制</h4>
+          <p>每台机器有 <strong>3 次生产机会</strong>，用完即报废，无法继续生产或交易。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">4</div>
+        <div class="rule-content">
+          <h4>机器数量和种类未知</h4>
+          <p>每轮会出现多少台机器、是什么类型，<strong>没有人知道</strong>！由主持人随机抽取，充满惊喜与挑战。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">5</div>
+        <div class="rule-content">
+          <h4>小心预算</h4>
+          <p>初始资金 30000 金币。拍机器、生产、交易都需要钱。别在拍卖会上花光了！</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ========== Chapter 4: Production ========== -->
+<section class="section" id="production">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">04</div>
+      <div class="chapter-label">Chapter Four</div>
+      <h2>生产工坊</h2>
+    </div>
+
+    <div class="img-section reveal">
+      <img src="assets/production_scene.jpg" alt="Production">
+    </div>
+
+    <p class="reveal">拥有了机器，就可以在工坊里开始生产了！每次开动机器，生产数量<strong>不设上限</strong>——只要你有足够的资金，一次生产 10 个材料也没问题。但记住，无论生产多少个，都会消耗 1 次宝贵的生产机会。</p>
+
+    <div class="grid-3 reveal">
+      <div class="card">
+        <span class="card-icon">🏭</span>
+        <h4>共两轮生产</h4>
+        <p>拍卖结束后进行生产阶段</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">💸</span>
+        <h4>数量不限</h4>
+        <p>每次生产数量只受资金限制</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔧</span>
+        <h4>3 次机会</h4>
+        <p>每次生产消耗 1 次机会</p>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="margin-top:40px;">三种机器</h3>
+
+    <div class="grid-3 reveal">
+      <div class="card card-accent">
+        <span class="card-icon">🪵</span>
+        <h4>木材机</h4>
+        <p>每个木材成本 <strong>1000 金币</strong><br>每次生产数量不限</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">🧱</span>
+        <h4>砖块机</h4>
+        <p>每个砖块成本 <strong>1500 金币</strong><br>每次生产数量不限</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">⚙️</span>
+        <h4>金属机</h4>
+        <p>每个金属成本 <strong>2000 金币</strong><br>每次生产数量不限</p>
+      </div>
+    </div>
+
+    <div class="tips-box reveal">
+      <h4>💡 生产小贴士</h4>
+      <ul>
+        <li>每台机器有 <strong>3 次生产机会</strong>，无论一次生产 1 个还是 10 个，都只消耗 <strong>1 次机会</strong>，用完 3 次后报废</li>
+        <li>材料成本：木材 <strong>1000</strong> / 个，砖块 <strong>1500</strong> / 个，金属 <strong>2000</strong> / 个</li>
+        <li>生产 1 座房子所需的全部资源，生产成本总计 <strong>8000 金币</strong>（3×1000 + 2×1500 + 1×2000）</li>
+        <li>资金充裕时<strong>一次大批量生产</strong>最划算——同样的机会产出更多材料，多余的可以拿到交易市场卖钱</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ========== Chapter 5: Trading ========== -->
+<section class="section" id="trade">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">05</div>
+      <div class="chapter-label">Chapter Five</div>
+      <h2>交易市场</h2>
+    </div>
+
+    <div class="img-section reveal">
+      <img src="assets/trade_scene.jpg" alt="Trading">
+    </div>
+
+    <p class="reveal">工坊里生产了太多木材却缺砖块？或者资金充裕想直接买资源？来交易市场吧！这里是各队伍互通有无的枢纽，聪明的商人能用最少的成本获得最大的收益。</p>
+
+    <div class="grid-3 reveal">
+      <div class="card">
+        <span class="card-icon">🤝</span>
+        <h4>共两轮交易</h4>
+        <p>生产结束后进行交易</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📦</span>
+        <h4>资源互换</h4>
+        <p>用多余的资源换需要的</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">💰</span>
+        <h4>现金交易</h4>
+        <p>直接用金币购买资源</p>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="margin-top:40px;">交易规则</h3>
+
+    <div class="reveal">
+      <div class="rule-item">
+        <div class="rule-num">1</div>
+        <div class="rule-content">
+          <h4>自由交易</h4>
+          <p>队伍之间可以<strong>自由交易</strong>资源、机器和金币，由主持人协助记录。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">2</div>
+        <div class="rule-content">
+          <h4>协商定价</h4>
+          <p>交易价格由双方<strong>协商决定</strong>，但不得低于系统设定的最低价格。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">3</div>
+        <div class="rule-content">
+          <h4>最低交易价格</h4>
+          <p>机器交易最低 <strong>5050 金币</strong> | 材料最低：木材 <strong>1050</strong> / 砖块 <strong>1550</strong> / 金属 <strong>2050</strong></p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">4</div>
+        <div class="rule-content">
+          <h4>打包交易</h4>
+          <p>可以组合交易：比如用 2 台机器换 3 单位木材 + 现金。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">5</div>
+        <div class="rule-content">
+          <h4>报废机器不能交易</h4>
+          <p>已经使用 3 次报废的机器<strong>不能交易</strong>，只能当废铁。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ========== Chapter 6: Settlement ========== -->
+<section class="section" id="settlement">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">06</div>
+      <div class="chapter-label">Chapter Six</div>
+      <h2>最终决战 · 结算规则</h2>
+    </div>
+
+    <p class="reveal">所有拍卖、生产和交易结束后，就是揭晓胜负的时刻。结算只看两样东西：</p>
+
+    <div class="grid-2 reveal">
+      <div class="card" style="border: 2px solid var(--accent);">
+        <span class="card-icon">🏠</span>
+        <h4 style="color: var(--accent-light);">第一优先级</h4>
+        <p><strong>建造房子数量最多</strong>的队伍获胜</p>
+      </div>
+      <div class="card" style="border: 2px solid var(--accent-dark);">
+        <span class="card-icon">💰</span>
+        <h4 style="color: var(--accent-light);">第二优先级</h4>
+        <p>房子数量相同时，<strong>剩余金币最多</strong>的队伍获胜</p>
+      </div>
+    </div>
+
+    <div class="card reveal" style="margin-top: 24px;">
+      <h4>⚠️ 不计入得分的项目</h4>
+      <p>未使用的机器和原材料 <strong>不计入得分</strong>。已报废的机器也 <strong>没有价值</strong>。只有 <strong>建成的房子</strong> 和 <strong>剩余金币</strong> 决定胜负。</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ========== Tips ========== -->
+<section class="section" id="tips">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num" style="-webkit-text-stroke: 1px var(--accent);">★</div>
+      <div class="chapter-label">Key Takeaways</div>
+      <h2>制胜秘诀</h2>
+    </div>
+
+    <p class="reveal">记住这些，你就是下一个 TRADELAND 大陆的传奇建筑师</p>
+
+    <div class="grid-2 reveal">
+      <div class="card card-accent">
+        <span class="card-icon">🎯</span>
+        <h4>目标明确</h4>
+        <p>一切都是为了建造最多的房子。不要为了拍机器花光所有钱。</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">⚖️</span>
+        <h4>平衡发展</h4>
+        <p>尽量让三种资源保持均衡。只有完整的资源组合才能建造房子。</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">🤝</span>
+        <h4>善用交易</h4>
+        <p>多余的机器可以卖掉换资源。缺什么就从别人那里买。</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">💰</span>
+        <h4>留足现金</h4>
+        <p>生产和交易都需要钱。不要把钱全部花在拍卖上。</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">⏰</span>
+        <h4>把握时机</h4>
+        <p>机器只能用 3 次。在报废前用完它们的生产能力！</p>
+      </div>
+      <div class="card card-accent">
+        <span class="card-icon">🧠</span>
+        <h4>团队决策</h4>
+        <p>和队友讨论策略。投票决定出价、生产和交易方案。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Footer ========== -->
+<section class="footer-cta">
+  <h2>准备好了吗？</h2>
+  <p>TRADELAND 大陆的大门已经敞开。带上你的智慧和勇气，建造属于你的传奇城市吧！</p>
+  <div class="footer-meta">
+    <span>🎮 TRADELAND ADVENTURE</span>
+    <span>👥 分组竞技</span>
+    <span>🏆 建造最多房子</span>
+  </div>
+</section>
+
+<!-- ========== Back to Top ========== -->
+<div class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+
+// Back to top
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  backToTop.classList.toggle('show', window.scrollY > 500);
+});
+
+// Floating nav active state
+const sections = document.querySelectorAll('.section, .hero');
+const navLinks = document.querySelectorAll('.floating-nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop;
+    if (scrollY >= sectionTop - 200) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+
+</body>
+</html>
